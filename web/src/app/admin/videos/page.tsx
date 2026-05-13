@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { 
   Plus, 
@@ -9,10 +11,47 @@ import {
   ExternalLink,
   Edit2, 
   Trash2,
-  Calendar
+  Calendar,
+  Loader2
 } from "lucide-react";
 
 export default function AdminVideos() {
+  const [videos, setVideos] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchVideos();
+  }, []);
+
+  async function fetchVideos() {
+    try {
+      const { data, error } = await supabase
+        .from("videos")
+        .select("*")
+        .order("created_at", { ascending: false });
+      
+      if (error) throw error;
+      setVideos(data || []);
+    } catch (error) {
+      console.error("Error fetching videos:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function deleteVideo(id: string) {
+    if (!confirm("Voulez-vous vraiment supprimer cette vidéo ?")) return;
+    
+    try {
+      const { error } = await supabase.from("videos").delete().eq("id", id);
+      if (error) throw error;
+      setVideos(videos.filter(v => v.id !== id));
+    } catch (error) {
+      console.error("Error deleting video:", error);
+      alert("Erreur lors de la suppression");
+    }
+  }
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -41,28 +80,48 @@ export default function AdminVideos() {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 p-8 gap-8">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="group flex flex-col space-y-4">
-               <div className="aspect-video bg-gray-50 rounded-3xl relative overflow-hidden border border-gray-100 flex items-center justify-center">
-                  <Play size={24} className="text-saphir-navy/10 group-hover:text-saphir-electric transition-colors" />
-                  <div className="absolute top-4 right-4 bg-saphir-navy/80 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-lg">
-                    12:45
-                  </div>
-               </div>
-               <div>
-                  <h4 className="font-bold text-saphir-navy text-sm leading-snug group-hover:text-saphir-electric transition-colors mb-2">Live Studio : Interview Exclusive de l'artiste X</h4>
-                  <div className="flex items-center justify-between">
-                     <span className="flex items-center gap-1 text-[10px] font-bold text-saphir-navy/30 uppercase tracking-widest italic">
-                        <Calendar size={12} /> 12 Mai 2026
-                     </span>
-                     <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button className="p-2 bg-gray-50 text-saphir-navy/40 hover:text-saphir-electric rounded-lg transition-all"><Edit2 size={14} /></button>
-                        <button className="p-2 bg-gray-50 text-saphir-navy/40 hover:text-red-500 rounded-lg transition-all"><Trash2 size={14} /></button>
-                     </div>
-                  </div>
-               </div>
+          {loading ? (
+            [1, 2, 3].map((i) => (
+              <div key={i} className="animate-pulse flex flex-col space-y-4">
+                 <div className="aspect-video bg-gray-100 rounded-3xl"></div>
+                 <div className="h-5 bg-gray-100 w-full rounded"></div>
+                 <div className="h-4 bg-gray-100 w-1/3 rounded"></div>
+              </div>
+            ))
+          ) : videos.length === 0 ? (
+            <div className="col-span-3 py-10 text-center text-saphir-navy/20 font-bold uppercase tracking-widest">
+              Aucune vidéo trouvée
             </div>
-          ))}
+          ) : (
+            videos.map((video) => (
+              <div key={video.id} className="group flex flex-col space-y-4">
+                 <div className="aspect-video bg-gray-50 rounded-3xl relative overflow-hidden border border-gray-100 flex items-center justify-center">
+                    {video.thumbnail ? (
+                      <img src={video.thumbnail} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    ) : (
+                      <Play size={24} className="text-saphir-navy/10 group-hover:text-saphir-electric transition-colors" />
+                    )}
+                 </div>
+                 <div>
+                    <h4 className="font-bold text-saphir-navy text-sm leading-snug group-hover:text-saphir-electric transition-colors mb-2">{video.title}</h4>
+                    <div className="flex items-center justify-between">
+                       <span className="flex items-center gap-1 text-[10px] font-bold text-saphir-navy/30 uppercase tracking-widest italic">
+                          <Calendar size={12} /> {new Date(video.created_at).toLocaleDateString()}
+                       </span>
+                       <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button className="p-2 bg-gray-50 text-saphir-navy/40 hover:text-saphir-electric rounded-lg transition-all"><Edit2 size={14} /></button>
+                          <button 
+                            onClick={() => deleteVideo(video.id)}
+                            className="p-2 bg-gray-50 text-saphir-navy/40 hover:text-red-500 rounded-lg transition-all"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

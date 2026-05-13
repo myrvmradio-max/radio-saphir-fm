@@ -1,10 +1,36 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Newspaper, Search } from "lucide-react";
+import { Newspaper, Search, Loader2 } from "lucide-react";
+import Link from "next/link";
 
 export default function ArticlesPage() {
+  const [articles, setArticles] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchArticles() {
+      try {
+        const { data, error } = await supabase
+          .from("articles")
+          .select("*")
+          .eq("status", "published")
+          .order("published_at", { ascending: false });
+        
+        if (error) throw error;
+        setArticles(data || []);
+      } catch (error) {
+        console.error("Error fetching articles:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchArticles();
+  }, []);
+
   return (
     <main className="min-h-screen bg-[var(--background)]">
       <Navbar />
@@ -39,25 +65,45 @@ export default function ArticlesPage() {
 
       <section className="py-12 container mx-auto px-6 pb-32">
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="group cursor-pointer">
-              <div className="aspect-[16/10] bg-gray-50 rounded-[2.5rem] overflow-hidden mb-6 border border-gray-100">
-                <div className="w-full h-full bg-gradient-to-br from-gray-50 to-gray-100 group-hover:scale-105 transition-transform duration-500 flex items-center justify-center text-saphir-navy/5 font-bold italic">
-                  IMAGE
-                </div>
+          {loading ? (
+             [1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="animate-pulse">
+                <div className="aspect-[16/10] bg-gray-100 rounded-[2.5rem] mb-6"></div>
+                <div className="h-4 bg-gray-100 w-1/4 mb-3 rounded"></div>
+                <div className="h-6 bg-gray-100 w-full mb-2 rounded"></div>
+                <div className="h-6 bg-gray-100 w-2/3 rounded"></div>
               </div>
-              <div className="flex justify-between items-center mb-3">
-                 <span className="text-[10px] font-bold text-saphir-electric uppercase tracking-widest">Catégorie</span>
-                 <span className="text-[10px] text-saphir-navy/30 uppercase font-bold tracking-tighter">12 Mai 2026</span>
-              </div>
-              <h3 className="text-xl font-bold text-saphir-navy group-hover:text-saphir-electric transition-colors leading-snug mb-3">
-                Saphir FM s'engage pour l'éducation : retour sur le forum des métiers du média.
-              </h3>
-              <p className="text-sm text-saphir-navy/40 line-clamp-2 leading-relaxed">
-                Découvrez les coulisses de notre dernière intervention auprès des jeunes de la région...
-              </p>
+            ))
+          ) : articles.length === 0 ? (
+            <div className="col-span-3 py-20 text-center text-saphir-navy/20 font-bold uppercase tracking-widest">
+              Aucun article publié pour le moment
             </div>
-          ))}
+          ) : (
+            articles.map((article) => (
+              <Link href={`/articles/${article.slug}`} key={article.id} className="group cursor-pointer">
+                <div className="aspect-[16/10] bg-gray-50 rounded-[2.5rem] overflow-hidden mb-6 border border-gray-100 relative">
+                  {article.cover_image ? (
+                    <img src={article.cover_image} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-gray-50 to-gray-100 group-hover:scale-105 transition-transform duration-500 flex items-center justify-center text-saphir-navy/5 font-bold italic">
+                      SAPHIR FM
+                    </div>
+                  )}
+                </div>
+                <div className="flex justify-between items-center mb-3">
+                   <span className="text-[10px] font-bold text-saphir-electric uppercase tracking-widest">{article.category}</span>
+                   <span className="text-[10px] text-saphir-navy/30 uppercase font-bold tracking-tighter">
+                    {new Date(article.published_at || article.created_at).toLocaleDateString()}
+                   </span>
+                </div>
+                <h3 className="text-xl font-bold text-saphir-navy group-hover:text-saphir-electric transition-colors leading-snug mb-3">
+                  {article.title}
+                </h3>
+                <div className="text-sm text-saphir-navy/40 line-clamp-2 leading-relaxed" dangerouslySetInnerHTML={{ __html: article.content }}>
+                </div>
+              </Link>
+            ))
+          )}
         </div>
       </section>
       <Footer />

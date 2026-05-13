@@ -1,10 +1,47 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Save, Mic, Headphones } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import { ArrowLeft, Save, Mic, Headphones, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 export default function NewPodcast() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    cover_image: ""
+  });
+
+  const handleSubmit = async () => {
+    if (!formData.title) {
+      alert("Le titre est obligatoire");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error } = await supabase.from("series").insert([
+        {
+          title: formData.title,
+          description: formData.description,
+          cover_image: formData.cover_image || null
+        }
+      ]);
+
+      if (error) throw error;
+
+      alert("Série créée avec succès !");
+      router.push("/admin/podcasts");
+    } catch (error: any) {
+      console.error("Error creating series:", error);
+      alert("Erreur lors de la création : " + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-20">
       <div className="flex justify-between items-center">
@@ -14,8 +51,13 @@ export default function NewPodcast() {
           </Link>
           <h1 className="text-3xl font-bold text-saphir-navy">Nouvelle Série Podcast</h1>
         </div>
-        <button className="flex items-center gap-2 px-6 py-3 bg-saphir-navy text-white rounded-2xl font-bold text-sm hover:bg-saphir-electric transition-all shadow-lg">
-          <Save size={18} /> Créer la série
+        <button 
+          onClick={handleSubmit}
+          disabled={loading}
+          className="flex items-center gap-2 px-6 py-3 bg-saphir-navy text-white rounded-2xl font-bold text-sm hover:bg-saphir-electric transition-all shadow-lg disabled:opacity-50"
+        >
+          {loading ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+          {loading ? "Création..." : "Créer la série"}
         </button>
       </div>
 
@@ -23,20 +65,33 @@ export default function NewPodcast() {
         <div className="grid md:grid-cols-2 gap-8">
           <div className="space-y-4">
             <label className="text-xs font-bold text-saphir-navy/40 uppercase tracking-widest">Titre de l'émission</label>
-            <input type="text" placeholder="Ex: Les Voix de la Ville" className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-bold text-saphir-navy" />
+            <input 
+              type="text" 
+              placeholder="Ex: Les Voix de la Ville" 
+              className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-bold text-saphir-navy focus:ring-2 focus:ring-saphir-electric/20" 
+              value={formData.title}
+              onChange={(e) => setFormData({...formData, title: e.target.value})}
+            />
           </div>
           <div className="space-y-4">
-            <label className="text-xs font-bold text-saphir-navy/40 uppercase tracking-widest">Fréquence</label>
-            <select className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-bold text-saphir-navy">
-              <option>Quotidien</option>
-              <option>Hebdomadaire</option>
-              <option>Mensuel</option>
-            </select>
+            <label className="text-xs font-bold text-saphir-navy/40 uppercase tracking-widest">Image de couverture (URL)</label>
+            <input 
+              type="text" 
+              placeholder="https://exple.com/podcast.jpg" 
+              className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-bold text-saphir-navy focus:ring-2 focus:ring-saphir-electric/20" 
+              value={formData.cover_image}
+              onChange={(e) => setFormData({...formData, cover_image: e.target.value})}
+            />
           </div>
         </div>
         <div className="space-y-4">
            <label className="text-xs font-bold text-saphir-navy/40 uppercase tracking-widest">Description</label>
-           <textarea className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-medium text-saphir-navy h-32 resize-none" placeholder="Décrivez le concept du podcast..."></textarea>
+           <textarea 
+             className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-medium text-saphir-navy h-32 resize-none focus:ring-2 focus:ring-saphir-electric/20" 
+             placeholder="Décrivez le concept du podcast..."
+             value={formData.description}
+             onChange={(e) => setFormData({...formData, description: e.target.value})}
+           ></textarea>
         </div>
       </div>
     </div>

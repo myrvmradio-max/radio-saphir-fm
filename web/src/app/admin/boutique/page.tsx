@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { 
   Plus, 
@@ -9,16 +11,47 @@ import {
   TrendingUp, 
   Edit2, 
   Trash2,
-  ChevronRight
+  ChevronRight,
+  Loader2
 } from "lucide-react";
 
-const PRODUCTS = [
-  { name: 'T-shirt Saphir Classic', price: '25.00 €', stock: 45, status: 'En stock' },
-  { name: 'Casquette Logo 106.8', price: '18.50 €', stock: 12, status: 'Stock bas' },
-  { name: 'Mug Saphir FM', price: '12.00 €', stock: 0, status: 'Rupture' },
-];
-
 export default function AdminBoutique() {
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  async function fetchProducts() {
+    try {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .order("created_at", { ascending: false });
+      
+      if (error) throw error;
+      setProducts(data || []);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function deleteProduct(id: string) {
+    if (!confirm("Voulez-vous vraiment supprimer ce produit ?")) return;
+    
+    try {
+      const { error } = await supabase.from("products").delete().eq("id", id);
+      if (error) throw error;
+      setProducts(products.filter(p => p.id !== id));
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      alert("Erreur lors de la suppression");
+    }
+  }
+
   return (
     <div className="space-y-10">
       {/* Header */}
@@ -86,30 +119,51 @@ export default function AdminBoutique() {
                     <th className="px-8 py-4 text-[10px] font-bold text-saphir-navy/30 uppercase tracking-widest text-right">Actions</th>
                  </tr>
                </thead>
-               <tbody className="divide-y divide-gray-50">
-                 {PRODUCTS.map((product) => (
-                   <tr key={product.name} className="hover:bg-gray-50/30 transition-colors">
-                      <td className="px-8 py-5">
-                         <div className="font-bold text-saphir-navy text-sm">{product.name}</div>
-                         <div className="text-xs text-saphir-electric font-bold">{product.price}</div>
+                <tbody className="divide-y divide-gray-50">
+                  {loading ? (
+                    <tr>
+                      <td colSpan={3} className="px-8 py-10 text-center text-saphir-navy/20 font-bold uppercase tracking-widest animate-pulse">
+                        Chargement des produits...
                       </td>
-                      <td className="px-8 py-5 text-center">
-                         <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
-                           product.status === 'En stock' ? 'bg-green-50 text-green-600' : 
-                           product.status === 'Stock bas' ? 'bg-orange-50 text-orange-600' : 'bg-red-50 text-red-600'
-                         }`}>
-                           {product.stock} pcs
-                         </span>
+                    </tr>
+                  ) : products.length === 0 ? (
+                    <tr>
+                      <td colSpan={3} className="px-8 py-10 text-center text-saphir-navy/20 font-bold uppercase tracking-widest">
+                        Aucun produit trouvé
                       </td>
-                      <td className="px-8 py-5 text-right">
-                         <div className="flex justify-end gap-2">
-                           <button className="p-2 hover:bg-gray-100 rounded-lg text-saphir-navy/20 hover:text-saphir-electric transition-all"><Edit2 size={16} /></button>
-                           <button className="p-2 hover:bg-red-50 rounded-lg text-saphir-navy/20 hover:text-red-500 transition-all"><Trash2 size={16} /></button>
-                         </div>
-                      </td>
-                   </tr>
-                 ))}
-               </tbody>
+                    </tr>
+                  ) : (
+                    products.map((product) => (
+                      <tr key={product.id} className="hover:bg-gray-50/30 transition-colors">
+                        <td className="px-8 py-5">
+                            <div className="font-bold text-saphir-navy text-sm">{product.name}</div>
+                            <div className="text-xs text-saphir-electric font-bold">{product.price} €</div>
+                        </td>
+                        <td className="px-8 py-5 text-center">
+                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
+                              product.stock > 10 ? 'bg-green-50 text-green-600' : 
+                              product.stock > 0 ? 'bg-orange-50 text-orange-600' : 'bg-red-50 text-red-600'
+                            }`}>
+                              {product.stock} pcs
+                            </span>
+                        </td>
+                        <td className="px-8 py-5 text-right">
+                            <div className="flex justify-end gap-2">
+                              <Link href={`/admin/boutique/edit/${product.id}`} className="p-2 hover:bg-gray-100 rounded-lg text-saphir-navy/20 hover:text-saphir-electric transition-all">
+                                <Edit2 size={16} />
+                              </Link>
+                              <button 
+                                onClick={() => deleteProduct(product.id)}
+                                className="p-2 hover:bg-red-50 rounded-lg text-saphir-navy/20 hover:text-red-500 transition-all"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
              </table>
            </div>
         </div>

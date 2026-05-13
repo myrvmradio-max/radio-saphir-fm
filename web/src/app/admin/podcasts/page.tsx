@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { 
   Plus, 
@@ -9,10 +11,47 @@ import {
   MoreVertical, 
   Edit2, 
   Trash2, 
-  Headphones 
+  Headphones,
+  Loader2
 } from "lucide-react";
 
 export default function AdminPodcasts() {
+  const [series, setSeries] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchSeries();
+  }, []);
+
+  async function fetchSeries() {
+    try {
+      const { data, error } = await supabase
+        .from("series")
+        .select("*")
+        .order("created_at", { ascending: false });
+      
+      if (error) throw error;
+      setSeries(data || []);
+    } catch (error) {
+      console.error("Error fetching series:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function deleteSeries(id: string) {
+    if (!confirm("Voulez-vous vraiment supprimer cette série ?")) return;
+    
+    try {
+      const { error } = await supabase.from("series").delete().eq("id", id);
+      if (error) throw error;
+      setSeries(series.filter(s => s.id !== id));
+    } catch (error) {
+      console.error("Error deleting series:", error);
+      alert("Erreur lors de la suppression");
+    }
+  }
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -54,36 +93,54 @@ export default function AdminPodcasts() {
 
       {/* Series Grid */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="bg-white rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-shadow group">
-            <div className="aspect-video bg-gray-50 flex items-center justify-center text-saphir-navy/5 font-bold text-3xl italic">
-              PODCAST
+        {loading ? (
+          [1, 2, 3].map((i) => (
+            <div key={i} className="bg-white rounded-[2.5rem] border border-gray-100 p-8 animate-pulse">
+               <div className="aspect-video bg-gray-50 rounded-2xl mb-6"></div>
+               <div className="h-6 bg-gray-50 w-2/3 mb-2 rounded"></div>
+               <div className="h-4 bg-gray-50 w-1/3 rounded"></div>
             </div>
-            <div className="p-8">
-               <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="text-lg font-bold text-saphir-navy">Les Voix de la Ville</h3>
-                    <p className="text-xs text-saphir-navy/40 uppercase font-bold tracking-widest">Culture • Hebdomadaire</p>
-                  </div>
-                  <button className="p-2 hover:bg-gray-50 rounded-lg text-saphir-navy/20">
-                    <MoreVertical size={18} />
-                  </button>
-               </div>
-               <div className="flex items-center gap-6 mb-8 text-xs font-bold text-saphir-navy/60">
-                  <span>24 Épisodes</span>
-                  <span>1.2k Écoutes</span>
-               </div>
-               <div className="flex gap-2">
-                  <button className="flex-1 flex items-center justify-center gap-2 py-3 bg-gray-50 rounded-xl font-bold text-xs text-saphir-navy hover:bg-saphir-navy hover:text-white transition-all">
-                    <Edit2 size={14} /> Gérer
-                  </button>
-                  <button className="w-12 h-12 flex items-center justify-center bg-saphir-electric/10 text-saphir-electric rounded-xl hover:bg-saphir-electric hover:text-white transition-all">
-                    <Plus size={20} />
-                  </button>
-               </div>
-            </div>
+          ))
+        ) : series.length === 0 ? (
+          <div className="col-span-3 py-20 text-center text-saphir-navy/20 font-bold uppercase tracking-widest">
+            Aucune série trouvée
           </div>
-        ))}
+        ) : (
+          series.map((s) => (
+            <div key={s.id} className="bg-white rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-shadow group">
+              <div className="aspect-video bg-gray-50 flex items-center justify-center overflow-hidden">
+                {s.cover_image ? (
+                  <img src={s.cover_image} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                ) : (
+                  <div className="text-saphir-navy/5 font-bold text-3xl italic">PODCAST</div>
+                )}
+              </div>
+              <div className="p-8">
+                 <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="text-lg font-bold text-saphir-navy line-clamp-1">{s.title}</h3>
+                      <p className="text-[10px] text-saphir-navy/40 uppercase font-bold tracking-widest">Série</p>
+                    </div>
+                    <button 
+                      onClick={() => deleteSeries(s.id)}
+                      className="p-2 hover:bg-red-50 rounded-lg text-saphir-navy/20 hover:text-red-500 transition-all"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                 </div>
+                 <p className="text-xs text-saphir-navy/60 mb-8 line-clamp-2">{s.description || 'Aucune description'}</p>
+                 <div className="flex gap-2">
+                    <Link href={`/admin/podcasts/edit/${s.id}`} className="flex-1 flex items-center justify-center gap-2 py-3 bg-gray-50 rounded-xl font-bold text-xs text-saphir-navy hover:bg-saphir-navy hover:text-white transition-all">
+                      <Edit2 size={14} /> Gérer
+                    </Link>
+                    <Link href={`/admin/podcasts/episodes?series=${s.id}`} className="w-12 h-12 flex items-center justify-center bg-saphir-electric/10 text-saphir-electric rounded-xl hover:bg-saphir-electric hover:text-white transition-all">
+                      <Plus size={20} />
+                    </Link>
+                 </div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
