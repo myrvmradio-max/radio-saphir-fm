@@ -1,13 +1,50 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import RadioPlayer from "@/components/RadioPlayer";
 import SupabaseTest from "@/components/SupabaseTest";
 import Footer from "@/components/Footer";
-import { Newspaper, Headphones, ShoppingBag, Youtube, ArrowRight, Play } from "lucide-react";
+import { Newspaper, Headphones, ShoppingBag, Youtube, ArrowRight, Play, Loader2 } from "lucide-react";
+import Link from "next/link";
 
 export default function Home() {
+  const [articles, setArticles] = useState<any[]>([]);
+  const [podcasts, setPodcasts] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
+  const [videos, setVideos] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [
+          { data: artData },
+          { data: podData },
+          { data: prodData },
+          { data: vidData }
+        ] = await Promise.all([
+          supabase.from("articles").select("*").eq("status", "published").order("published_at", { ascending: false }).limit(3),
+          supabase.from("series").select("*").order("created_at", { ascending: false }).limit(4),
+          supabase.from("products").select("*").eq("active", true).order("created_at", { ascending: false }).limit(4),
+          supabase.from("videos").select("*").order("created_at", { ascending: false }).limit(3)
+        ]);
+
+        setArticles(artData || []);
+        setPodcasts(podData || []);
+        setProducts(prodData || []);
+        setVideos(vidData || []);
+      } catch (error) {
+        console.error("Error fetching homepage data:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+
   return (
     <main className="min-h-screen bg-[var(--background)]">
       <Navbar />
@@ -35,23 +72,44 @@ export default function Home() {
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="group cursor-pointer">
-              <div className="aspect-[16/10] bg-gray-50 rounded-3xl overflow-hidden mb-6 border border-gray-100">
-                <div className="w-full h-full bg-gradient-to-br from-gray-50 to-gray-100 group-hover:scale-105 transition-transform duration-500 flex items-center justify-center text-saphir-navy/5 font-bold italic text-2xl">
-                  ACTU {i}
-                </div>
+          {loading ? (
+            [1, 2, 3].map((i) => (
+              <div key={i} className="animate-pulse">
+                <div className="aspect-[16/10] bg-gray-100 rounded-3xl mb-6"></div>
+                <div className="h-4 bg-gray-100 w-1/4 mb-3 rounded"></div>
+                <div className="h-6 bg-gray-100 w-full mb-2 rounded"></div>
+                <div className="h-6 bg-gray-100 w-2/3 rounded"></div>
               </div>
-              <div className="flex gap-4 text-[10px] font-bold text-saphir-electric uppercase tracking-widest mb-3">
-                <span>Politique</span>
-                <span className="text-gray-200">•</span>
-                <span className="text-saphir-navy/40 italic">Il y a 2h</span>
-              </div>
-              <h3 className="text-xl font-bold text-saphir-navy group-hover:text-saphir-electric transition-colors leading-snug">
-                Le nouveau plan de développement urbain pour la ville de Saphir : ce qu'il faut savoir.
-              </h3>
+            ))
+          ) : articles.length === 0 ? (
+            <div className="col-span-3 py-10 text-center text-saphir-navy/20 font-bold uppercase tracking-widest">
+              Aucune actualité pour le moment
             </div>
-          ))}
+          ) : (
+            articles.map((article) => (
+              <Link href={`/articles/${article.slug}`} key={article.id} className="group cursor-pointer">
+                <div className="aspect-[16/10] bg-gray-50 rounded-3xl overflow-hidden mb-6 border border-gray-100 relative">
+                  {article.cover_image ? (
+                    <img src={article.cover_image} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-gray-50 to-gray-100 group-hover:scale-105 transition-transform duration-500 flex items-center justify-center text-saphir-navy/5 font-bold italic text-2xl">
+                      SAPHIR FM
+                    </div>
+                  )}
+                </div>
+                <div className="flex gap-4 text-[10px] font-bold text-saphir-electric uppercase tracking-widest mb-3">
+                  <span>{article.category}</span>
+                  <span className="text-gray-200">•</span>
+                  <span className="text-saphir-navy/40 italic">
+                    {new Date(article.published_at || article.created_at).toLocaleDateString()}
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-saphir-navy group-hover:text-saphir-electric transition-colors leading-snug">
+                  {article.title}
+                </h3>
+              </Link>
+            ))
+          )}
         </div>
       </section>
 
@@ -72,15 +130,33 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {['Histoire', 'Culture', 'Débat', 'Musique'].map((title, i) => (
-              <div key={i} className="bg-white border border-gray-100 p-8 rounded-[2rem] hover:border-saphir-electric/50 hover:shadow-xl transition-all cursor-pointer group">
-                <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-saphir-electric transition-colors">
-                  <Headphones className="text-saphir-electric group-hover:text-white" />
+            {loading ? (
+              [1, 2, 3, 4].map((i) => (
+                <div key={i} className="bg-white border border-gray-100 p-8 rounded-[2rem] animate-pulse">
+                  <div className="w-16 h-16 bg-gray-100 rounded-2xl mb-6"></div>
+                  <div className="h-5 bg-gray-100 w-2/3 mb-2 rounded"></div>
+                  <div className="h-4 bg-gray-100 w-1/3 rounded"></div>
                 </div>
-                <h4 className="text-lg font-bold text-saphir-navy mb-2">Série {title}</h4>
-                <p className="text-xs font-bold text-saphir-navy/30 uppercase tracking-widest">12 épisodes</p>
+              ))
+            ) : podcasts.length === 0 ? (
+               <div className="col-span-4 py-10 text-center text-saphir-navy/20 font-bold uppercase tracking-widest">
+                Aucune série disponible
               </div>
-            ))}
+            ) : (
+              podcasts.map((series) => (
+                <Link href={`/podcasts/${series.id}`} key={series.id} className="bg-white border border-gray-100 p-8 rounded-[2rem] hover:border-saphir-electric/50 hover:shadow-xl transition-all cursor-pointer group">
+                  <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-saphir-electric transition-colors overflow-hidden">
+                    {series.cover_image ? (
+                      <img src={series.cover_image} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <Headphones className="text-saphir-electric group-hover:text-white" />
+                    )}
+                  </div>
+                  <h4 className="text-lg font-bold text-saphir-navy mb-2 line-clamp-1">{series.title}</h4>
+                  <p className="text-xs font-bold text-saphir-navy/30 uppercase tracking-widest">Voir la série</p>
+                </Link>
+              ))
+            )}
           </div>
         </div>
       </section>
@@ -101,25 +177,38 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-          {[
-            { name: 'T-shirt Saphir Classic', price: '25.00 €' },
-            { name: 'Casquette Logo 106.8', price: '18.50 €' },
-            { name: 'Mug Saphir FM', price: '12.00 €' },
-            { name: 'Sweat à capuche Navy', price: '45.00 €' },
-          ].map((product, i) => (
-            <div key={i} className="group">
-              <div className="aspect-square bg-gray-50 rounded-3xl mb-6 border border-gray-100 relative overflow-hidden flex items-center justify-center">
-                <div className="text-saphir-navy/5 font-bold uppercase tracking-tighter text-4xl -rotate-12">
-                  SHOP
-                </div>
-                <button className="absolute bottom-4 right-4 w-12 h-12 bg-saphir-navy text-white rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all shadow-xl">
-                  <ShoppingBag size={20} />
-                </button>
+          {loading ? (
+            [1, 2, 3, 4].map((i) => (
+              <div key={i} className="animate-pulse">
+                <div className="aspect-square bg-gray-100 rounded-3xl mb-6"></div>
+                <div className="h-5 bg-gray-100 w-2/3 mb-2 rounded"></div>
+                <div className="h-5 bg-gray-100 w-1/3 rounded"></div>
               </div>
-              <h4 className="font-bold text-saphir-navy mb-1">{product.name}</h4>
-              <p className="text-saphir-electric font-bold">{product.price}</p>
+            ))
+          ) : products.length === 0 ? (
+            <div className="col-span-4 py-10 text-center text-saphir-navy/20 font-bold uppercase tracking-widest">
+              Boutique vide pour le moment
             </div>
-          ))}
+          ) : (
+            products.map((product) => (
+              <div key={product.id} className="group">
+                <div className="aspect-square bg-gray-50 rounded-3xl mb-6 border border-gray-100 relative overflow-hidden flex items-center justify-center">
+                  {product.images?.[0] ? (
+                    <img src={product.images[0]} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  ) : (
+                    <div className="text-saphir-navy/5 font-bold uppercase tracking-tighter text-4xl -rotate-12">
+                      SHOP
+                    </div>
+                  )}
+                  <button className="absolute bottom-4 right-4 w-12 h-12 bg-saphir-navy text-white rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all shadow-xl">
+                    <ShoppingBag size={20} />
+                  </button>
+                </div>
+                <h4 className="font-bold text-saphir-navy mb-1">{product.name}</h4>
+                <p className="text-saphir-electric font-bold">{product.price} €</p>
+              </div>
+            ))
+          )}
         </div>
       </section>
 
