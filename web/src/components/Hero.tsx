@@ -44,38 +44,60 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Visuel de droite (Corrigé) */}
-          <div className="relative flex justify-center items-center">
-            {/* Le bloc bleu est maintenant mieux dimensionné et ne coupe pas */}
-            <div className="relative z-10 w-[90%] aspect-[4/5] bg-saphir-navy border border-white/10 rounded-[4rem] overflow-hidden shadow-2xl transition-transform hover:scale-[1.02] duration-700">
-               <div className="absolute inset-0 flex items-center justify-center opacity-10">
-                  <Radio size={160} className="text-white" />
-               </div>
-               {/* Visualiseur simplifié et plus élégant */}
-               <div className="absolute bottom-16 left-0 right-0 px-12">
-                  <div className="flex items-end gap-1.5 h-24">
-                    {[...Array(25)].map((_, i) => (
-                      <div 
-                        key={i} 
-                        className="flex-1 bg-saphir-electric rounded-full animate-wave"
-                        style={{ 
-                          height: `${30 + Math.random() * 70}%`,
-                          animationDelay: `${i * 0.1}s`,
-                          animationDuration: `${0.8 + Math.random()}s`
-                        }}
-                      />
-                    ))}
-                  </div>
+          {/* Visuel de droite (Premium & Dynamic) */}
+          <div className="relative flex justify-center items-center h-[500px] md:h-[600px]">
+            {/* Main Image Card */}
+            <div className="relative z-10 w-full h-full bg-white border-8 border-white rounded-[4rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] transition-all hover:scale-[1.02] duration-700">
+               <img 
+                 src="/hero-woman.png" 
+                 alt="Saphir FM - L'image du son" 
+                 className="w-full h-full object-cover"
+               />
+               
+               {/* Overlay with Wave */}
+               <div className="absolute inset-0 bg-gradient-to-t from-saphir-navy/40 to-transparent"></div>
+               
+               {/* Minimalist Player Info */}
+               <div className="absolute bottom-10 left-10 right-10 flex items-end gap-1.5 h-16">
+                  {[...Array(15)].map((_, i) => (
+                    <div 
+                      key={i} 
+                      className="flex-1 bg-white/40 backdrop-blur-md rounded-full animate-wave"
+                      style={{ 
+                        height: `${20 + Math.random() * 80}%`,
+                        animationDelay: `${i * 0.15}s`,
+                        animationDuration: `${0.8 + Math.random()}s`
+                      }}
+                    />
+                  ))}
                </div>
             </div>
             
-            {/* L'icône micro est maintenant bien visible et mise en valeur */}
-            <div className="absolute -top-10 -right-5 w-28 h-28 bg-white shadow-2xl border border-gray-100 rounded-3xl flex items-center justify-center animate-bounce duration-[4000ms] z-20">
-               <Mic className="text-saphir-electric" size={40} />
+            {/* Floating Live Badge */}
+            <div className="absolute -top-12 -right-12 w-44 h-44 bg-white/80 backdrop-blur-xl shadow-2xl border border-white/20 rounded-[3rem] p-6 flex flex-col justify-center gap-2 animate-bounce duration-[5000ms] z-20">
+               <div className="w-10 h-10 bg-saphir-electric/10 rounded-2xl flex items-center justify-center text-saphir-electric">
+                  <Mic size={20} />
+               </div>
+               <div className="text-xs font-black text-saphir-navy uppercase tracking-widest">En Studio</div>
+               <div className="text-[10px] font-bold text-saphir-navy/40">Direct Live 106.8</div>
             </div>
 
-            {/* Décoration supplémentaire pour aérer */}
-            <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-saphir-electric rounded-full blur-[80px] opacity-20 animate-pulse"></div>
+            {/* Decorative Orbitals */}
+            <div className="absolute -bottom-10 -left-10 w-56 h-56 bg-saphir-electric/10 rounded-full blur-[100px] -z-10 animate-pulse"></div>
+            <div className="absolute top-20 -right-20 w-40 h-40 bg-saphir-navy/5 rounded-full blur-[80px] -z-10"></div>
+            
+            {/* Stats Badge */}
+            <div className="absolute bottom-20 -left-20 bg-white shadow-2xl border border-gray-100 rounded-3xl p-6 hidden xl:block z-20 animate-float">
+               <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center text-green-500">
+                    <Radio size={24} />
+                  </div>
+                  <div>
+                    <div className="text-lg font-bold text-saphir-navy">+50k</div>
+                    <div className="text-[10px] font-bold text-saphir-navy/30 uppercase tracking-widest">Auditeurs Live</div>
+                  </div>
+               </div>
+            </div>
           </div>
         </div>
       </div>
