@@ -226,29 +226,61 @@ export default function Home() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
-            <div className="aspect-video bg-white border border-gray-100 rounded-[2.5rem] flex items-center justify-center relative group cursor-pointer overflow-hidden shadow-xl">
-               <div className="absolute inset-0 bg-gradient-to-t from-saphir-navy/40 to-transparent"></div>
-               <div className="w-20 h-20 bg-saphir-navy rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:bg-saphir-electric transition-all z-10">
-                 <Play fill="white" className="text-white ml-1" />
-               </div>
-               <div className="absolute bottom-10 left-10 z-10">
-                 <h4 className="text-2xl font-bold text-white mb-1 leading-tight">Dernier Live Studio</h4>
-                 <p className="text-white/60 text-xs font-bold uppercase tracking-widest">24 mars 2026</p>
-               </div>
-            </div>
-            <div className="grid grid-rows-2 gap-8">
-               {[1, 2].map((i) => (
-                 <div key={i} className="flex gap-6 group cursor-pointer bg-white p-4 rounded-3xl border border-gray-100 hover:shadow-lg transition-all">
-                    <div className="w-40 aspect-video bg-gray-50 rounded-2xl flex-shrink-0 flex items-center justify-center overflow-hidden">
-                       <Play size={20} className="text-saphir-navy/20 group-hover:text-saphir-electric transition-colors" />
-                    </div>
-                    <div className="flex flex-col justify-center">
-                       <h5 className="font-bold text-saphir-navy mb-2 group-hover:text-saphir-electric transition-colors leading-snug">Interview exclusive : Saphir FM reçoit l'artiste du moment.</h5>
-                       <p className="text-[10px] text-saphir-navy/40 uppercase font-bold tracking-widest">Musique</p>
-                    </div>
-                 </div>
-               ))}
-            </div>
+            {loading ? (
+              <>
+                <div className="aspect-video bg-white border border-gray-100 rounded-[2.5rem] animate-pulse"></div>
+                <div className="grid grid-rows-2 gap-8">
+                  <div className="bg-white p-4 rounded-3xl border border-gray-100 animate-pulse h-32"></div>
+                  <div className="bg-white p-4 rounded-3xl border border-gray-100 animate-pulse h-32"></div>
+                </div>
+              </>
+            ) : videos.length === 0 ? (
+              <div className="col-span-2 py-10 text-center text-saphir-navy/20 font-bold uppercase tracking-widest">
+                Aucune vidéo disponible
+              </div>
+            ) : (
+              <>
+                {/* Featured Video */}
+                {videos[0] && (
+                  <Link href={videos[0].url} target="_blank" className="aspect-video bg-white border border-gray-100 rounded-[2.5rem] flex items-center justify-center relative group cursor-pointer overflow-hidden shadow-xl">
+                     <div className="absolute inset-0 bg-gradient-to-t from-saphir-navy/40 to-transparent"></div>
+                     {videos[0].thumbnail && (
+                       <img src={videos[0].thumbnail} alt="" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                     )}
+                     <div className="w-20 h-20 bg-saphir-navy rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:bg-saphir-electric transition-all z-10">
+                       <Play fill="white" className="text-white ml-1" />
+                     </div>
+                     <div className="absolute bottom-10 left-10 z-10">
+                       <h4 className="text-2xl font-bold text-white mb-1 leading-tight">{videos[0].title}</h4>
+                       <p className="text-white/60 text-xs font-bold uppercase tracking-widest">
+                        {new Date(videos[0].created_at).toLocaleDateString()}
+                       </p>
+                     </div>
+                  </Link>
+                )}
+                
+                {/* Secondary Videos */}
+                <div className="grid grid-rows-2 gap-8">
+                   {videos.slice(1, 3).map((video) => (
+                     <Link href={video.url} target="_blank" key={video.id} className="flex gap-6 group cursor-pointer bg-white p-4 rounded-3xl border border-gray-100 hover:shadow-lg transition-all">
+                        <div className="w-40 aspect-video bg-gray-50 rounded-2xl flex-shrink-0 flex items-center justify-center overflow-hidden relative">
+                           {video.thumbnail ? (
+                             <img src={video.thumbnail} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                           ) : (
+                             <Play size={20} className="text-saphir-navy/20 group-hover:text-saphir-electric transition-colors" />
+                           )}
+                        </div>
+                        <div className="flex flex-col justify-center">
+                           <h5 className="font-bold text-saphir-navy mb-2 group-hover:text-saphir-electric transition-colors leading-snug line-clamp-2">
+                             {video.title}
+                           </h5>
+                           <p className="text-[10px] text-saphir-navy/40 uppercase font-bold tracking-widest">{video.category || 'Replay'}</p>
+                        </div>
+                     </Link>
+                   ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </section>
