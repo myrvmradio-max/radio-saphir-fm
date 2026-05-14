@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Save, ShoppingBag, Loader2 } from "lucide-react";
+import { ArrowLeft, Save, ShoppingBag, Loader2, Link as LinkIcon } from "lucide-react";
 import Link from "next/link";
 
 export default function NewProduct() {
@@ -11,12 +11,29 @@ export default function NewProduct() {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
+    slug: "",
     description: "",
     price: "",
     stock: "",
     category: "Vêtements",
-    image_url: ""
+    image_urls: "",
+    whatsapp_message: ""
   });
+
+  const generateSlug = (name: string) => {
+    return name
+      .toLowerCase()
+      .replace(/[^\w ]+/g, "")
+      .replace(/ +/g, "-");
+  };
+
+  const handleNameChange = (name: string) => {
+    setFormData({
+      ...formData,
+      name,
+      slug: generateSlug(name)
+    });
+  };
 
   const handleSubmit = async () => {
     if (!formData.name || !formData.price) {
@@ -29,11 +46,13 @@ export default function NewProduct() {
       const { error } = await supabase.from("products").insert([
         {
           name: formData.name,
+          slug: formData.slug || generateSlug(formData.name),
           description: formData.description,
           price: parseFloat(formData.price),
           stock: parseInt(formData.stock) || 0,
           category: formData.category,
-          images: formData.image_url ? [formData.image_url] : [],
+          images: formData.image_urls.split(",").map(url => url.trim()).filter(url => url),
+          whatsapp_message: formData.whatsapp_message,
           active: true
         }
       ]);
@@ -57,7 +76,7 @@ export default function NewProduct() {
           <Link href="/admin/boutique" className="w-10 h-10 bg-white border border-gray-100 rounded-xl flex items-center justify-center text-saphir-navy hover:text-saphir-electric transition-all shadow-sm">
             <ArrowLeft size={20} />
           </Link>
-          <h1 className="text-3xl font-bold text-saphir-navy">Ajouter un Produit</h1>
+          <h1 className="text-3xl font-bold text-saphir-navy">Nouveau Produit</h1>
         </div>
         <button 
           onClick={handleSubmit}
@@ -78,9 +97,24 @@ export default function NewProduct() {
               placeholder="Ex: T-shirt Saphir FM" 
               className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-bold text-saphir-navy focus:ring-2 focus:ring-saphir-electric/20" 
               value={formData.name}
-              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              onChange={(e) => handleNameChange(e.target.value)}
             />
           </div>
+          <div className="space-y-4">
+            <label className="text-xs font-bold text-saphir-navy/40 uppercase tracking-widest flex items-center gap-2">
+              Slug SEO <LinkIcon size={12} />
+            </label>
+            <input 
+              type="text" 
+              placeholder="t-shirt-saphir-fm" 
+              className="w-full bg-gray-50/50 border-none rounded-xl py-3 px-4 font-bold text-saphir-navy/40 text-xs focus:ring-2 focus:ring-saphir-electric/20" 
+              value={formData.slug}
+              onChange={(e) => setFormData({...formData, slug: e.target.value})}
+            />
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-8">
           <div className="space-y-4">
             <label className="text-xs font-bold text-saphir-navy/40 uppercase tracking-widest">Catégorie</label>
             <select 
@@ -90,13 +124,11 @@ export default function NewProduct() {
             >
               <option>Vêtements</option>
               <option>Accessoires</option>
+              <option>Maison</option>
               <option>Équipement</option>
               <option>Autre</option>
             </select>
           </div>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-8">
           <div className="space-y-4">
             <label className="text-xs font-bold text-saphir-navy/40 uppercase tracking-widest">Prix (€)</label>
             <input 
@@ -108,7 +140,7 @@ export default function NewProduct() {
             />
           </div>
           <div className="space-y-4">
-            <label className="text-xs font-bold text-saphir-navy/40 uppercase tracking-widest">Stock Initial</label>
+            <label className="text-xs font-bold text-saphir-navy/40 uppercase tracking-widest">Stock</label>
             <input 
               type="number" 
               placeholder="50" 
@@ -120,21 +152,31 @@ export default function NewProduct() {
         </div>
 
         <div className="space-y-4">
-            <label className="text-xs font-bold text-saphir-navy/40 uppercase tracking-widest">URL de l'image</label>
-            <input 
-              type="text" 
-              placeholder="https://exple.com/produit.jpg" 
-              className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-bold text-saphir-navy focus:ring-2 focus:ring-saphir-electric/20" 
-              value={formData.image_url}
-              onChange={(e) => setFormData({...formData, image_url: e.target.value})}
+            <label className="text-xs font-bold text-saphir-navy/40 uppercase tracking-widest">URLs des images (séparées par une virgule)</label>
+            <textarea 
+              placeholder="https://exple.com/image1.jpg, https://exple.com/image2.jpg" 
+              className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-bold text-saphir-navy text-xs h-24 focus:ring-2 focus:ring-saphir-electric/20" 
+              value={formData.image_urls}
+              onChange={(e) => setFormData({...formData, image_urls: e.target.value})}
             />
         </div>
 
         <div className="space-y-4">
-           <label className="text-xs font-bold text-saphir-navy/40 uppercase tracking-widest">Description</label>
+            <label className="text-xs font-bold text-saphir-navy/40 uppercase tracking-widest">Message WhatsApp personnalisé (Optionnel)</label>
+            <input 
+              type="text" 
+              placeholder="Ex: Je souhaite commander ce t-shirt en taille L" 
+              className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-bold text-saphir-navy focus:ring-2 focus:ring-saphir-electric/20" 
+              value={formData.whatsapp_message}
+              onChange={(e) => setFormData({...formData, whatsapp_message: e.target.value})}
+            />
+        </div>
+
+        <div className="space-y-4">
+           <label className="text-xs font-bold text-saphir-navy/40 uppercase tracking-widest">Description détaillée</label>
            <textarea 
-             className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-medium text-saphir-navy h-32 resize-none focus:ring-2 focus:ring-saphir-electric/20" 
-             placeholder="Détails du produit..."
+             className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-medium text-saphir-navy h-40 resize-none focus:ring-2 focus:ring-saphir-electric/20" 
+             placeholder="Détails du produit, matériaux, guide des tailles..."
              value={formData.description}
              onChange={(e) => setFormData({...formData, description: e.target.value})}
            ></textarea>
