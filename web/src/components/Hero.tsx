@@ -46,23 +46,23 @@ export default function Hero() {
 
           {/* Visuel de droite (Premium & Dynamic) */}
           <div className="relative flex justify-center items-center h-[400px] md:h-[600px] mt-10 lg:mt-0">
-            {/* Main Image Card */}
-            <div className="relative z-10 w-full h-full bg-white border-4 md:border-8 border-white rounded-[2.5rem] md:rounded-[4rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] transition-all hover:scale-[1.02] duration-700">
+            {/* Main Image Card - Moins de blanc massif, plus de finesse */}
+            <div className="relative z-10 w-full h-full bg-saphir-navy/20 backdrop-blur-sm border-2 md:border-4 border-white/20 rounded-[2.5rem] md:rounded-[4rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] transition-all hover:scale-[1.02] duration-700 group">
                <img 
                  src="/hero-woman.png" 
                  alt="Saphir FM - L'image du son" 
-                 className="w-full h-full object-cover"
+                 className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-700"
                />
                
-               {/* Overlay with Wave */}
-               <div className="absolute inset-0 bg-gradient-to-t from-saphir-navy/40 to-transparent"></div>
+               {/* Overlay with Wave - Gradient plus sombre en bas */}
+               <div className="absolute inset-0 bg-gradient-to-t from-[#060B1F]/80 via-transparent to-transparent"></div>
                
                {/* Minimalist Player Info */}
                <div className="absolute bottom-6 md:bottom-10 left-6 md:left-10 right-6 md:right-10 flex items-end gap-1 h-12 md:h-16">
                   {[...Array(12)].map((_, i) => (
                     <div 
                       key={i} 
-                      className="flex-1 bg-white/40 backdrop-blur-md rounded-full animate-wave"
+                      className="flex-1 bg-saphir-electric/60 backdrop-blur-md rounded-full animate-wave shadow-[0_0_15px_rgba(106,124,255,0.3)]"
                       style={{ 
                         height: `${20 + Math.random() * 80}%`,
                         animationDelay: `${i * 0.15}s`,
@@ -73,13 +73,16 @@ export default function Hero() {
                </div>
             </div>
             
-            {/* Floating Live Badge (Hidden on mobile) */}
-            <div className="absolute -top-6 -right-6 md:-top-12 md:-right-12 w-32 h-32 md:w-44 md:h-44 bg-white/80 backdrop-blur-xl shadow-2xl border border-white/20 rounded-[2rem] md:rounded-[3rem] p-4 md:p-6 flex flex-col justify-center gap-1 md:gap-2 animate-bounce duration-[5000ms] z-20">
-               <div className="w-8 h-8 md:w-10 md:h-10 bg-saphir-electric/10 rounded-xl md:rounded-2xl flex items-center justify-center text-saphir-electric">
+            {/* Floating Live Badge (Optimisé pour mobile) */}
+            <div className="absolute -top-4 -right-4 md:-top-12 md:-right-12 w-28 h-28 md:w-44 md:h-44 bg-saphir-navy/40 backdrop-blur-2xl shadow-2xl border border-white/10 rounded-[2rem] md:rounded-[3rem] p-4 md:p-6 flex flex-col justify-center gap-1 md:gap-2 animate-bounce duration-[5000ms] z-20 overflow-hidden">
+               {/* Accent de couleur discret */}
+               <div className="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-saphir-electric to-transparent"></div>
+               
+               <div className="w-8 h-8 md:w-10 md:h-10 bg-saphir-electric/20 rounded-xl md:rounded-2xl flex items-center justify-center text-saphir-electric">
                   <Mic size={18} />
                </div>
-               <div className="text-[10px] md:text-xs font-black text-saphir-navy uppercase tracking-widest">En Studio</div>
-               <div className="text-[8px] md:text-[10px] font-bold text-saphir-navy/40">Direct Live 106.8</div>
+               <div className="text-[10px] md:text-xs font-black text-white uppercase tracking-widest">En Studio</div>
+               <div className="text-[8px] md:text-[10px] font-bold text-white/40 uppercase tracking-tighter">Direct Live 106.8</div>
             </div>
 
             {/* Decorative Orbitals */}
