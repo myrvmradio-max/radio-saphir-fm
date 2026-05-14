@@ -148,8 +148,8 @@ export default function Navbar() {
                 <span className="text-white/80 text-xs font-bold">106.8 FM</span>
               </div>
               <div className="flex flex-col text-right">
-                <span className="text-white/30 text-[8px] font-bold uppercase tracking-widest mb-1">Radio</span>
-                <span className="text-white/80 text-xs font-bold">Saphir FM</span>
+                <span className="text-white/30 text-[8px] font-bold uppercase tracking-widest mb-1">Ville</span>
+                <span className="text-white/80 text-xs font-bold">Bouaké, CI</span>
               </div>
             </div>
           </div>

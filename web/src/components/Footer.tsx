@@ -59,15 +59,21 @@ export default function Footer() {
             <ul className="space-y-4 text-sm font-medium text-white/60">
               <li className="flex items-start gap-3">
                 <MapPin size={18} className="text-saphir-electric flex-shrink-0" />
-                <span>123 Avenue de la Radio, <br />75000 Saphir City</span>
+                <span>Quartier Commerce, <br />Bouaké, Côte d'Ivoire</span>
               </li>
-              <li className="flex items-center gap-3">
-                <Phone size={18} className="text-saphir-electric flex-shrink-0" />
-                <span>+33 1 23 45 67 89</span>
+              <li className="flex flex-col gap-2">
+                <div className="flex items-center gap-3">
+                  <Phone size={18} className="text-saphir-electric flex-shrink-0" />
+                  <span>(+225) 07 07 93 19 06</span>
+                </div>
+                <div className="pl-[30px] flex flex-col gap-1 text-white/40 text-xs">
+                  <span>(+225) 01 01 72 73 75</span>
+                  <span>(+225) 27 31 60 08 62</span>
+                </div>
               </li>
               <li className="flex items-center gap-3">
                 <Mail size={18} className="text-saphir-electric flex-shrink-0" />
-                <span>contact@saphirfm.fr</span>
+                <span>contact@saphirfm.ci</span>
               </li>
             </ul>
           </div>
