@@ -1,6 +1,7 @@
 "use client";
 
 import { Play, Mic, Radio } from "lucide-react";
+import Link from "next/link";
 
 export default function Hero() {
   return (
@@ -38,9 +39,12 @@ export default function Hero() {
                 <Play fill="currentColor" size={20} />
                 Lancer le direct
               </button>
-              <button className="flex items-center justify-center gap-3 bg-white border border-saphir-navy/10 text-saphir-navy px-8 md:px-10 py-4 md:py-5 rounded-full font-bold text-base md:text-lg hover:bg-gray-50 transition-all">
+              <Link 
+                href="/programmes"
+                className="flex items-center justify-center gap-3 bg-white border border-saphir-navy/10 text-saphir-navy px-8 md:px-10 py-4 md:py-5 rounded-full font-bold text-base md:text-lg hover:bg-gray-50 transition-all"
+              >
                 Voir la grille
-              </button>
+              </Link>
             </div>
           </div>
 
