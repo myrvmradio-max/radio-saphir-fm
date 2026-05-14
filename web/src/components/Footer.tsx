@@ -12,8 +12,8 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="space-y-6">
             <Link href="/" className="flex items-center gap-3">
-              {/* LOGO AGRANDI ICI */}
-              <div className="relative w-56 h-20 bg-white rounded-2xl p-2">
+              {/* LOGO ENCORE PLUS GRAND DANS LE FOOTER */}
+              <div className="relative w-64 h-24 bg-white rounded-2xl p-3 shadow-xl">
                 <Image 
                   src="/logo.png" 
                   alt="Saphir FM Logo" 

@@ -50,8 +50,8 @@ export default function Navbar() {
       >
         <div className="container mx-auto px-6 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-3">
-            <div className="relative w-36 lg:w-44 h-10 lg:h-12 transition-transform hover:scale-105 active:scale-95">
-              <div className="absolute inset-0 bg-white/10 backdrop-blur-md rounded-lg border border-white/20"></div>
+            <div className="relative w-48 md:w-56 lg:w-64 h-14 md:h-16 lg:h-20 transition-transform hover:scale-105 active:scale-95">
+              <div className="absolute inset-0 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 shadow-lg"></div>
               <Image
                 src="/logo.png"
                 alt="Saphir FM Logo"
