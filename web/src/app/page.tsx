@@ -5,7 +5,6 @@ import { supabase } from "@/lib/supabase";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import RadioPlayer from "@/components/RadioPlayer";
-import SupabaseTest from "@/components/SupabaseTest";
 import Footer from "@/components/Footer";
 import { Newspaper, Headphones, ShoppingBag, Youtube, ArrowRight, Play, Loader2 } from "lucide-react";
 import Link from "next/link";
@@ -49,7 +48,6 @@ export default function Home() {
     <main className="min-h-screen bg-[var(--background)]">
       <Navbar />
       <Hero />
-      <SupabaseTest />
 
       {/* SECTION 1: RADIO LIVE */}
       <section className="container mx-auto px-6 -mt-20 relative z-30">

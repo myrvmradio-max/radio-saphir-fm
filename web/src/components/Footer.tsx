@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { Facebook, Twitter, Instagram, Youtube, Mail, MapPin, Phone } from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
+import { supabase } from "@/lib/supabase";
 
 export default function Footer() {
   return (
@@ -82,16 +84,7 @@ export default function Footer() {
           <div>
             <h4 className="font-bold text-lg mb-6 uppercase tracking-widest text-saphir-electric text-[10px]">Newsletter</h4>
             <p className="text-white/40 text-[10px] mb-6 font-bold uppercase tracking-widest">Inscrivez-vous</p>
-            <div className="flex gap-2 p-1 bg-white/5 rounded-xl border border-white/10">
-              <input 
-                type="email" 
-                placeholder="Votre email" 
-                className="bg-transparent border-none text-xs px-3 py-2 flex-1 focus:outline-none"
-              />
-              <button className="bg-white text-saphir-navy px-4 py-2 rounded-lg font-bold text-[10px] hover:bg-saphir-electric hover:text-white transition-all">
-                OK
-              </button>
-            </div>
+            <NewsletterForm />
           </div>
         </div>
 
@@ -107,5 +100,61 @@ export default function Footer() {
         </div>
       </div>
     </footer>
+  );
+}
+
+function NewsletterForm() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    setStatus("loading");
+    try {
+      const { error } = await supabase
+        .from("subscribers")
+        .insert([{ email }]);
+
+      if (error) throw error;
+      setStatus("success");
+      setEmail("");
+    } catch (err) {
+      console.error("Newsletter error:", err);
+      setStatus("error");
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-2">
+      <div className="flex gap-2 p-1 bg-white/5 rounded-xl border border-white/10 focus-within:border-saphir-electric transition-colors">
+        <input 
+          type="email" 
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Votre email" 
+          required
+          className="bg-transparent border-none text-xs px-3 py-2 flex-1 focus:outline-none text-white"
+        />
+        <button 
+          type="submit"
+          disabled={status === "loading"}
+          className="bg-white text-saphir-navy px-4 py-2 rounded-lg font-bold text-[10px] hover:bg-saphir-electric hover:text-white transition-all disabled:opacity-50"
+        >
+          {status === "loading" ? "..." : "OK"}
+        </button>
+      </div>
+      {status === "success" && (
+        <p className="text-[10px] text-green-400 font-bold uppercase tracking-widest mt-2">
+          Merci pour votre inscription !
+        </p>
+      )}
+      {status === "error" && (
+        <p className="text-[10px] text-red-400 font-bold uppercase tracking-widest mt-2">
+          Erreur ou déjà inscrit.
+        </p>
+      )}
+    </form>
   );
 }
