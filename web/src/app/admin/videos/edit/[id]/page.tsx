@@ -1,14 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Save, Youtube, Loader2 } from "lucide-react";
+import { ArrowLeft, Save, Youtube, Loader2, Play } from "lucide-react";
 import Link from "next/link";
 
-export default function NewVideo() {
+export default function EditVideo() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const { id } = useParams();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  
   const [formData, setFormData] = useState({
     title: "",
     video_url: "",
@@ -16,34 +19,66 @@ export default function NewVideo() {
     category: "Replay"
   });
 
+  useEffect(() => {
+    if (id) fetchVideo();
+  }, [id]);
+
+  async function fetchVideo() {
+    try {
+      const { data, error } = await supabase
+        .from("videos")
+        .select("*")
+        .eq("id", id)
+        .single();
+      
+      if (error) throw error;
+      if (data) {
+        setFormData({
+          title: data.title,
+          video_url: data.video_url,
+          thumbnail: data.thumbnail || "",
+          category: data.category || "Replay"
+        });
+      }
+    } catch (err) {
+      console.error("Error fetching video:", err);
+      router.push("/admin/videos");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   const handleSubmit = async () => {
     if (!formData.title || !formData.video_url) {
       alert("Le titre et l'URL de la vidéo sont obligatoires");
       return;
     }
 
-    setLoading(true);
+    setSaving(true);
     try {
-      const { error } = await supabase.from("videos").insert([
-        {
+      const { error } = await supabase
+        .from("videos")
+        .update({
           title: formData.title,
           video_url: formData.video_url,
           thumbnail: formData.thumbnail || null,
           category: formData.category
-        }
-      ]);
+        })
+        .eq("id", id);
 
       if (error) throw error;
 
-      alert("Vidéo ajoutée avec succès !");
+      alert("Vidéo mise à jour avec succès !");
       router.push("/admin/videos");
     } catch (error: any) {
-      console.error("Error adding video:", error);
-      alert("Erreur lors de l'ajout : " + error.message);
+      console.error("Error updating video:", error);
+      alert("Erreur lors de la mise à jour : " + error.message);
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
+
+  if (loading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-saphir-navy/20" size={40} /></div>;
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-20">
@@ -52,15 +87,15 @@ export default function NewVideo() {
           <Link href="/admin/videos" className="w-10 h-10 bg-white border border-gray-100 rounded-xl flex items-center justify-center text-saphir-navy hover:text-saphir-electric transition-all shadow-sm">
             <ArrowLeft size={20} />
           </Link>
-          <h1 className="text-3xl font-bold text-saphir-navy">Ajouter une Vidéo</h1>
+          <h1 className="text-3xl font-bold text-saphir-navy">Modifier la Vidéo</h1>
         </div>
         <button 
           onClick={handleSubmit}
-          disabled={loading}
+          disabled={saving}
           className="flex items-center gap-2 px-6 py-3 bg-saphir-navy text-white rounded-2xl font-bold text-sm hover:bg-saphir-electric transition-all shadow-lg disabled:opacity-50"
         >
-          {loading ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-          {loading ? "Ajout..." : "Enregistrer"}
+          {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+          {saving ? "Mise à jour..." : "Enregistrer"}
         </button>
       </div>
 
@@ -69,7 +104,6 @@ export default function NewVideo() {
           <label className="text-xs font-bold text-saphir-navy/40 uppercase tracking-widest">Titre de la vidéo</label>
           <input 
             type="text" 
-            placeholder="Ex: Interview Exclusive - Artiste X" 
             className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-bold text-saphir-navy focus:ring-2 focus:ring-saphir-electric/20" 
             value={formData.title}
             onChange={(e) => setFormData({...formData, title: e.target.value})}

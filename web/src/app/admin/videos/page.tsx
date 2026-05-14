@@ -60,10 +60,13 @@ export default function AdminVideos() {
           <h1 className="text-3xl font-bold text-saphir-navy mb-2">Vidéos & Replays</h1>
           <p className="text-saphir-navy/40">Gérez vos contenus vidéo et lives studio.</p>
         </div>
-        <button className="flex items-center gap-2 bg-saphir-navy text-white px-6 py-3 rounded-2xl font-bold hover:bg-saphir-electric transition-all shadow-lg shadow-saphir-navy/10">
+        <Link 
+          href="/admin/videos/new"
+          className="flex items-center gap-2 bg-saphir-navy text-white px-6 py-3 rounded-2xl font-bold hover:bg-saphir-electric transition-all shadow-lg shadow-saphir-navy/10"
+        >
           <Plus size={20} />
           Ajouter une Vidéo
-        </button>
+        </Link>
       </div>
 
       {/* Video Table/List */}
@@ -109,7 +112,12 @@ export default function AdminVideos() {
                           <Calendar size={12} /> {new Date(video.created_at).toLocaleDateString()}
                        </span>
                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button className="p-2 bg-gray-50 text-saphir-navy/40 hover:text-saphir-electric rounded-lg transition-all"><Edit2 size={14} /></button>
+                          <Link 
+                            href={`/admin/videos/edit/${video.id}`}
+                            className="p-2 bg-gray-50 text-saphir-navy/40 hover:text-saphir-electric rounded-lg transition-all"
+                          >
+                            <Edit2 size={14} />
+                          </Link>
                           <button 
                             onClick={() => deleteVideo(video.id)}
                             className="p-2 bg-gray-50 text-saphir-navy/40 hover:text-red-500 rounded-lg transition-all"

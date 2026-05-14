@@ -1,25 +1,54 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { 
   Plus, 
-  User, 
+  User as UserIcon, 
   Shield, 
   Mic, 
   Newspaper,
   MoreVertical,
   Mail,
   Edit2,
-  Trash2
+  Trash2,
+  Loader2
 } from "lucide-react";
-
-const TEAM = [
-  { name: 'Admin Principal', role: 'Administrateur', email: 'admin@saphirfm.fr', status: 'Actif', color: 'bg-saphir-navy' },
-  { name: 'Jean-Michel', role: 'Animateur', email: 'jeanmichel@saphirfm.fr', status: 'Actif', color: 'bg-purple-500' },
-  { name: 'Sarah L.', role: 'Animateur', email: 'sarah@saphirfm.fr', status: 'Hors-ligne', color: 'bg-orange-500' },
-  { name: 'Marc O.', role: 'Journaliste', email: 'marc@saphirfm.fr', status: 'Actif', color: 'bg-blue-500' },
-];
+import { supabase } from "@/lib/supabase";
 
 export default function AdminTeam() {
+  const [team, setTeam] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchTeam();
+  }, []);
+
+  async function fetchTeam() {
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .order("created_at", { ascending: true });
+      
+      if (data) setTeam(data);
+    } catch (err) {
+      console.error("Error fetching team:", err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function deleteMember(id: string) {
+    if (!confirm("Supprimer ce membre ?")) return;
+    try {
+      const { error } = await supabase.from("profiles").delete().eq("id", id);
+      if (error) throw error;
+      setTeam(team.filter(m => m.id !== id));
+    } catch (err) {
+      console.error("Error deleting member:", err);
+    }
+  }
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -37,13 +66,13 @@ export default function AdminTeam() {
       {/* Roles Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
          {[
-           { label: 'Administrateurs', count: 1, icon: Shield, color: 'text-saphir-navy' },
-           { label: 'Animateurs', count: 2, icon: Mic, color: 'text-purple-500' },
-           { label: 'Journalistes', count: 1, icon: Newspaper, color: 'text-blue-500' },
+           { label: 'Administrateurs', count: team.filter(m => m.role === 'Administrateur').length, icon: Shield, color: 'text-saphir-navy' },
+           { label: 'Animateurs', count: team.filter(m => m.role === 'Animateur').length, icon: Mic, color: 'text-purple-500' },
+           { label: 'Journalistes', count: team.filter(m => m.role === 'Journaliste').length, icon: Newspaper, color: 'text-blue-500' },
          ].map(role => (
            <div key={role.label} className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center justify-between">
               <div>
-                 <div className="text-2xl font-bold text-saphir-navy">{role.count}</div>
+                 <div className="text-2xl font-bold text-saphir-navy">{loading ? '...' : role.count}</div>
                  <div className="text-[10px] font-bold text-saphir-navy/30 uppercase tracking-widest">{role.label}</div>
               </div>
               <div className={`p-3 rounded-2xl bg-gray-50 ${role.color}`}>
@@ -65,38 +94,53 @@ export default function AdminTeam() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
-            {TEAM.map((member, i) => (
-              <tr key={i} className="hover:bg-gray-50/30 transition-colors group">
-                <td className="px-8 py-5">
-                   <div className="flex items-center gap-4">
-                      <div className={`w-12 h-12 ${member.color} rounded-2xl flex items-center justify-center text-white font-bold text-sm`}>
-                        {member.name.substring(0,2).toUpperCase()}
-                      </div>
-                      <div>
-                        <div className="font-bold text-saphir-navy text-sm">{member.name}</div>
-                        <div className="text-xs text-saphir-navy/30 flex items-center gap-1 font-medium italic"><Mail size={12}/> {member.email}</div>
-                      </div>
-                   </div>
-                </td>
-                <td className="px-8 py-5 text-center">
-                   <span className="px-4 py-1.5 bg-gray-100 text-saphir-navy/60 rounded-xl text-[10px] font-bold uppercase tracking-widest">
-                     {member.role}
-                   </span>
-                </td>
-                <td className="px-8 py-5 text-center">
-                   <div className="flex items-center justify-center gap-2">
-                      <div className={`w-1.5 h-1.5 rounded-full ${member.status === 'Actif' ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                      <span className="text-[10px] font-bold text-saphir-navy/60 uppercase">{member.status}</span>
-                   </div>
-                </td>
-                <td className="px-8 py-5 text-right">
-                   <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button className="p-2 hover:bg-gray-100 rounded-lg text-saphir-navy/20 hover:text-saphir-electric transition-all"><Edit2 size={16} /></button>
-                      <button className="p-2 hover:bg-red-50 rounded-lg text-saphir-navy/20 hover:text-red-500 transition-all"><Trash2 size={16} /></button>
-                   </div>
-                </td>
+            {loading ? (
+              <tr>
+                <td colSpan={4} className="px-8 py-20 text-center"><Loader2 className="animate-spin mx-auto text-saphir-navy/20" /></td>
               </tr>
-            ))}
+            ) : team.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="px-8 py-20 text-center text-saphir-navy/20 font-bold uppercase tracking-widest">Aucun membre trouvé</td>
+              </tr>
+            ) : (
+              team.map((member) => (
+                <tr key={member.id} className="hover:bg-gray-50/30 transition-colors group">
+                  <td className="px-8 py-5">
+                    <div className="flex items-center gap-4">
+                        <div className={`w-12 h-12 bg-saphir-navy rounded-2xl flex items-center justify-center text-white font-bold text-sm uppercase`}>
+                          {member.full_name?.substring(0,2) || '??'}
+                        </div>
+                        <div>
+                          <div className="font-bold text-saphir-navy text-sm">{member.full_name}</div>
+                          <div className="text-xs text-saphir-navy/30 flex items-center gap-1 font-medium italic"><Mail size={12}/> {member.email}</div>
+                        </div>
+                    </div>
+                  </td>
+                  <td className="px-8 py-5 text-center">
+                    <span className="px-4 py-1.5 bg-gray-100 text-saphir-navy/60 rounded-xl text-[10px] font-bold uppercase tracking-widest">
+                      {member.role}
+                    </span>
+                  </td>
+                  <td className="px-8 py-5 text-center">
+                    <div className="flex items-center justify-center gap-2">
+                        <div className={`w-1.5 h-1.5 rounded-full bg-green-500`}></div>
+                        <span className="text-[10px] font-bold text-saphir-navy/60 uppercase">Actif</span>
+                    </div>
+                  </td>
+                  <td className="px-8 py-5 text-right">
+                    <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button className="p-2 hover:bg-gray-100 rounded-lg text-saphir-navy/20 hover:text-saphir-electric transition-all"><Edit2 size={16} /></button>
+                        <button 
+                          onClick={() => deleteMember(member.id)}
+                          className="p-2 hover:bg-red-50 rounded-lg text-saphir-navy/20 hover:text-red-500 transition-all"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
