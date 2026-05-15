@@ -1,22 +1,81 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, Dimensions, ImageBackground } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, Dimensions, ActivityIndicator } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Play, Pause, Radio, Mic2 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import TrackPlayer, { State, Capability, usePlaybackState } from 'react-native-track-player';
 
 const { width } = Dimensions.get('window');
+const STREAM_URL = 'https://stream.radiosaphir.com/listen/radiosaphir-106.8-fm/radio.mp3';
 
 export default function App() {
-  const [isPlaying, setIsPlaying] = useState(false);
+  const playbackState = usePlaybackState();
+  const [isPlayerReady, setIsPlayerReady] = useState(false);
   const [trackInfo, setTrackInfo] = useState({
-    title: 'Saphir FM Live',
-    artist: 'Écoutez. Informez-vous. Vivez.'
+    title: 'Saphir FM',
+    artist: 'La Radio Qui Vous Ressemble'
   });
 
-  const togglePlayback = () => {
-    setIsPlaying(!isPlaying);
-    // Logique TrackPlayer à ajouter
+  useEffect(() => {
+    async function setupPlayer() {
+      try {
+        await TrackPlayer.setupPlayer();
+        await TrackPlayer.updateOptions({
+          capabilities: [
+            Capability.Play,
+            Capability.Pause,
+            Capability.Stop,
+          ],
+          compactCapabilities: [
+            Capability.Play,
+            Capability.Pause,
+            Capability.Stop,
+          ],
+        });
+        await TrackPlayer.add({
+          id: 'saphir-fm',
+          url: STREAM_URL,
+          title: 'Saphir FM',
+          artist: 'La Radio Qui Vous Ressemble',
+        });
+        setIsPlayerReady(true);
+      } catch (error) {
+        console.log('Error setting up TrackPlayer:', error);
+        // Le player est peut-être déjà initialisé
+        setIsPlayerReady(true);
+      }
+    }
+    setupPlayer();
+  }, []);
+
+  const togglePlayback = async () => {
+    if (!isPlayerReady) return;
+    
+    // Dans react-native-track-player v4, playbackState peut être un objet { state }
+    const currentState = typeof playbackState === 'object' && playbackState !== null && 'state' in playbackState 
+      ? playbackState.state 
+      : playbackState;
+
+    if (currentState === State.Playing) {
+      await TrackPlayer.pause();
+    } else {
+      await TrackPlayer.play();
+    }
   };
+
+  const isPlaying = (() => {
+    const currentState = typeof playbackState === 'object' && playbackState !== null && 'state' in playbackState 
+      ? playbackState.state 
+      : playbackState;
+    return currentState === State.Playing;
+  })();
+  
+  const isBuffering = (() => {
+    const currentState = typeof playbackState === 'object' && playbackState !== null && 'state' in playbackState 
+      ? playbackState.state 
+      : playbackState;
+    return currentState === State.Buffering || currentState === State.Connecting;
+  })();
 
   return (
     <View style={styles.container}>
@@ -79,17 +138,20 @@ export default function App() {
 
           <View style={styles.controlsContainer}>
             <TouchableOpacity 
-              style={styles.playButton}
+              style={[styles.playButton, !isPlayerReady && { opacity: 0.5 }]}
               onPress={togglePlayback}
+              disabled={!isPlayerReady}
             >
               <LinearGradient
                 colors={['#6A7CFF', '#1E3A8A']}
                 style={styles.playGradient}
               >
-                {isPlaying ? (
+                {isBuffering ? (
+                  <ActivityIndicator color="white" size="large" />
+                ) : isPlaying ? (
                   <Pause color="white" size={40} fill="white" />
                 ) : (
-                  <Play color="white" size={40} fill="white" />
+                  <Play color="white" size={40} fill="white" className="ml-2" />
                 )}
               </LinearGradient>
             </TouchableOpacity>
