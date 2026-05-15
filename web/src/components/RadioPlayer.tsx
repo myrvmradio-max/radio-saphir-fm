@@ -139,13 +139,13 @@ export default function RadioPlayer() {
           <div className="flex items-center justify-center md:justify-start gap-6">
             <button 
               onClick={togglePlay}
-              className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all shadow-xl active:scale-95 ${
+              className={`w-20 h-20 rounded-3xl flex items-center justify-center transition-all shadow-2xl hover:scale-105 active:scale-95 ${
                 isPlaying 
                 ? "bg-white text-saphir-navy border-2 border-saphir-navy" 
                 : "bg-saphir-navy text-white hover:bg-saphir-electric"
               }`}
             >
-              {isPlaying ? <Pause fill="currentColor" size={28} /> : <Play fill="currentColor" size={28} className="ml-1" />}
+              {isPlaying ? <Pause fill="currentColor" size={36} /> : <Play fill="currentColor" size={36} className="ml-1" />}
             </button>
             
             <div className="hidden sm:flex items-center gap-4 flex-1 max-w-xs group/volume">
