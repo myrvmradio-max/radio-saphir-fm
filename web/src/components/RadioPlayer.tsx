@@ -12,9 +12,9 @@ export default function RadioPlayer() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
   const [currentProgram, setCurrentProgram] = useState({
-    name: "Le Grand Matin Saphir",
-    host: "Jean-Michel",
-    time: "07:00 - 10:00",
+    name: "Chargement...",
+    host: "...",
+    time: "--:--",
     isLoading: true
   });
 
@@ -42,7 +42,12 @@ export default function RadioPlayer() {
           });
         } else {
           // Fallback if no specific program is found (e.g., night time)
-          setCurrentProgram(prev => ({ ...prev, isLoading: false }));
+          setCurrentProgram({
+            name: "Saphir FM - En Direct",
+            host: "Direct",
+            time: "24/7",
+            isLoading: false
+          });
         }
       } catch (err) {
         console.error("Error fetching program:", err);
@@ -90,7 +95,7 @@ export default function RadioPlayer() {
       {/* Glow Effect */}
       <div className="absolute -top-24 -right-24 w-48 h-48 bg-saphir-electric/20 rounded-full blur-[80px] group-hover:bg-saphir-electric/30 transition-all duration-700"></div>
 
-      <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
+      <div className="flex flex-col md:flex-row items-center gap-4 relative z-10">
         {/* Album Art / Logo */}
         <div className="relative w-32 h-32 flex-shrink-0">
           <div className="absolute inset-0 bg-gradient-to-br from-saphir-electric/20 to-saphir-navy/20 rounded-3xl blur-md"></div>
@@ -137,16 +142,24 @@ export default function RadioPlayer() {
           </div>
           
           <div className="flex items-center justify-center md:justify-start gap-6">
-            <button 
-              onClick={togglePlay}
-              className={`w-20 h-20 rounded-3xl flex items-center justify-center transition-all shadow-2xl hover:scale-105 active:scale-95 ${
-                isPlaying 
-                ? "bg-white text-saphir-navy border-2 border-saphir-navy" 
-                : "bg-saphir-navy text-white hover:bg-saphir-electric"
-              }`}
-            >
-              {isPlaying ? <Pause fill="currentColor" size={36} /> : <Play fill="currentColor" size={36} className="ml-1" />}
-            </button>
+            <div className="relative">
+              {isPlaying && (
+                <>
+                  <div className="absolute inset-0 rounded-full bg-saphir-electric animate-ping opacity-75"></div>
+                  <div className="absolute inset-0 rounded-full bg-saphir-navy animate-ping opacity-50" style={{ animationDelay: '0.5s' }}></div>
+                </>
+              )}
+              <button 
+                onClick={togglePlay}
+                className={`w-24 h-24 rounded-full flex items-center justify-center transition-all shadow-2xl hover:scale-105 active:scale-95 ${
+                  isPlaying 
+                  ? "bg-white text-saphir-navy border-2 border-saphir-navy" 
+                  : "bg-saphir-navy text-white hover:bg-saphir-electric"
+                }`}
+              >
+                {isPlaying ? <Pause fill="currentColor" size={44} /> : <Play fill="currentColor" size={44} className="ml-1" />}
+              </button>
+            </div>
             
             <div className="hidden sm:flex items-center gap-4 flex-1 max-w-xs group/volume">
               <Volume2 size={20} className="text-saphir-navy/50 group-hover/volume:text-saphir-navy transition-colors" />
