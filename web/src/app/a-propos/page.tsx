@@ -50,7 +50,7 @@ export default async function AboutPage() {
 
           {/* Content */}
           <div className="max-w-4xl mx-auto bg-white rounded-[2.5rem] p-12 border border-gray-100 shadow-xl shadow-saphir-navy/5 mb-12">
-            <p className="text-xl text-saphir-navy/70 font-medium mb-6 leading-relaxed">
+            <p className="text-xl text-saphir-navy/70 font-medium mb-6 leading-relaxed whitespace-pre-line">
               {aboutText}
             </p>
           </div>
