@@ -104,7 +104,7 @@ export default function Navbar() {
             {/* BOUTON ÉCOUTER */}
             <Link 
               href="/contact"
-              className="hidden sm:flex bg-gradient-to-r from-saphir-electric to-[#8B99FF] text-white px-6 py-2.5 rounded-full font-bold text-xs tracking-widest transition-all transform hover:scale-105 hover:shadow-[0_0_20px_rgba(106,124,255,0.4)] active:scale-95 uppercase items-center gap-2 border border-white/20"
+              className="flex bg-gradient-to-r from-saphir-electric to-[#8B99FF] text-white px-4 py-2 sm:px-6 sm:py-2.5 rounded-full font-bold text-[10px] sm:text-xs tracking-widest transition-all transform hover:scale-105 hover:shadow-[0_0_20px_rgba(106,124,255,0.4)] active:scale-95 uppercase items-center gap-2 border border-white/20"
             >
               <div className="w-2 h-2 bg-white rounded-full animate-pulse shadow-[0_0_8px_#fff]"></div>
               <span>Nous Contacter</span>

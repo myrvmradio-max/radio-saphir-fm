@@ -64,7 +64,10 @@ export default function Hero() {
 
     if (isPlaying) {
       audioRef.current.pause();
+      audioRef.current.src = ""; // Libère le flux
     } else {
+      audioRef.current.src = STREAM_URL;
+      audioRef.current.load();
       audioRef.current.play().catch(err => {
         console.error("Playback failed:", err);
       });
