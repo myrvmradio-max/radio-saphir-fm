@@ -28,7 +28,7 @@ export default function AdminSettings() {
     seo_description: "Saphir FM 106.8, votre radio de référence. Moderne, proche de son audience et engagée.",
     email: "contact@saphirfm.fr",
     phone: "+225 0707931906",
-    address: "Bouaké, Quartier Commerce, Côte d'Ivoire",
+    address: "Air France 2 rue wattao, Bouaké, Côte d'Ivoire",
     facebook: "",
     instagram: "",
     twitter: "",

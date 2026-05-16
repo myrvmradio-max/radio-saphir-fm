@@ -3,10 +3,6 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 
 export default function RadioPlayer() {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.8);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  
   const [currentProgram, setCurrentProgram] = useState({
     name: "Chargement...",
     host: "...",

@@ -61,7 +61,7 @@ export default function Footer() {
             <ul className="space-y-4 text-sm font-medium text-white/60">
               <li className="flex items-start gap-3">
                 <MapPin size={18} className="text-saphir-electric flex-shrink-0" />
-                <span>Quartier Commerce, <br />Bouaké, Côte d'Ivoire</span>
+                <span>Air France 2 rue wattao, <br />Bouaké, Côte d'Ivoire</span>
               </li>
               <li className="flex flex-col gap-2">
                 <div className="flex items-center gap-3">

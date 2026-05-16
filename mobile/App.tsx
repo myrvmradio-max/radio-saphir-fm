@@ -294,7 +294,7 @@ export default function App() {
               <View style={styles.card}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 15 }}>
                   <Ionicons name="location-outline" size={24} color="#A855F7" />
-                  <Text style={styles.text}>Quartier Commerce, Bouaké, Côte d'Ivoire</Text>
+                  <Text style={styles.text}>Air France 2 rue wattao, Bouaké, Côte d'Ivoire</Text>
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginBottom: 15 }}>
                   <Ionicons name="call-outline" size={24} color="#A855F7" />
