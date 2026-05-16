@@ -159,7 +159,6 @@ export default function App() {
   const [streamUrl, setStreamUrl] = useState('https://stream.radiosaphir.com/listen/radiosaphir-106.8-fm/radio.mp3');
   const [currentTitle, setCurrentTitle] = useState('Saphir FM');
   const [currentArtist, setCurrentArtist] = useState('La Radio Qui Vous Ressemble');
-  const [aboutText, setAboutText] = useState("Radio Saphir, votre média de proximité.");
   const [contactAddress, setContactAddress] = useState("Air France 2 rue wattao, Bouaké, Côte d'Ivoire");
   const [contactPhone, setContactPhone] = useState("(+225) 07 07 93 19 06\n(+225) 01 01 72 73 75\n(+225) 27 31 60 08 62");
   const [contactEmail, setContactEmail] = useState("radiosaphirfm@gmail.com");
@@ -174,7 +173,6 @@ export default function App() {
     Animated.timing(mountAnim, { toValue: 1, duration: 1000, useNativeDriver: true }).start();
     fetchData();
     fetchStreamUrl();
-    fetchAboutText();
     fetchContactInfo();
     
     // Configure background audio
@@ -229,14 +227,7 @@ export default function App() {
     return () => clearInterval(interval);
   }, []);
 
-  async function fetchAboutText() {
-    try {
-      const { data } = await supabase.from('settings').select('*').eq('key', 'about').single();
-      if (data) setAboutText(data.value);
-    } catch (e) {
-      console.log("Using default about text");
-    }
-  }
+
 
   async function fetchContactInfo() {
     try {
@@ -344,7 +335,7 @@ export default function App() {
           {activeTab === 'histoire' && (
             <ScrollView style={styles.scroll} contentContainerStyle={{ paddingBottom: 100 }}>
               <Text style={styles.title}>Notre Histoire</Text>
-              <View style={styles.card}><Text style={styles.text}>{aboutText}</Text></View>
+              <View style={styles.card}><Text style={styles.text}>Saphir FM 106.8 est votre station de radio de référence basée au cœur de Bouaké, en Côte d'Ivoire. Moderne, dynamique et proche de son audience, Saphir FM vous accompagne au quotidien avec une programmation riche et variée.</Text></View>
               {articles.map(a => <View key={a.id} style={styles.article}><Text style={styles.atitle}>{a.title}</Text></View>)}
             </ScrollView>
           )}
@@ -365,24 +356,40 @@ export default function App() {
           {activeTab === 'contact' && (
             <ScrollView style={styles.scroll} contentContainerStyle={{ paddingBottom: 100 }}>
               <Text style={styles.title}>Contact</Text>
-              <View style={styles.card}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 15 }}>
-                  <Ionicons name="location-outline" size={24} color="#A855F7" />
-                  <Text style={styles.text}>{contactAddress}</Text>
+                {/* Card Adresse */}
+                <View style={[styles.card, { marginBottom: 15, flexDirection: 'row', alignItems: 'center', gap: 15 }]}>
+                  <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(168,85,247,0.1)', justifyContent: 'center', alignItems: 'center' }}>
+                    <Ionicons name="location-outline" size={20} color="#A855F7" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, marginBottom: 2 }}>Adresse</Text>
+                    <Text style={styles.text}>{contactAddress}</Text>
+                  </View>
                 </View>
-                <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginBottom: 15 }}>
-                  <Ionicons name="call-outline" size={24} color="#A855F7" />
-                  <View>
+
+                {/* Card Téléphones */}
+                <View style={[styles.card, { marginBottom: 15, flexDirection: 'row', alignItems: 'center', gap: 15 }]}>
+                  <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(168,85,247,0.1)', justifyContent: 'center', alignItems: 'center' }}>
+                    <Ionicons name="call-outline" size={20} color="#A855F7" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, marginBottom: 2 }}>Téléphones</Text>
                     {contactPhone.split('\n').map((p, i) => (
                       <Text key={i} style={styles.text}>{p}</Text>
                     ))}
                   </View>
                 </View>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                  <Ionicons name="mail-outline" size={24} color="#A855F7" />
-                  <Text style={styles.text}>{contactEmail}</Text>
+
+                {/* Card Email */}
+                <View style={[styles.card, { flexDirection: 'row', alignItems: 'center', gap: 15 }]}>
+                  <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(168,85,247,0.1)', justifyContent: 'center', alignItems: 'center' }}>
+                    <Ionicons name="mail-outline" size={20} color="#A855F7" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, marginBottom: 2 }}>Email</Text>
+                    <Text style={styles.text}>{contactEmail}</Text>
+                  </View>
                 </View>
-              </View>
             </ScrollView>
           )}
         </Animated.View>
