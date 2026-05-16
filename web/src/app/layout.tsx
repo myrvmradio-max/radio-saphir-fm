@@ -16,6 +16,9 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "Saphir FM 106.8 | Écoutez, Informez-vous, Vivez le Direct",
   description: "Écoutez Saphir FM 106.8 en direct, la radio de référence à Bouaké et en Côte d'Ivoire. Actualités, musique ivoirienne, podcasts et Saphir TV.",
+  icons: {
+    icon: "/icon.png",
+  },
   keywords: [
     "Saphir FM", "Radio Saphir", "Saphir FM 106.8", "Radio Saphir Bouaké", 
     "Saphir TV", "Radio Bouaké", "Radio en direct Côte d'Ivoire", 
