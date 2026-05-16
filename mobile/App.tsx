@@ -12,6 +12,7 @@ import {
   Easing,
   Image,
   ScrollView,
+  TextInput,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -163,6 +164,11 @@ export default function App() {
   const [contactAddress, setContactAddress] = useState("Air France 2 rue wattao, Bouaké, Côte d'Ivoire");
   const [contactPhone, setContactPhone] = useState("(+225) 07 07 93 19 06\n(+225) 01 01 72 73 75\n(+225) 27 31 60 08 62");
   const [contactEmail, setContactEmail] = useState("radiosaphirfm@gmail.com");
+  const [formName, setFormName] = useState('');
+  const [formEmail, setFormEmail] = useState('');
+  const [formSubject, setFormSubject] = useState('');
+  const [formMessage, setFormMessage] = useState('');
+  const [isSending, setIsSending] = useState(false);
 
   const sound = useRef(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -256,6 +262,41 @@ export default function App() {
       if (email && email.length > 0) setContactEmail(email[0].value);
     } catch (e) {
       console.log("Error in fetchContactInfo:", e);
+    }
+  }
+
+  async function sendMessage() {
+    if (!formName || !formEmail || !formMessage) {
+      alert("Veuillez remplir tous les champs obligatoires.");
+      return;
+    }
+    setIsSending(true);
+    try {
+      const { error } = await supabase
+        .from("messages")
+        .insert([
+          {
+            sender_name: formName,
+            sender_email: formEmail,
+            subject: formSubject,
+            content: formMessage,
+            is_read: false,
+            is_important: false
+          }
+        ]);
+
+      if (error) throw error;
+
+      alert("Message envoyé avec succès !");
+      setFormName('');
+      setFormEmail('');
+      setFormSubject('');
+      setFormMessage('');
+    } catch (e) {
+      console.error("Error sending message:", e);
+      alert("Erreur lors de l'envoi du message.");
+    } finally {
+      setIsSending(false);
     }
   }
 
@@ -390,7 +431,7 @@ export default function App() {
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, marginBottom: 2 }}>Téléphones</Text>
-                    {contactPhone.split('\n').map((p, i) => (
+                    {contactPhone.split(/\\n|\n/).map((p, i) => (
                       <Text key={i} style={styles.text}>{p}</Text>
                     ))}
                   </View>
@@ -405,6 +446,64 @@ export default function App() {
                     <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, marginBottom: 2 }}>Email</Text>
                     <Text style={styles.text}>{contactEmail}</Text>
                   </View>
+                </View>
+
+                {/* Formulaire de Contact */}
+                <View style={[styles.card, { marginTop: 20, marginBottom: 20 }]}>
+                  <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold', marginBottom: 15 }}>Envoyez-nous un message</Text>
+                  
+                  <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, marginBottom: 5 }}>Nom *</Text>
+                  <TextInput 
+                    style={{ backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', padding: 12, borderRadius: 10, marginBottom: 15, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' }} 
+                    placeholder="Votre nom" 
+                    placeholderTextColor="rgba(255,255,255,0.3)"
+                    value={formName}
+                    onChangeText={setFormName}
+                  />
+                  
+                  <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, marginBottom: 5 }}>Email *</Text>
+                  <TextInput 
+                    style={{ backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', padding: 12, borderRadius: 10, marginBottom: 15, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' }} 
+                    placeholder="Votre email" 
+                    placeholderTextColor="rgba(255,255,255,0.3)"
+                    value={formEmail}
+                    onChangeText={setFormEmail}
+                    keyboardType="email-address"
+                  />
+                  
+                  <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, marginBottom: 5 }}>Sujet</Text>
+                  <TextInput 
+                    style={{ backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', padding: 12, borderRadius: 10, marginBottom: 15, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' }} 
+                    placeholder="Sujet du message" 
+                    placeholderTextColor="rgba(255,255,255,0.3)"
+                    value={formSubject}
+                    onChangeText={setFormSubject}
+                  />
+                  
+                  <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, marginBottom: 5 }}>Message *</Text>
+                  <TextInput 
+                    style={{ backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', padding: 12, borderRadius: 10, marginBottom: 15, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', height: 100, textAlignVertical: 'top' }} 
+                    multiline 
+                    placeholder="Votre message..." 
+                    placeholderTextColor="rgba(255,255,255,0.3)"
+                    value={formMessage}
+                    onChangeText={setFormMessage}
+                  />
+                  
+                  <TouchableOpacity 
+                    style={{ backgroundColor: '#A855F7', padding: 15, borderRadius: 10, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', opacity: isSending ? 0.7 : 1 }} 
+                    onPress={sendMessage}
+                    disabled={isSending}
+                  >
+                    {isSending ? (
+                      <ActivityIndicator color="#fff" />
+                    ) : (
+                      <>
+                        <Text style={{ color: '#fff', fontWeight: 'bold' }}>Envoyer</Text>
+                        <Ionicons name="send" size={16} color="#fff" style={{ marginLeft: 5 }} />
+                      </>
+                    )}
+                  </TouchableOpacity>
                 </View>
             </ScrollView>
           )}

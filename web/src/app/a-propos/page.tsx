@@ -71,7 +71,7 @@ export default async function AboutPage() {
               </div>
               <h3 className="text-lg font-bold text-saphir-navy mb-2">Téléphones</h3>
               <div className="text-sm text-saphir-navy/40 font-medium">
-                {contactPhone.split('\n').map((p, i) => (
+                {contactPhone.split(/\\n|\n/).map((p, i) => (
                   <p key={i}>{p}</p>
                 ))}
               </div>
