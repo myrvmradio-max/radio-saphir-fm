@@ -104,7 +104,7 @@ export default function Navbar() {
             {/* BOUTON ÉCOUTER */}
             <Link 
               href="/contact"
-              className="flex bg-gradient-to-r from-saphir-electric to-[#8B99FF] text-white px-4 py-2 sm:px-6 sm:py-2.5 rounded-full font-bold text-[10px] sm:text-xs tracking-widest transition-all transform hover:scale-105 hover:shadow-[0_0_20px_rgba(106,124,255,0.4)] active:scale-95 uppercase items-center gap-2 border border-white/20"
+              className="hidden lg:flex bg-gradient-to-r from-saphir-electric to-[#8B99FF] text-white px-6 py-2.5 rounded-full font-bold text-xs tracking-widest transition-all transform hover:scale-105 hover:shadow-[0_0_20px_rgba(106,124,255,0.4)] active:scale-95 uppercase items-center gap-2 border border-white/20"
             >
               <div className="w-2 h-2 bg-white rounded-full animate-pulse shadow-[0_0_8px_#fff]"></div>
               <span>Nous Contacter</span>
@@ -187,11 +187,20 @@ export default function Navbar() {
             ))}
           </div>
           
-          <div className="mt-auto space-y-6 relative z-10">
+          <div className="mt-auto space-y-4 relative z-10">
             <button className="w-full bg-saphir-electric text-white px-6 py-4 rounded-xl font-bold text-xs tracking-widest transition-all shadow-[0_10px_30px_rgba(106,124,255,0.3)] flex items-center justify-center gap-3 active:scale-[0.98] uppercase">
               <Radio size={18} className="animate-pulse" />
               Écouter Live
             </button>
+            
+            <Link 
+              href="/contact"
+              onClick={() => setIsMenuOpen(false)}
+              className="w-full bg-gradient-to-r from-saphir-electric to-[#8B99FF] text-white px-6 py-4 rounded-xl font-bold text-xs tracking-widest transition-all shadow-[0_10px_30px_rgba(106,124,255,0.3)] flex items-center justify-center gap-3 active:scale-[0.98] uppercase"
+            >
+              <div className="w-2 h-2 bg-white rounded-full animate-pulse shadow-[0_0_8px_#fff]"></div>
+              <span>Nous Contacter</span>
+            </Link>
             
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col">
