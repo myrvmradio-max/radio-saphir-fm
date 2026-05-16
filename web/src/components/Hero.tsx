@@ -124,7 +124,7 @@ export default function Hero() {
                />
                
                {/* Play Button and Text Overlay */}
-               <div className="absolute inset-0 flex flex-col items-center justify-end pb-12 z-20">
+               <div className="absolute inset-0 flex flex-col items-center justify-end pb-2 z-20">
                  <div className="relative mb-4">
                    {isPlaying && (
                      <>
