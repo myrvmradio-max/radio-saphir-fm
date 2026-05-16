@@ -88,7 +88,7 @@ function VisualizerBar({ delay, isPlaying }) {
 //  Screens
 // ─────────────────────────────────────────────────────
 
-function Accueil({ isPlaying, isBuffering, togglePlayback, pulseAnim, spin, glowOpacity }) {
+function Accueil({ isPlaying, isBuffering, togglePlayback, pulseAnim, spin, glowOpacity, currentTitle, currentArtist }) {
   return (
     <View style={styles.tabContent}>
       <View style={styles.playerCenter}>
@@ -123,8 +123,8 @@ function Accueil({ isPlaying, isBuffering, togglePlayback, pulseAnim, spin, glow
         </View>
 
         <View style={styles.trackInfo}>
-          <Text style={styles.trackTitle}>Saphir FM</Text>
-          <Text style={styles.trackArtist}>La Radio Qui Vous Ressemble</Text>
+          <Text style={styles.trackTitle}>{currentTitle}</Text>
+          <Text style={styles.trackArtist}>{currentArtist}</Text>
         </View>
       </View>
 
@@ -157,6 +157,12 @@ export default function App() {
   const [products, setProducts] = useState([]);
   const [articles, setArticles] = useState([]);
   const [streamUrl, setStreamUrl] = useState('https://stream.radiosaphir.com/listen/radiosaphir-106.8-fm/radio.mp3');
+  const [currentTitle, setCurrentTitle] = useState('Saphir FM');
+  const [currentArtist, setCurrentArtist] = useState('La Radio Qui Vous Ressemble');
+  const [aboutText, setAboutText] = useState("Radio Saphir, votre média de proximité.");
+  const [contactAddress, setContactAddress] = useState("Air France 2 rue wattao, Bouaké, Côte d'Ivoire");
+  const [contactPhone, setContactPhone] = useState("(+225) 07 07 93 19 06\n(+225) 01 01 72 73 75\n(+225) 27 31 60 08 62");
+  const [contactEmail, setContactEmail] = useState("radiosaphirfm@gmail.com");
 
   const sound = useRef(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -168,6 +174,8 @@ export default function App() {
     Animated.timing(mountAnim, { toValue: 1, duration: 1000, useNativeDriver: true }).start();
     fetchData();
     fetchStreamUrl();
+    fetchAboutText();
+    fetchContactInfo();
     
     // Configure background audio
     Audio.setAudioModeAsync({
@@ -199,6 +207,51 @@ export default function App() {
     setArticles(a || []);
   }
 
+  async function fetchNowPlaying() {
+    try {
+      const response = await fetch('https://stream.radiosaphir.com/api/nowplaying');
+      const data = await response.json();
+      
+      const station = Array.isArray(data) ? data[0] : data;
+      
+      if (station && station.now_playing) {
+        setCurrentTitle(station.now_playing.song.title);
+        setCurrentArtist(station.now_playing.song.artist);
+      }
+    } catch (error) {
+      console.log("Erreur NowPlaying:", error);
+    }
+  }
+
+  useEffect(() => {
+    fetchNowPlaying();
+    const interval = setInterval(fetchNowPlaying, 20000);
+    return () => clearInterval(interval);
+  }, []);
+
+  async function fetchAboutText() {
+    try {
+      const { data } = await supabase.from('settings').select('*').eq('key', 'about').single();
+      if (data) setAboutText(data.value);
+    } catch (e) {
+      console.log("Using default about text");
+    }
+  }
+
+  async function fetchContactInfo() {
+    try {
+      const { data: address } = await supabase.from('settings').select('*').eq('key', 'address').single();
+      const { data: phone } = await supabase.from('settings').select('*').eq('key', 'phone').single();
+      const { data: email } = await supabase.from('settings').select('*').eq('key', 'email').single();
+
+      if (address) setContactAddress(address.value);
+      if (phone) setContactPhone(phone.value);
+      if (email) setContactEmail(email.value);
+    } catch (e) {
+      console.log("Using default contact info");
+    }
+  }
+
   useEffect(() => {
     if (isPlaying) {
       Animated.loop(Animated.sequence([
@@ -216,26 +269,37 @@ export default function App() {
   const togglePlayback = async () => {
     try {
       if (isPlaying) {
-        if (sound.current) await sound.current.pauseAsync();
+        if (sound.current) {
+          try {
+            await sound.current.pauseAsync();
+          } catch (err) {
+            console.log("Ignore pause error:", err.message);
+          }
+        }
         setIsPlaying(false);
       } else {
         setIsBuffering(true);
         
         if (sound.current) {
-          await sound.current.unloadAsync();
+          try {
+            await sound.current.unloadAsync();
+          } catch (err) {
+            console.log("Ignore unload error:", err.message);
+          }
         }
         
         const { sound: newSound } = await Audio.Sound.createAsync(
           { uri: streamUrl },
-          { shouldPlay: true }
+          { shouldPlay: false }
         );
         sound.current = newSound;
+        await sound.current.playAsync();
         
         setIsBuffering(false);
         setIsPlaying(true);
       }
     } catch (e) {
-      console.error("Playback error:", e);
+      console.error("Playback error with URL:", streamUrl, e);
       setIsBuffering(false);
       
       // If the official stream fails (likely offline), try the test stream to show the app works
@@ -276,11 +340,11 @@ export default function App() {
         </View>
 
         <Animated.View style={[styles.main, { opacity: mountAnim }]}>
-          {activeTab === 'accueil' && <Accueil {...{ isPlaying, isBuffering, togglePlayback, pulseAnim, spin, glowOpacity }} />}
+          {activeTab === 'accueil' && <Accueil {...{ isPlaying, isBuffering, togglePlayback, pulseAnim, spin, glowOpacity, currentTitle, currentArtist }} />}
           {activeTab === 'histoire' && (
             <ScrollView style={styles.scroll} contentContainerStyle={{ paddingBottom: 100 }}>
               <Text style={styles.title}>Notre Histoire</Text>
-              <View style={styles.card}><Text style={styles.text}>Radio Saphir, votre média de proximité.</Text></View>
+              <View style={styles.card}><Text style={styles.text}>{aboutText}</Text></View>
               {articles.map(a => <View key={a.id} style={styles.article}><Text style={styles.atitle}>{a.title}</Text></View>)}
             </ScrollView>
           )}
@@ -304,19 +368,19 @@ export default function App() {
               <View style={styles.card}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 15 }}>
                   <Ionicons name="location-outline" size={24} color="#A855F7" />
-                  <Text style={styles.text}>Air France 2 rue wattao, Bouaké, Côte d'Ivoire</Text>
+                  <Text style={styles.text}>{contactAddress}</Text>
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginBottom: 15 }}>
                   <Ionicons name="call-outline" size={24} color="#A855F7" />
                   <View>
-                    <Text style={styles.text}>(+225) 07 07 93 19 06</Text>
-                    <Text style={styles.text}>(+225) 01 01 72 73 75</Text>
-                    <Text style={styles.text}>(+225) 27 31 60 08 62</Text>
+                    {contactPhone.split('\n').map((p, i) => (
+                      <Text key={i} style={styles.text}>{p}</Text>
+                    ))}
                   </View>
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                   <Ionicons name="mail-outline" size={24} color="#A855F7" />
-                  <Text style={styles.text}>radiosaphirfm@gmail.com</Text>
+                  <Text style={styles.text}>{contactEmail}</Text>
                 </View>
               </View>
             </ScrollView>
@@ -372,8 +436,8 @@ const styles = StyleSheet.create({
   staticRing: { position: 'absolute', width: 200, height: 200, borderRadius: 100, borderWidth: 1, borderColor: 'rgba(168,85,247,0.1)', borderStyle: 'dashed', zIndex: 0 },
 
   trackInfo: { alignItems: 'center', marginTop: 40 },
-  trackTitle: { color: '#fff', fontSize: 28, fontWeight: '900' },
-  trackArtist: { color: 'rgba(255,255,255,0.4)', fontSize: 14, marginTop: 4 },
+  trackTitle: { color: '#fff', fontSize: 16, fontWeight: '900' },
+  trackArtist: { color: 'rgba(255,255,255,0.4)', fontSize: 10, marginTop: 4 },
 
   vizContainer: { flexDirection: 'row', height: 40, gap: 3, marginBottom: 20, alignItems: 'flex-end', justifyContent: 'center' },
   vizBar: { width: 3, height: 30, backgroundColor: '#A855F7', borderRadius: 2 },
