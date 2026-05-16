@@ -306,7 +306,7 @@ export default function App() {
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                   <Ionicons name="mail-outline" size={24} color="#A855F7" />
-                  <Text style={styles.text}>contact@saphirfm.com</Text>
+                  <Text style={styles.text}>radiosaphirfm@gmail.com</Text>
                 </View>
               </View>
             </ScrollView>

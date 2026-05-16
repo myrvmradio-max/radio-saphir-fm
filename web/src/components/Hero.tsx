@@ -1,12 +1,61 @@
 "use client";
 
-import { Play, Mic, Radio, Pause } from "lucide-react";
+import { Play, Mic, Radio, Pause, Clock } from "lucide-react";
 import Link from "next/link";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 
 export default function Hero() {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  
+  const [currentProgram, setCurrentProgram] = useState({
+    name: "Chargement...",
+    host: "...",
+    time: "--:--",
+    isLoading: true
+  });
+
+  useEffect(() => {
+    async function fetchCurrentProgram() {
+      try {
+        const now = new Date();
+        const currentTime = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+        const currentDay = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"][now.getDay()];
+
+        const { data, error } = await supabase
+          .from('programmes')
+          .select('*')
+          .eq('day', currentDay)
+          .lte('start_time', currentTime)
+          .gte('end_time', currentTime)
+          .single();
+
+        if (data) {
+          setCurrentProgram({
+            name: data.name,
+            host: data.host,
+            time: `${data.start_time.substring(0, 5)} - ${data.end_time.substring(0, 5)}`,
+            isLoading: false
+          });
+        } else {
+          setCurrentProgram({
+            name: "Saphir FM - En Direct",
+            host: "Direct",
+            time: "24/7",
+            isLoading: false
+          });
+        }
+      } catch (err) {
+        console.error("Error fetching program:", err);
+        setCurrentProgram(prev => ({ ...prev, isLoading: false }));
+      }
+    }
+
+    fetchCurrentProgram();
+    const interval = setInterval(fetchCurrentProgram, 60000);
+    return () => clearInterval(interval);
+  }, []);
   
   const STREAM_URL = "https://stream.radiosaphir.com/listen/radiosaphir-106.8-fm/radio.mp3";
 
@@ -74,9 +123,9 @@ export default function Hero() {
                  className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-700"
                />
                
-               {/* Play Button Overlay */}
-               <div className="absolute inset-0 flex items-center justify-center z-20">
-                 <div className="relative">
+               {/* Play Button and Text Overlay */}
+               <div className="absolute inset-0 flex flex-col items-center justify-center z-20 translate-y-12">
+                 <div className="relative mb-4">
                    {isPlaying && (
                      <>
                        <div className="absolute inset-0 rounded-full bg-saphir-electric animate-ping opacity-75"></div>
@@ -93,6 +142,23 @@ export default function Hero() {
                    >
                      {isPlaying ? <Pause fill="currentColor" size={44} /> : <Play fill="currentColor" size={44} className="ml-1" />}
                    </button>
+                 </div>
+                 
+                 {/* Text Info (White on dark overlay) */}
+                 <div className="text-white text-center">
+                   <div className="flex items-center justify-center gap-1.5 bg-red-500 px-2.5 py-1 rounded-full w-max mx-auto mb-2">
+                     <span className="flex h-2 w-2 rounded-full bg-white animate-pulse"></span>
+                     <span className="text-[10px] font-black tracking-widest text-white uppercase">En Direct</span>
+                   </div>
+                   <h3 className="text-xl md:text-2xl font-bold mb-1 tracking-tight">{currentProgram.name}</h3>
+                   <div className="flex items-center justify-center gap-2 text-white/80 text-xs font-bold">
+                     <span>PAR {currentProgram.host.toUpperCase()}</span>
+                     <span className="w-1 h-1 rounded-full bg-white/40"></span>
+                     <div className="flex items-center gap-1">
+                       <Clock size={12} />
+                       {currentProgram.time}
+                     </div>
+                   </div>
                  </div>
                </div>
                

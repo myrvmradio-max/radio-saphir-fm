@@ -49,10 +49,7 @@ export default function Home() {
       <Navbar />
       <Hero />
 
-      {/* SECTION 1: RADIO LIVE */}
-      <section className="container mx-auto px-6 -mt-20 relative z-30">
-        <RadioPlayer />
-      </section>
+
 
       {/* SECTION 2: ACTUALITÉS */}
       <section className="py-24 container mx-auto px-6">

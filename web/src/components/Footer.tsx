@@ -75,7 +75,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-3">
                 <Mail size={18} className="text-saphir-electric flex-shrink-0" />
-                <span>contact@saphirfm.ci</span>
+                <span>radiosaphirfm@gmail.com</span>
               </li>
             </ul>
           </div>
