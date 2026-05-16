@@ -1,8 +1,30 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Info, MapPin, Phone, Mail } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  // Valeurs par défaut
+  let aboutText = "Saphir FM 106.8 est votre station de radio de référence basée au cœur de Bouaké, en Côte d'Ivoire. Moderne, dynamique et proche de son audience, Saphir FM vous accompagne au quotidien avec une programmation riche et variée.";
+  let contactAddress = "Air France 2 rue wattao, Bouaké, Côte d'Ivoire";
+  let contactPhone = "(+225) 07 07 93 19 06\n(+225) 01 01 72 73 75\n(+225) 27 31 60 08 62";
+  let contactEmail = "radiosaphirfm@gmail.com";
+
+  try {
+    // Récupération des données depuis Supabase
+    const { data: about } = await supabase.from('settings').select('*').eq('key', 'about').single();
+    const { data: addr } = await supabase.from('settings').select('*').eq('key', 'address').single();
+    const { data: ph } = await supabase.from('settings').select('*').eq('key', 'phone').single();
+    const { data: em } = await supabase.from('settings').select('*').eq('key', 'email').single();
+
+    if (about) aboutText = about.value;
+    if (addr) contactAddress = addr.value;
+    if (ph) contactPhone = ph.value;
+    if (em) contactEmail = em.value;
+  } catch (error) {
+    console.error("Error fetching settings:", error);
+  }
+
   return (
     <main className="min-h-screen bg-[#F8FAFF]">
       <Navbar />
@@ -27,13 +49,7 @@ export default function AboutPage() {
           {/* Content */}
           <div className="max-w-4xl mx-auto bg-white rounded-[2.5rem] p-12 border border-gray-100 shadow-xl shadow-saphir-navy/5 mb-12">
             <p className="text-xl text-saphir-navy/70 font-medium mb-6 leading-relaxed">
-              <strong>Saphir FM 106.8</strong> est votre station de radio de référence basée au cœur de Bouaké, en Côte d'Ivoire. Moderne, dynamique et proche de son audience, Saphir FM vous accompagne au quotidien avec une programmation riche et variée.
-            </p>
-            <p className="text-lg text-saphir-navy/60 font-medium mb-6 leading-relaxed">
-              Retrouvez le meilleur de la musique ivoirienne et africaine (Zouglou, Coupé Décalé, Afrobeat), des flashs d'information en direct pour rester connecté à l'actualité de Bouaké et de la Côte d'Ivoire, ainsi que des émissions culturelles et des talk-shows passionnants.
-            </p>
-            <p className="text-lg text-saphir-navy/60 font-medium leading-relaxed">
-              Saphir FM, c'est l'image du son ! Nous nous engageons à vous offrir le meilleur du divertissement et de l'information.
+              {aboutText}
             </p>
           </div>
 
@@ -44,7 +60,7 @@ export default function AboutPage() {
                 <MapPin size={24} className="text-saphir-electric" />
               </div>
               <h3 className="text-lg font-bold text-saphir-navy mb-2">Adresse</h3>
-              <p className="text-sm text-saphir-navy/40 font-medium">Air France 2 rue wattao, Bouaké, Côte d'Ivoire</p>
+              <p className="text-sm text-saphir-navy/40 font-medium">{contactAddress}</p>
             </div>
 
             <div className="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-xl shadow-saphir-navy/5 text-center">
@@ -52,7 +68,11 @@ export default function AboutPage() {
                 <Phone size={24} className="text-saphir-electric" />
               </div>
               <h3 className="text-lg font-bold text-saphir-navy mb-2">Téléphones</h3>
-              <p className="text-sm text-saphir-navy/40 font-medium">(+225) 07 07 93 19 06<br/>(+225) 01 01 72 73 75</p>
+              <div className="text-sm text-saphir-navy/40 font-medium">
+                {contactPhone.split('\n').map((p, i) => (
+                  <p key={i}>{p}</p>
+                ))}
+              </div>
             </div>
 
             <div className="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-xl shadow-saphir-navy/5 text-center">
@@ -60,7 +80,7 @@ export default function AboutPage() {
                 <Mail size={24} className="text-saphir-electric" />
               </div>
               <h3 className="text-lg font-bold text-saphir-navy mb-2">Email</h3>
-              <p className="text-sm text-saphir-navy/40 font-medium">radiosaphirfm@gmail.com</p>
+              <p className="text-sm text-saphir-navy/40 font-medium">{contactEmail}</p>
             </div>
           </div>
         </div>

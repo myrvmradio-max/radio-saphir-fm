@@ -159,6 +159,7 @@ export default function App() {
   const [streamUrl, setStreamUrl] = useState('https://stream.radiosaphir.com/listen/radiosaphir-106.8-fm/radio.mp3');
   const [currentTitle, setCurrentTitle] = useState('Saphir FM');
   const [currentArtist, setCurrentArtist] = useState('La Radio Qui Vous Ressemble');
+  const [aboutText, setAboutText] = useState("Saphir FM 106.8 est votre station de radio de référence basée au cœur de Bouaké, en Côte d'Ivoire. Moderne, dynamique et proche de son audience, Saphir FM vous accompagne au quotidien avec une programmation riche et variée.");
   const [contactAddress, setContactAddress] = useState("Air France 2 rue wattao, Bouaké, Côte d'Ivoire");
   const [contactPhone, setContactPhone] = useState("(+225) 07 07 93 19 06\n(+225) 01 01 72 73 75\n(+225) 27 31 60 08 62");
   const [contactEmail, setContactEmail] = useState("radiosaphirfm@gmail.com");
@@ -173,6 +174,7 @@ export default function App() {
     Animated.timing(mountAnim, { toValue: 1, duration: 1000, useNativeDriver: true }).start();
     fetchData();
     fetchStreamUrl();
+    fetchAboutText();
     fetchContactInfo();
     
     // Configure background audio
@@ -229,17 +231,31 @@ export default function App() {
 
 
 
+  async function fetchAboutText() {
+    try {
+      const { data, error } = await supabase.from('settings').select('*').eq('key', 'about');
+      console.log("About fetch result:", data, error);
+      if (data && data.length > 0) {
+        setAboutText(data[0].value);
+      }
+    } catch (e) {
+      console.log("Error in fetchAboutText:", e);
+    }
+  }
+
   async function fetchContactInfo() {
     try {
-      const { data: address } = await supabase.from('settings').select('*').eq('key', 'address').single();
-      const { data: phone } = await supabase.from('settings').select('*').eq('key', 'phone').single();
-      const { data: email } = await supabase.from('settings').select('*').eq('key', 'email').single();
+      const { data: address } = await supabase.from('settings').select('*').eq('key', 'address');
+      const { data: phone } = await supabase.from('settings').select('*').eq('key', 'phone');
+      const { data: email } = await supabase.from('settings').select('*').eq('key', 'email');
 
-      if (address) setContactAddress(address.value);
-      if (phone) setContactPhone(phone.value);
-      if (email) setContactEmail(email.value);
+      console.log("Contact fetch result:", { address, phone, email });
+
+      if (address && address.length > 0) setContactAddress(address[0].value);
+      if (phone && phone.length > 0) setContactPhone(phone[0].value);
+      if (email && email.length > 0) setContactEmail(email[0].value);
     } catch (e) {
-      console.log("Using default contact info");
+      console.log("Error in fetchContactInfo:", e);
     }
   }
 
@@ -335,7 +351,7 @@ export default function App() {
           {activeTab === 'histoire' && (
             <ScrollView style={styles.scroll} contentContainerStyle={{ paddingBottom: 100 }}>
               <Text style={styles.title}>Notre Histoire</Text>
-              <View style={styles.card}><Text style={styles.text}>Saphir FM 106.8 est votre station de radio de référence basée au cœur de Bouaké, en Côte d'Ivoire. Moderne, dynamique et proche de son audience, Saphir FM vous accompagne au quotidien avec une programmation riche et variée.</Text></View>
+              <View style={styles.card}><Text style={styles.text}>{aboutText}</Text></View>
               {articles.map(a => <View key={a.id} style={styles.article}><Text style={styles.atitle}>{a.title}</Text></View>)}
             </ScrollView>
           )}
