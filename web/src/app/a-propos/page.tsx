@@ -3,6 +3,8 @@ import Footer from "@/components/Footer";
 import { Info, MapPin, Phone, Mail } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
+export const dynamic = 'force-dynamic';
+
 export default async function AboutPage() {
   // Valeurs par défaut
   let aboutText = "Saphir FM 106.8 est votre station de radio de référence basée au cœur de Bouaké, en Côte d'Ivoire. Moderne, dynamique et proche de son audience, Saphir FM vous accompagne au quotidien avec une programmation riche et variée.";
