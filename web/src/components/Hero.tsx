@@ -59,20 +59,24 @@ export default function Hero() {
   
   const STREAM_URL = "https://stream.radiosaphir.com/listen/radiosaphir-106.8-fm/radio.mp3";
 
-  const togglePlay = () => {
+  useEffect(() => {
     if (!audioRef.current) return;
 
     if (isPlaying) {
-      audioRef.current.pause();
-      audioRef.current.src = ""; // Libère le flux
-      audioRef.current.load(); // Force reload
-    } else {
       audioRef.current.src = STREAM_URL;
       audioRef.current.load();
       audioRef.current.play().catch(err => {
         console.error("Playback failed:", err);
+        setIsPlaying(false);
       });
+    } else {
+      audioRef.current.pause();
+      audioRef.current.src = "";
+      audioRef.current.load();
     }
+  }, [isPlaying]);
+
+  const togglePlay = () => {
     setIsPlaying(!isPlaying);
   };
 
@@ -207,7 +211,7 @@ export default function Hero() {
           </div>
         </div>
       </div>
-      <audio ref={audioRef} src={STREAM_URL} preload="none" />
+      <audio ref={audioRef} preload="none" />
     </section>
   );
 }
