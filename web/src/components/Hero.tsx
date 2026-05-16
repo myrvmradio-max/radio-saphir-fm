@@ -81,7 +81,7 @@ export default function Hero() {
       <div className="container mx-auto px-6 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Texte de gauche */}
-          <div className="space-y-6 md:space-y-8 text-center lg:text-left">
+          <div className="space-y-6 md:space-y-8 text-center lg:text-left order-2 lg:order-1">
             <div className="inline-flex items-center gap-2 bg-saphir-navy/5 border border-saphir-navy/10 px-4 py-2 rounded-full">
               <span className="relative flex h-3 w-3">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-saphir-electric opacity-75"></span>
@@ -114,7 +114,7 @@ export default function Hero() {
           </div>
 
           {/* Visuel de droite (Premium & Dynamic) */}
-          <div className="relative flex justify-center items-center h-[400px] md:h-[600px] mt-10 lg:mt-0">
+          <div className="relative flex justify-center items-center h-[400px] md:h-[600px] mt-10 lg:mt-0 order-1 lg:order-2">
             {/* Main Image Card - Moins de blanc massif, plus de finesse */}
             <div className="relative z-10 w-full h-full bg-saphir-navy/20 backdrop-blur-sm border-2 md:border-4 border-white/20 rounded-[2.5rem] md:rounded-[4rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] transition-all hover:scale-[1.02] duration-700 group">
                <img 
@@ -124,7 +124,7 @@ export default function Hero() {
                />
                
                {/* Play Button and Text Overlay */}
-               <div className="absolute inset-0 flex flex-col items-center justify-center z-20 translate-y-12">
+               <div className="absolute inset-0 flex flex-col items-center justify-end pb-12 z-20">
                  <div className="relative mb-4">
                    {isPlaying && (
                      <>
