@@ -40,7 +40,7 @@ export default function VideosPage() {
             <Youtube size={16} />
             <span>Vidéos & Replays</span>
           </div>
-          <h1 className="font-playfair text-5xl md:text-6xl font-bold text-saphir-navy mb-6">L'image du son</h1>
+          <h1 className="font-playfair text-5xl md:text-6xl font-bold text-saphir-navy mb-6">Saphir TV</h1>
           <p className="text-saphir-navy/40 max-w-2xl text-lg">Vivez l'expérience Saphir FM en images : interviews exclusives, coulisses et lives studio.</p>
         </div>
       </div>

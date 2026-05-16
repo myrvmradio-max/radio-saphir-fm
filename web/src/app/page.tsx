@@ -117,7 +117,7 @@ export default function Home() {
                 <Headphones size={16} />
                 <span>Podcasts</span>
               </div>
-              <h2 className="font-playfair text-4xl md:text-5xl font-bold text-saphir-navy">Vos séries préférées</h2>
+              <h2 className="font-playfair text-4xl md:text-5xl font-bold text-saphir-navy">Vos émissions préférées</h2>
             </div>
             <button className="flex items-center gap-2 text-saphir-navy/40 hover:text-saphir-electric transition-colors group font-bold text-sm">
               Explorer les séries <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
@@ -164,7 +164,7 @@ export default function Home() {
               <ShoppingBag size={16} />
               <span>Boutique Officielle</span>
             </div>
-            <h2 className="font-playfair text-4xl md:text-5xl font-bold text-saphir-navy">Portez vos couleurs</h2>
+            <h2 className="font-playfair text-4xl md:text-5xl font-bold text-saphir-navy">Achetez vos articles</h2>
           </div>
           <button className="flex items-center gap-2 text-saphir-navy/40 hover:text-saphir-electric transition-colors group font-bold text-sm">
             Visiter la boutique <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
@@ -216,7 +216,7 @@ export default function Home() {
                 <Youtube size={16} />
                 <span>Vidéos & Replays</span>
               </div>
-              <h2 className="font-playfair text-4xl md:text-5xl font-bold text-saphir-navy">L'image du son</h2>
+              <h2 className="font-playfair text-4xl md:text-5xl font-bold text-saphir-navy">Saphir TV</h2>
             </div>
           </div>
 

@@ -14,7 +14,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.radiosaphir.app"
+      "bundleIdentifier": "com.radiosaphir.app",
+      "infoPlist": {
+        "UIBackgroundModes": ["audio"]
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -22,7 +25,8 @@
         "backgroundColor": "#06040F"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.radiosaphir.app"
+      "package": "com.radiosaphir.app",
+      "permissions": ["FOREGROUND_SERVICE", "WAKE_LOCK"]
     },
     "web": {
       "favicon": "./assets/favicon.png"

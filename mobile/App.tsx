@@ -168,6 +168,16 @@ export default function App() {
     Animated.timing(mountAnim, { toValue: 1, duration: 1000, useNativeDriver: true }).start();
     fetchData();
     fetchStreamUrl();
+    
+    // Configure background audio
+    Audio.setAudioModeAsync({
+      allowsRecordingIOS: false,
+      staysActiveInBackground: true,
+      playsInSilentModeIOS: true,
+      shouldDuckAndroid: true,
+      playThroughEarpieceAndroid: false,
+    }).catch(err => console.error("Error setting audio mode:", err));
+
     return () => { if (sound.current) sound.current.unloadAsync(); };
   }, []);
 

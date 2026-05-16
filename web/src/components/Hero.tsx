@@ -82,20 +82,12 @@ export default function Hero() {
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Texte de gauche */}
           <div className="space-y-6 md:space-y-8 text-center lg:text-left order-2 lg:order-1">
-            <div className="inline-flex items-center gap-2 bg-saphir-navy/5 border border-saphir-navy/10 px-4 py-2 rounded-full">
-              <span className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-saphir-electric opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-saphir-electric"></span>
-              </span>
-              <span className="text-[10px] font-bold tracking-widest uppercase text-saphir-navy/60">En direct sur 106.8 FM</span>
-            </div>
-            
             <h1 className="font-playfair text-5xl md:text-7xl lg:text-8xl font-bold leading-[1.1] text-saphir-navy">
-              Écoutez.<br />
+              Écoutez<br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-saphir-electric to-saphir-navy">
-                Informez-vous.
+                Informez-vous
               </span><br />
-              Vivez.
+              Vivez saphir FM !
             </h1>
             
             <p className="text-base md:text-lg text-saphir-navy/50 max-w-lg mx-auto lg:mx-0 leading-relaxed font-medium">
@@ -151,14 +143,24 @@ export default function Hero() {
                      <span className="text-[10px] font-black tracking-widest text-white uppercase">En Direct</span>
                    </div>
                    <h3 className="text-xl md:text-2xl font-bold mb-1 tracking-tight">{currentProgram.name}</h3>
-                   <div className="flex items-center justify-center gap-2 text-white/80 text-xs font-bold">
-                     <span>PAR {currentProgram.host.toUpperCase()}</span>
-                     <span className="w-1 h-1 rounded-full bg-white/40"></span>
-                     <div className="flex items-center gap-1">
-                       <Clock size={12} />
-                       {currentProgram.time}
-                     </div>
-                   </div>
+                    <div className="flex items-center justify-center gap-2 text-white/80 text-xs font-bold">
+                      {currentProgram.host === "Direct" ? (
+                        <>
+                          <span>BOUAKÉ</span>
+                          <span className="w-1 h-1 rounded-full bg-white/40"></span>
+                          <span>106.8 FM</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>PAR {currentProgram.host.toUpperCase()}</span>
+                          <span className="w-1 h-1 rounded-full bg-white/40"></span>
+                          <div className="flex items-center gap-1">
+                            <Clock size={12} />
+                            {currentProgram.time}
+                          </div>
+                        </>
+                      )}
+                    </div>
                  </div>
                </div>
                
@@ -181,17 +183,7 @@ export default function Hero() {
                </div>
             </div>
             
-            {/* Floating Live Badge (Optimisé pour mobile) */}
-            <div className="absolute -top-4 -right-4 md:-top-12 md:-right-12 w-28 h-28 md:w-44 md:h-44 bg-saphir-navy/40 backdrop-blur-2xl shadow-2xl border border-white/10 rounded-[2rem] md:rounded-[3rem] p-4 md:p-6 flex flex-col justify-center gap-1 md:gap-2 animate-bounce duration-[5000ms] z-20 overflow-hidden">
-               {/* Accent de couleur discret */}
-               <div className="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-saphir-electric to-transparent"></div>
-               
-               <div className="w-8 h-8 md:w-10 md:h-10 bg-saphir-electric/20 rounded-xl md:rounded-2xl flex items-center justify-center text-saphir-electric">
-                  <Mic size={18} />
-               </div>
-               <div className="text-[10px] md:text-xs font-black text-white uppercase tracking-widest">En Studio</div>
-               <div className="text-[8px] md:text-[10px] font-bold text-white/40 uppercase tracking-tighter">Direct Live 106.8</div>
-            </div>
+
 
             {/* Decorative Orbitals */}
             <div className="absolute -bottom-10 -left-10 w-40 md:w-56 h-40 md:h-56 bg-saphir-electric/10 rounded-full blur-[60px] md:blur-[100px] -z-10 animate-pulse"></div>

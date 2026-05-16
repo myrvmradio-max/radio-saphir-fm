@@ -36,11 +36,16 @@ export default function Navbar() {
   }, [isMenuOpen]);
 
   const navLinks = [
-    { name: "DIRECT", href: "/" },
-    { name: "PODCASTS", href: "/podcasts" },
+    { name: "ACCUEIL", href: "/" },
     { name: "ACTUALITÉS", href: "/articles" },
-    { name: "VIDÉOS", href: "/videos" },
+    { name: "LA RADIO", href: "/la-radio" },
+    { name: "MÉDIATHÈQUE", subItems: [
+        { name: "PODCAST", href: "/podcasts" },
+        { name: "SAPHIR TV", href: "/videos" },
+      ]
+    },
     { name: "BOUTIQUE", href: "/boutique" },
+    { name: "À PROPOS", href: "/a-propos" },
   ];
 
   return (
@@ -50,7 +55,7 @@ export default function Navbar() {
       >
         <div className="container mx-auto px-6 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-3">
-            <div className="relative w-48 md:w-56 lg:w-64 h-14 md:h-16 lg:h-20 transition-transform hover:scale-105 active:scale-95 bg-white rounded-xl overflow-hidden shadow-lg">
+            <div className="relative w-36 md:w-44 lg:w-52 h-10 md:h-12 lg:h-14 transition-transform hover:scale-105 active:scale-95 bg-white rounded-xl overflow-hidden shadow-lg">
               <Image
                 src="/logo.png"
                 alt="Saphir FM Logo"
@@ -62,25 +67,48 @@ export default function Navbar() {
           </Link>
 
           {/* NAVIGATION DESKTOP */}
-          <div className="hidden lg:flex items-center gap-8 text-[10px] font-bold text-white/80 tracking-[0.2em] uppercase">
+          <div className="hidden lg:flex items-center gap-6 text-sm font-bold text-white/80 tracking-[0.1em] uppercase">
             {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                className="hover:text-white transition-all relative group py-2"
-              >
-                {link.name}
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-saphir-electric transition-all group-hover:w-full shadow-[0_0_8px_rgba(106,124,255,0.8)]"></span>
-              </Link>
+              link.subItems ? (
+                <div key={link.name} className="relative group py-2 cursor-pointer">
+                  <div className="hover:text-white transition-all flex items-center gap-1">
+                    {link.name}
+                    <ChevronRight size={12} className="rotate-90 group-hover:rotate-[270deg] transition-transform" />
+                  </div>
+                  <div className="absolute top-full left-0 bg-[#060B1F] border border-white/5 shadow-2xl rounded-xl py-2 w-48 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-300 z-50">
+                    {link.subItems.map((sub) => (
+                      <Link
+                        key={sub.name}
+                        href={sub.href}
+                        className="block px-4 py-2 text-white/70 hover:text-white hover:bg-white/5 transition-all"
+                      >
+                        {sub.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  className="hover:text-white transition-all relative group py-2"
+                >
+                  {link.name}
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-saphir-electric transition-all group-hover:w-full shadow-[0_0_8px_rgba(106,124,255,0.8)]"></span>
+                </Link>
+              )
             ))}
           </div>
 
           <div className="flex items-center gap-4">
             {/* BOUTON ÉCOUTER */}
-            <button className="hidden sm:flex bg-gradient-to-r from-saphir-electric to-[#8B99FF] text-white px-6 py-2.5 rounded-full font-bold text-[10px] tracking-widest transition-all transform hover:scale-105 hover:shadow-[0_0_20px_rgba(106,124,255,0.4)] active:scale-95 uppercase items-center gap-2 border border-white/20">
+            <Link 
+              href="/contact"
+              className="hidden sm:flex bg-gradient-to-r from-saphir-electric to-[#8B99FF] text-white px-6 py-2.5 rounded-full font-bold text-xs tracking-widest transition-all transform hover:scale-105 hover:shadow-[0_0_20px_rgba(106,124,255,0.4)] active:scale-95 uppercase items-center gap-2 border border-white/20"
+            >
               <div className="w-2 h-2 bg-white rounded-full animate-pulse shadow-[0_0_8px_#fff]"></div>
-              <span>DIRECT</span>
-            </button>
+              <span>Nous Contacter</span>
+            </Link>
 
             {/* BOUTON HAMBURGER */}
             <button
@@ -119,20 +147,43 @@ export default function Navbar() {
 
           <div className="flex flex-col gap-2 relative z-10">
             {navLinks.map((link, index) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                onClick={() => setIsMenuOpen(false)}
-                className={`group flex items-center justify-between py-4 border-b border-white/5 transition-all duration-500 ${
-                  isMenuOpen ? "translate-x-0 opacity-100" : "translate-x-10 opacity-0"
-                }`}
-                style={{ transitionDelay: `${index * 50}ms` }}
-              >
-                <span className="text-xl font-bold text-white/90 tracking-widest uppercase group-hover:text-saphir-electric transition-all">
-                  {link.name}
-                </span>
-                <ChevronRight className="text-white/20 group-hover:text-saphir-electric transition-colors" size={18} />
-              </Link>
+              link.subItems ? (
+                <div key={link.name} className={`border-b border-white/5 transition-all duration-500 ${isMenuOpen ? "translate-x-0 opacity-100" : "translate-x-10 opacity-0"}`} style={{ transitionDelay: `${index * 50}ms` }}>
+                  <div className="flex items-center justify-between py-4">
+                    <span className="text-xl font-bold text-white/90 tracking-widest uppercase">
+                      {link.name}
+                    </span>
+                  </div>
+                  <div className="pl-4 pb-2 space-y-2">
+                    {link.subItems.map((sub) => (
+                      <Link
+                        key={sub.name}
+                        href={sub.href}
+                        onClick={() => setIsMenuOpen(false)}
+                        className="flex items-center justify-between py-2 text-white/50 hover:text-saphir-electric transition-all"
+                      >
+                        <span className="text-base font-bold uppercase tracking-wider">{sub.name}</span>
+                        <ChevronRight size={14} />
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  onClick={() => setIsMenuOpen(false)}
+                  className={`group flex items-center justify-between py-4 border-b border-white/5 transition-all duration-500 ${
+                    isMenuOpen ? "translate-x-0 opacity-100" : "translate-x-10 opacity-0"
+                  }`}
+                  style={{ transitionDelay: `${index * 50}ms` }}
+                >
+                  <span className="text-xl font-bold text-white/90 tracking-widest uppercase group-hover:text-saphir-electric transition-all">
+                    {link.name}
+                  </span>
+                  <ChevronRight className="text-white/20 group-hover:text-saphir-electric transition-colors" size={18} />
+                </Link>
+              )
             ))}
           </div>
           
