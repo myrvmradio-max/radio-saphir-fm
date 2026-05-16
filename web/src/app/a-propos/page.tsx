@@ -14,15 +14,15 @@ export default async function AboutPage() {
 
   try {
     // Récupération des données depuis Supabase
-    const { data: about } = await supabase.from('settings').select('*').eq('key', 'about').single();
-    const { data: addr } = await supabase.from('settings').select('*').eq('key', 'address').single();
-    const { data: ph } = await supabase.from('settings').select('*').eq('key', 'phone').single();
-    const { data: em } = await supabase.from('settings').select('*').eq('key', 'email').single();
+    const { data: about } = await supabase.from('settings').select('*').eq('key', 'about');
+    const { data: addr } = await supabase.from('settings').select('*').eq('key', 'address');
+    const { data: ph } = await supabase.from('settings').select('*').eq('key', 'phone');
+    const { data: em } = await supabase.from('settings').select('*').eq('key', 'email');
 
-    if (about) aboutText = about.value;
-    if (addr) contactAddress = addr.value;
-    if (ph) contactPhone = ph.value;
-    if (em) contactEmail = em.value;
+    if (about && about.length > 0) aboutText = about[0].value;
+    if (addr && addr.length > 0) contactAddress = addr[0].value;
+    if (ph && ph.length > 0) contactPhone = ph[0].value;
+    if (em && em.length > 0) contactEmail = em[0].value;
   } catch (error) {
     console.error("Error fetching settings:", error);
   }
