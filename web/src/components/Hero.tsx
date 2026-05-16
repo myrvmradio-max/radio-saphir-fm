@@ -65,6 +65,7 @@ export default function Hero() {
     if (isPlaying) {
       audioRef.current.pause();
       audioRef.current.src = ""; // Libère le flux
+      audioRef.current.load(); // Force reload
     } else {
       audioRef.current.src = STREAM_URL;
       audioRef.current.load();

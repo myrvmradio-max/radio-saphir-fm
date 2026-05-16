@@ -187,12 +187,7 @@ export default function Navbar() {
             ))}
           </div>
           
-          <div className="mt-auto space-y-4 relative z-10">
-            <button className="w-full bg-saphir-electric text-white px-6 py-4 rounded-xl font-bold text-xs tracking-widest transition-all shadow-[0_10px_30px_rgba(106,124,255,0.3)] flex items-center justify-center gap-3 active:scale-[0.98] uppercase">
-              <Radio size={18} className="animate-pulse" />
-              Écouter Live
-            </button>
-            
+          <div className="mt-auto relative z-10">
             <Link 
               href="/contact"
               onClick={() => setIsMenuOpen(false)}
