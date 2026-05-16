@@ -289,13 +289,27 @@ export default function App() {
             </ScrollView>
           )}
           {activeTab === 'contact' && (
-            <View style={styles.tabContent}>
+            <ScrollView style={styles.scroll} contentContainerStyle={{ paddingBottom: 100 }}>
               <Text style={styles.title}>Contact</Text>
               <View style={styles.card}>
-                <Text style={styles.text}>📞 27 31 60 08 62</Text>
-                <Text style={styles.text}>📧 contact@radiosaphir.com</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 15 }}>
+                  <Ionicons name="location-outline" size={24} color="#A855F7" />
+                  <Text style={styles.text}>Quartier Commerce, Bouaké, Côte d'Ivoire</Text>
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginBottom: 15 }}>
+                  <Ionicons name="call-outline" size={24} color="#A855F7" />
+                  <View>
+                    <Text style={styles.text}>(+225) 07 07 93 19 06</Text>
+                    <Text style={styles.text}>(+225) 01 01 72 73 75</Text>
+                    <Text style={styles.text}>(+225) 27 31 60 08 62</Text>
+                  </View>
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                  <Ionicons name="mail-outline" size={24} color="#A855F7" />
+                  <Text style={styles.text}>contact@saphirfm.com</Text>
+                </View>
               </View>
-            </View>
+            </ScrollView>
           )}
         </Animated.View>
 
@@ -303,7 +317,7 @@ export default function App() {
           <NavBtn icon="radio" label="Radio" active={activeTab === 'accueil'} onPress={() => setActiveTab('accueil')} />
           <NavBtn icon="book" label="Histoire" active={activeTab === 'histoire'} onPress={() => setActiveTab('histoire')} />
           <NavBtn icon="cart" label="Produit" active={activeTab === 'produit'} onPress={() => setActiveTab('produit')} />
-          <NavBtn icon="mail" label="Contact" active={activeTab === 'contact'} onPress={() => setActiveTab('contact')} />
+          <NavBtn icon="call" label="Contact" active={activeTab === 'contact'} onPress={() => setActiveTab('contact')} />
         </View>
       </SafeAreaView>
     </View>

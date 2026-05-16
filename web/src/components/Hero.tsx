@@ -1,9 +1,28 @@
 "use client";
 
-import { Play, Mic, Radio } from "lucide-react";
+import { Play, Mic, Radio, Pause } from "lucide-react";
 import Link from "next/link";
+import { useState, useRef } from "react";
 
 export default function Hero() {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  
+  const STREAM_URL = "https://stream.radiosaphir.com/listen/radiosaphir-106.8-fm/radio.mp3";
+
+  const togglePlay = () => {
+    if (!audioRef.current) return;
+
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play().catch(err => {
+        console.error("Playback failed:", err);
+      });
+    }
+    setIsPlaying(!isPlaying);
+  };
+
   return (
     <section className="relative min-h-[90vh] flex items-center pt-24 md:pt-32 pb-20 overflow-hidden">
       {/* Background Gradients (Subtle) */}
@@ -35,10 +54,7 @@ export default function Hero() {
             </p>
 
             <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-4 pt-4">
-              <button className="flex items-center justify-center gap-3 bg-saphir-navy text-white px-8 md:px-10 py-4 md:py-5 rounded-full font-bold text-base md:text-lg hover:bg-saphir-electric transition-all transform hover:scale-105 active:scale-95 shadow-2xl shadow-saphir-navy/20">
-                <Play fill="currentColor" size={20} />
-                Lancer le direct
-              </button>
+
               <Link 
                 href="/programmes"
                 className="flex items-center justify-center gap-3 bg-white border border-saphir-navy/10 text-saphir-navy px-8 md:px-10 py-4 md:py-5 rounded-full font-bold text-base md:text-lg hover:bg-gray-50 transition-all"
@@ -58,8 +74,30 @@ export default function Hero() {
                  className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-700"
                />
                
+               {/* Play Button Overlay */}
+               <div className="absolute inset-0 flex items-center justify-center z-20">
+                 <div className="relative">
+                   {isPlaying && (
+                     <>
+                       <div className="absolute inset-0 rounded-full bg-saphir-electric animate-ping opacity-75"></div>
+                       <div className="absolute inset-0 rounded-full bg-saphir-navy animate-ping opacity-50" style={{ animationDelay: '0.5s' }}></div>
+                     </>
+                   )}
+                   <button 
+                     onClick={togglePlay}
+                     className={`w-24 h-24 rounded-full flex items-center justify-center transition-all shadow-2xl hover:scale-105 active:scale-95 ${
+                       isPlaying 
+                       ? "bg-white text-saphir-navy border-2 border-saphir-navy" 
+                       : "bg-saphir-navy text-white hover:bg-saphir-electric"
+                     }`}
+                   >
+                     {isPlaying ? <Pause fill="currentColor" size={44} /> : <Play fill="currentColor" size={44} className="ml-1" />}
+                   </button>
+                 </div>
+               </div>
+               
                {/* Overlay with Wave - Gradient plus sombre en bas */}
-               <div className="absolute inset-0 bg-gradient-to-t from-[#060B1F]/80 via-transparent to-transparent"></div>
+               <div className="absolute inset-0 bg-gradient-to-t from-[#060B1F]/80 via-transparent to-transparent pointer-events-none"></div>
                
                {/* Minimalist Player Info */}
                <div className="absolute bottom-6 md:bottom-10 left-6 md:left-10 right-6 md:right-10 flex items-end gap-1 h-12 md:h-16">
@@ -107,6 +145,7 @@ export default function Hero() {
           </div>
         </div>
       </div>
+      <audio ref={audioRef} src={STREAM_URL} preload="none" />
     </section>
   );
 }
