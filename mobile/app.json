@@ -1,10 +1,10 @@
 {
   "expo": {
     "name": "Saphir FM",
-    "slug": "saphir-fm",
+    "slug": "radio-saphir",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/logo.png",
+    "icon": "./assets/Icone2.png",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
@@ -21,7 +21,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/logo.png",
+        "foregroundImage": "./assets/Icone2.png",
         "backgroundColor": "#06040F"
       },
       "edgeToEdgeEnabled": true,
@@ -30,6 +30,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "d1dced01-a7a1-49ee-9edc-80721ebb1bce"
+      }
+    },
+    "owner": "marcel-app"
   }
 }

@@ -89,6 +89,45 @@ function VisualizerBar({ delay, isPlaying }) {
 //  Screens
 // ─────────────────────────────────────────────────────
 
+function MarqueeText() {
+  const screenWidth = Dimensions.get('window').width;
+  const textWidth = 350;
+  const scrollAnim = useRef(new Animated.Value(screenWidth)).current;
+  
+  useEffect(() => {
+    const animate = () => {
+      scrollAnim.setValue(screenWidth);
+      Animated.timing(scrollAnim, {
+        toValue: -textWidth,
+        duration: 10000,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      }).start(({ finished }) => {
+        if (finished) animate();
+      });
+    };
+    animate();
+  }, []);
+
+  return (
+    <View style={{ width: screenWidth, height: 25, overflow: 'hidden', marginTop: 35 }}>
+      <Animated.Text
+        numberOfLines={1}
+        style={{
+          color: 'rgba(255,255,255,0.85)',
+          fontSize: 14,
+          fontWeight: '700',
+          letterSpacing: 1,
+          position: 'absolute',
+          transform: [{ translateX: scrollAnim }],
+        }}
+      >
+        ✦  Radio Saphir  —  Bouaké  —  106.8 Fm  ✦
+      </Animated.Text>
+    </View>
+  );
+}
+
 function Accueil({ isPlaying, isBuffering, togglePlayback, pulseAnim, spin, glowOpacity, currentTitle, currentArtist }) {
   return (
     <View style={styles.tabContent}>
@@ -124,10 +163,11 @@ function Accueil({ isPlaying, isBuffering, togglePlayback, pulseAnim, spin, glow
         </View>
 
         <View style={styles.trackInfo}>
-          <Text style={styles.trackTitle}>{currentTitle}</Text>
           <Text style={styles.trackArtist}>{currentArtist}</Text>
         </View>
       </View>
+
+      <MarqueeText />
 
       <View style={styles.vizContainer}>
         {[...Array(28)].map((_, i) => <VisualizerBar key={i} delay={i * 40} isPlaying={isPlaying} />)}
@@ -207,10 +247,14 @@ export default function App() {
   }
 
   async function fetchData() {
-    const { data: p } = await supabase.from('products').select('*').limit(10);
-    const { data: a } = await supabase.from('articles').select('*').limit(5);
-    setProducts(p || []);
-    setArticles(a || []);
+    try {
+      const { data: p } = await supabase.from('products').select('*').limit(10);
+      const { data: a } = await supabase.from('articles').select('*').limit(5);
+      setProducts(p || []);
+      setArticles(a || []);
+    } catch (e) {
+      console.log("Error in fetchData:", e);
+    }
   }
 
   async function fetchNowPlaying() {
@@ -220,9 +264,9 @@ export default function App() {
       
       const station = Array.isArray(data) ? data[0] : data;
       
-      if (station && station.now_playing) {
-        setCurrentTitle(station.now_playing.song.title);
-        setCurrentArtist(station.now_playing.song.artist);
+      if (station && station.now_playing && station.now_playing.song) {
+        setCurrentTitle(station.now_playing.song.title || 'Saphir FM');
+        setCurrentArtist(station.now_playing.song.artist || 'La Radio Qui Vous Ressemble');
       }
     } catch (error) {
       console.log("Erreur NowPlaying:", error);
@@ -380,10 +424,6 @@ export default function App() {
         <View style={styles.header}>
           <View style={styles.headerLogoWhiteBg}>
             <Image source={require('./assets/Logo-Saphir_officiel.png')} style={styles.headerLogo} resizeMode="contain" />
-          </View>
-          <View style={styles.livePill}>
-            <Animated.View style={[styles.liveDot, isPlaying && { backgroundColor: '#A855F7' }]} />
-            <Text style={styles.liveLabel}>{isPlaying ? 'EN DIRECT' : 'OFFLINE'}</Text>
           </View>
         </View>
 

@@ -63,16 +63,17 @@ export default function Hero() {
     if (!audioRef.current) return;
 
     if (isPlaying) {
-      audioRef.current.src = STREAM_URL;
-      audioRef.current.load();
+      // Si pas de src ou src vidé, recharger le flux
+      if (!audioRef.current.src || audioRef.current.src === window.location.href) {
+        audioRef.current.src = STREAM_URL;
+        audioRef.current.load();
+      }
       audioRef.current.play().catch(err => {
         console.error("Playback failed:", err);
         setIsPlaying(false);
       });
     } else {
       audioRef.current.pause();
-      audioRef.current.src = "";
-      audioRef.current.load();
     }
   }, [isPlaying]);
 
@@ -95,7 +96,7 @@ export default function Hero() {
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-saphir-electric to-saphir-navy">
                 Informez-vous
               </span><br />
-              Vivez saphir FM !
+              Vivez saphir FM !
             </h1>
             
             <p className="text-base md:text-lg text-saphir-navy/50 max-w-lg mx-auto lg:mx-0 leading-relaxed font-medium">
@@ -146,10 +147,6 @@ export default function Hero() {
                  
                  {/* Text Info (White on dark overlay) */}
                  <div className="text-white text-center">
-                   <div className="flex items-center justify-center gap-1.5 bg-red-500 px-2.5 py-1 rounded-full w-max mx-auto mb-2">
-                     <span className="flex h-2 w-2 rounded-full bg-white animate-pulse"></span>
-                     <span className="text-[10px] font-black tracking-widest text-white uppercase">En Direct</span>
-                   </div>
                    <h3 className="text-xl md:text-2xl font-bold mb-1 tracking-tight">{currentProgram.name}</h3>
                     <div className="flex items-center justify-center gap-2 text-white/80 text-xs font-bold">
                       {currentProgram.host === "Direct" ? (
