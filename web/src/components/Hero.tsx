@@ -112,7 +112,7 @@ export default function Hero() {
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Texte de gauche */}
           <div className="space-y-6 md:space-y-8 text-center lg:text-left order-2 lg:order-1">
-            <h1 className="font-playfair text-5xl md:text-7xl lg:text-8xl font-bold leading-[1.1] text-saphir-navy">
+            <h1 className="font-playfair text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] text-saphir-navy">
               Écoutez<br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-saphir-electric to-saphir-navy">
                 Informez-vous
