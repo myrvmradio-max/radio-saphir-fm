@@ -59,28 +59,47 @@ export default function Hero() {
   
   const STREAM_URL = "https://stream.radiosaphir.com/listen/radiosaphir-106.8-fm/radio.mp3";
 
+  // Synchronisation si le stream se coupe ou est mis en pause par le système
   useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const handleEnded = () => setIsPlaying(false);
+    const handlePause = () => setIsPlaying(false);
+
+    audio.addEventListener("ended", handleEnded);
+    audio.addEventListener("pause", handlePause);
+
+    return () => {
+      audio.removeEventListener("ended", handleEnded);
+      audio.removeEventListener("pause", handlePause);
+    };
+  }, []);
+
+  const togglePlay = async () => {
     if (!audioRef.current) return;
 
-    if (isPlaying) {
-      // Si pas de src ou src vidé, recharger le flux
-      if (!audioRef.current.src || audioRef.current.src === window.location.href) {
-        audioRef.current.src = STREAM_URL;
-        audioRef.current.load();
-      }
-      audioRef.current.play().catch(err => {
-        console.error("Playback failed:", err);
-        setIsPlaying(false);
-      });
-    } else {
-      audioRef.current.pause();
-      audioRef.current.src = ""; // On vide le src pour arrêter le flux live
-      audioRef.current.load(); // Force le déchargement
-    }
-  }, [isPlaying]);
+    const audio = audioRef.current;
 
-  const togglePlay = () => {
-    setIsPlaying(!isPlaying);
+    try {
+      if (isPlaying) {
+        // STOP COMPLET
+        audio.pause();
+        audio.currentTime = 0; // Remet le temps à zéro
+        audio.removeAttribute("src"); // Déconnecte le flux
+        audio.load(); // Recharge l'élément pour couper la connexion
+        setIsPlaying(false);
+      } else {
+        // Recharge le stream proprement
+        audio.src = STREAM_URL;
+        audio.crossOrigin = "anonymous"; // Pour iOS/Safari
+        await audio.play();
+        setIsPlaying(true);
+      }
+    } catch (error) {
+      console.error("Audio error:", error);
+      setIsPlaying(false);
+    }
   };
 
   return (
