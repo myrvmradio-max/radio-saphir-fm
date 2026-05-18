@@ -110,7 +110,7 @@ function MarqueeText() {
   }, []);
 
   return (
-    <View style={{ width: screenWidth, height: 25, overflow: 'hidden', marginTop: 35 }}>
+    <View style={{ width: screenWidth, height: 25, overflow: 'hidden', marginTop: 10 }}>
       <Animated.Text
         numberOfLines={1}
         style={{
@@ -131,6 +131,8 @@ function MarqueeText() {
 function Accueil({ isPlaying, isBuffering, togglePlayback, pulseAnim, spin, glowOpacity, currentTitle, currentArtist }) {
   return (
     <View style={styles.tabContent}>
+      <MarqueeText />
+
       <View style={styles.playerCenter}>
         {/* Background Rings */}
         <View style={styles.staticRing} />
@@ -163,24 +165,9 @@ function Accueil({ isPlaying, isBuffering, togglePlayback, pulseAnim, spin, glow
         </View>
 
         <View style={styles.trackInfo}>
+          <Text style={styles.trackTitle}>{currentTitle}</Text>
           <Text style={styles.trackArtist}>{currentArtist}</Text>
         </View>
-      </View>
-
-      <MarqueeText />
-
-      <View style={styles.vizContainer}>
-        {[...Array(28)].map((_, i) => <VisualizerBar key={i} delay={i * 40} isPlaying={isPlaying} />)}
-      </View>
-
-      <View style={styles.glassCard}>
-        <LinearGradient colors={['rgba(168,85,247,0.15)', 'rgba(99,102,241,0.08)']} style={styles.glassInner}>
-          <View style={styles.cardRow}>
-            <View style={styles.cardItem}><Text style={styles.cardValue}>106.8</Text><Text style={styles.cardLabel}>MHz FM</Text></View>
-            <View style={styles.cardDivider} /><View style={styles.cardItem}><Text style={styles.cardValue}>24/7</Text><Text style={styles.cardLabel}>EN DIRECT</Text></View>
-            <View style={styles.cardDivider} /><View style={styles.cardItem}><Text style={styles.cardValue}>HD</Text><Text style={styles.cardLabel}>QUALITÉ</Text></View>
-          </View>
-        </LinearGradient>
       </View>
     </View>
   );
@@ -598,8 +585,8 @@ const styles = StyleSheet.create({
   staticRing: { position: 'absolute', width: 200, height: 200, borderRadius: 100, borderWidth: 1, borderColor: 'rgba(168,85,247,0.1)', borderStyle: 'dashed', zIndex: 0 },
 
   trackInfo: { alignItems: 'center', marginTop: 40 },
-  trackTitle: { color: '#fff', fontSize: 16, fontWeight: '900' },
-  trackArtist: { color: 'rgba(255,255,255,0.4)', fontSize: 10, marginTop: 4 },
+  trackTitle: { color: '#fff', fontSize: 22, fontWeight: '900' },
+  trackArtist: { color: 'rgba(255,255,255,0.6)', fontSize: 14, marginTop: 6 },
 
   vizContainer: { flexDirection: 'row', height: 40, gap: 3, marginBottom: 20, alignItems: 'flex-end', justifyContent: 'center' },
   vizBar: { width: 3, height: 30, backgroundColor: '#A855F7', borderRadius: 2 },

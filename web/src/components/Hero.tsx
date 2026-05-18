@@ -74,6 +74,8 @@ export default function Hero() {
       });
     } else {
       audioRef.current.pause();
+      audioRef.current.src = ""; // On vide le src pour arrêter le flux live
+      audioRef.current.load(); // Force le déchargement
     }
   }, [isPlaying]);
 
