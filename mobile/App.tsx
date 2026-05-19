@@ -26,35 +26,104 @@ const { width, height } = Dimensions.get('window');
 //  Components
 // ─────────────────────────────────────────────────────
 
-function FloatingBlob({ size, color, initialX, initialY, driftX, driftY, duration, delay = 0, opacity = 0.3 }) {
+// Silk Aurora & Twinkling Stardust elegant background components
+function SilkAuroraBlob({ size, color, initialX, initialY, driftX, driftY, duration, opacity = 0.08 }) {
   const translateX = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(0)).current;
   const scale = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    Animated.loop(Animated.sequence([
-      Animated.timing(translateX, { toValue: driftX, duration, delay, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-      Animated.timing(translateX, { toValue: -driftX, duration, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-      Animated.timing(translateX, { toValue: 0, duration, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-    ])).start();
-    Animated.loop(Animated.sequence([
-      Animated.timing(translateY, { toValue: driftY, duration: duration * 1.2, delay: delay + 500, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-      Animated.timing(translateY, { toValue: -driftY, duration: duration * 1.2, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-      Animated.timing(translateY, { toValue: 0, duration: duration * 1.2, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-    ])).start();
-    Animated.loop(Animated.sequence([
-      Animated.timing(scale, { toValue: 1.15, duration: duration * 0.8, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
-      Animated.timing(scale, { toValue: 0.85, duration: duration * 0.8, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
-    ])).start();
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(translateX, { toValue: driftX, duration, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(translateX, { toValue: -driftX, duration, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      ])
+    ).start();
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(translateY, { toValue: driftY, duration: duration * 1.35, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(translateY, { toValue: -driftY, duration: duration * 1.35, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      ])
+    ).start();
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(scale, { toValue: 1.15, duration: duration * 0.85, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(scale, { toValue: 0.9, duration: duration * 0.85, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      ])
+    ).start();
   }, []);
 
   return (
-    <Animated.View style={{
-      position: 'absolute', top: initialY, left: initialX, width: size, height: size,
-      borderWidth: 1, borderColor: color, opacity, transform: [{ translateX }, { translateY }, { scale }]
-    }} />
+    <Animated.View
+      style={{
+        position: 'absolute',
+        left: initialX - size / 2,
+        top: initialY - size / 2,
+        width: size,
+        height: size,
+        borderRadius: size / 2,
+        backgroundColor: color,
+        transform: [{ translateX }, { translateY }, { scale }],
+        opacity,
+      }}
+    />
   );
 }
+
+function TwinklingStar({ size, top, left, duration, maxOpacity }) {
+  const opacityAnim = useRef(new Animated.Value(0.1 + Math.random() * 0.2)).current;
+
+  useEffect(() => {
+    const twinkle = () => {
+      Animated.sequence([
+        Animated.timing(opacityAnim, {
+          toValue: maxOpacity * (0.3 + Math.random() * 0.7),
+          duration: duration * (0.8 + Math.random() * 0.4),
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacityAnim, {
+          toValue: 0.05 + Math.random() * 0.15,
+          duration: duration * (0.8 + Math.random() * 0.4),
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        })
+      ]).start(() => twinkle());
+    };
+    
+    const timer = setTimeout(twinkle, Math.random() * 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <Animated.View
+      style={{
+        position: 'absolute',
+        left,
+        top,
+        width: size,
+        height: size,
+        borderRadius: size / 2,
+        backgroundColor: '#FFFFFF',
+        opacity: opacityAnim,
+      }}
+    />
+  );
+}
+
+const STARS_COUNT = 45;
+const STARS_DATA = Array.from({ length: STARS_COUNT }).map((_, index) => {
+  return {
+    id: index,
+    size: Math.random() < 0.8 ? 1.5 : 2.5,
+    left: Math.random() * width,
+    top: Math.random() * height * 0.95,
+    duration: 2000 + Math.random() * 3000,
+    maxOpacity: 0.4 + Math.random() * 0.4,
+  };
+});
 
 // RippleHalo supprimé
 
@@ -82,28 +151,6 @@ function VisualizerBar({ delay, isPlaying }) {
 function Accueil({ isPlaying, isBuffering, togglePlayback, pulseAnim, spin, glowOpacity, currentTitle, currentArtist }) {
   return (
     <View style={styles.tabContent}>
-      {/* Central Glass Neon Card */}
-      <View style={styles.neonCard}>
-        {/* Logo inside */}
-        <View style={styles.cardLogoContainer}>
-          <Image
-            source={require('./assets/Logo-Saphir_officiel.png')}
-            style={styles.cardLogoImage}
-            resizeMode="contain"
-          />
-        </View>
-
-        {/* Visualizer Pink Fuchsia */}
-        <View style={styles.vizContainer}>
-          {[0, 100, 200, 50, 150, 250, 80, 180, 120, 220, 90, 190, 60, 160, 240].map((delay, i) => (
-            <VisualizerBar key={i} delay={delay} isPlaying={isPlaying} />
-          ))}
-        </View>
-
-        {/* EN DIRECT text */}
-        <Text style={styles.onAirText}>— EN DIRECT —</Text>
-      </View>
-
       {/* Mic play button in center */}
       <View style={styles.playControlContainer}>
         <Animated.View style={[styles.playBtnWrap, { transform: [{ scale: pulseAnim }] }]}>
@@ -234,8 +281,45 @@ export default function App() {
       const station = Array.isArray(data) ? data[0] : data;
       
       if (station && station.now_playing && station.now_playing.song) {
-        const title = station.now_playing.song.title || 'Saphir FM';
-        const artist = station.now_playing.song.artist || 'La Radio Qui Vous Ressemble';
+        let title = station.now_playing.song.title || 'Saphir FM';
+        let artist = station.now_playing.song.artist || '';
+
+        // If artist is empty, try to parse it from the title using common separators
+        if (!artist && title.includes(' - ')) {
+          const parts = title.split(' - ');
+          artist = parts[0].trim();
+          title = parts.slice(1).join(' - ').trim();
+        } else if (!artist && title.includes('  ')) {
+          const parts = title.split('  ');
+          artist = parts[0].trim();
+          title = parts.slice(1).join('  ').trim();
+        } else if (!artist && title.includes(' -')) {
+          const parts = title.split(' -');
+          artist = parts[0].trim();
+          title = parts.slice(1).join(' -').trim();
+        } else if (!artist && title.includes('- ')) {
+          const parts = title.split('- ');
+          artist = parts[0].trim();
+          title = parts.slice(1).join('- ').trim();
+        } else if (!artist && title.includes('-')) {
+          const parts = title.split('-');
+          artist = parts[0].trim();
+          title = parts.slice(1).join('-').trim();
+        }
+
+        // Clean up whitespace
+        title = title.trim();
+        artist = artist.trim();
+
+        // Fallbacks
+        if (!artist) {
+          artist = 'Saphir FM';
+        }
+        if (!title || title.toLowerCase() === 'saphir fm') {
+          title = 'Saphir FM';
+          artist = 'La Radio Qui Vous Ressemble';
+        }
+
         setCurrentTitle(title);
         setCurrentArtist(artist);
         
@@ -423,9 +507,31 @@ export default function App() {
   return (
     <View style={styles.root}>
       <StatusBar style="light" />
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: '#1A1528' }]} />
-      <FloatingBlob size={400} color="#7C3AED" initialX={-150} initialY={-100} driftX={60} driftY={60} duration={8000} opacity={0.15} />
-      <FloatingBlob size={300} color="#EC4899" initialX={width - 200} initialY={height * 0.4} driftX={-40} driftY={-80} duration={9000} opacity={0.1} />
+      {/* Elegant Celestial Velvet Background */}
+      <LinearGradient
+        colors={['#080415', '#0E0728', '#160B3E']}
+        style={StyleSheet.absoluteFill}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      />
+      
+      {/* Silk Aurora Blobs (Slowly drifting & breathing glowing halos) */}
+      <SilkAuroraBlob size={width * 1.3} color="#8A2BE2" initialX={width * 0.2} initialY={height * 0.25} driftX={40} driftY={35} duration={25000} opacity={0.09} />
+      <SilkAuroraBlob size={width * 1.5} color="#3B82F6" initialX={width * 0.8} initialY={height * 0.75} driftX={-50} driftY={-40} duration={30000} opacity={0.08} />
+      <SilkAuroraBlob size={width * 1.2} color="#EC4899" initialX={width * 0.5} initialY={height * 0.5} driftX={35} driftY={-35} duration={28000} opacity={0.07} />
+      <SilkAuroraBlob size={width * 1.0} color="#F59E0B" initialX={width * 0.85} initialY={height * 0.15} driftX={-30} driftY={30} duration={22000} opacity={0.05} />
+
+      {/* Twinkling Stardust (Micro-particles floating in deep space) */}
+      {STARS_DATA.map(star => (
+        <TwinklingStar
+          key={star.id}
+          size={star.size}
+          top={star.top}
+          left={star.left}
+          duration={star.duration}
+          maxOpacity={star.maxOpacity}
+        />
+      ))}
 
       <SafeAreaView style={styles.safe}>
         <View style={styles.header}>
