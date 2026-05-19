@@ -139,7 +139,7 @@ export default function AdminBoutique() {
               <DollarSign size={24} />
            </div>
            <div className="text-2xl font-bold text-saphir-navy mb-1">
-             {stats.revenue.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €
+             {stats.revenue.toLocaleString('fr-FR')} FCFA
            </div>
            <div className="text-xs font-bold text-saphir-navy/30 uppercase tracking-widest">Chiffre d'affaires (30j)</div>
         </div>
@@ -196,7 +196,7 @@ export default function AdminBoutique() {
                       <tr key={product.id} className="hover:bg-gray-50/30 transition-colors">
                         <td className="px-8 py-5">
                             <div className="font-bold text-saphir-navy text-sm">{product.name}</div>
-                            <div className="text-xs text-saphir-electric font-bold">{product.price} €</div>
+                            <div className="text-xs text-saphir-electric font-bold">{product.price} FCFA</div>
                         </td>
                         <td className="px-8 py-5 text-center">
                             <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
@@ -248,7 +248,7 @@ export default function AdminBoutique() {
                      </div>
                      <div className="text-right flex items-center gap-1">
                         <div className="text-sm font-bold text-saphir-navy">
-                          {Number(order.total_price).toFixed(2)} €
+                          {Number(order.total_price).toLocaleString('fr-FR')} FCFA
                         </div>
                         <ChevronRight size={14} className="text-saphir-navy/20" />
                      </div>

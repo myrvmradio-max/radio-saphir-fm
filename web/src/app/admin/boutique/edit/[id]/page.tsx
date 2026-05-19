@@ -157,7 +157,7 @@ export default function EditProduct() {
         {/* Pricing & Inventory */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
           <div className="space-y-4">
-            <label className="text-xs font-bold text-saphir-navy/40 uppercase tracking-widest">Prix (XOF) *</label>
+            <label className="text-xs font-bold text-saphir-navy/40 uppercase tracking-widest">Prix (FCFA) *</label>
             <input 
               type="number" 
               className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-bold text-saphir-navy focus:ring-2 focus:ring-saphir-electric/20" 

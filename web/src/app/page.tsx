@@ -200,7 +200,7 @@ export default function Home() {
                   </button>
                 </div>
                 <h4 className="font-bold text-saphir-navy mb-1">{product.name}</h4>
-                <p className="text-saphir-electric font-bold">{product.price} €</p>
+                <p className="text-saphir-electric font-bold">{product.price} FCFA</p>
               </div>
             ))
           )}

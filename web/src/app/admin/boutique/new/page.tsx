@@ -130,7 +130,7 @@ export default function NewProduct() {
             </select>
           </div>
           <div className="space-y-4">
-            <label className="text-xs font-bold text-saphir-navy/40 uppercase tracking-widest">Prix (€)</label>
+            <label className="text-xs font-bold text-saphir-navy/40 uppercase tracking-widest">Prix (FCFA)</label>
             <input 
               type="number" 
               placeholder="25.00" 

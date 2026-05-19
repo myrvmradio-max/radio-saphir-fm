@@ -63,7 +63,7 @@ export default function ProductDetailPage() {
     const message = encodeURIComponent(
       `Bonjour Saphir FM ! Je souhaite commander le produit suivant :\n\n` +
       `*Produit :* ${product.name}\n` +
-      `*Prix :* ${product.price} €\n` +
+      `*Prix :* ${product.price} FCFA\n` +
       `*Quantité :* ${quantity}\n\n` +
       `Lien : ${window.location.href}`
     );
@@ -170,7 +170,7 @@ export default function ProductDetailPage() {
                 {product.name}
               </h1>
               <div className="flex items-baseline gap-4">
-                <span className="text-4xl font-playfair font-black text-saphir-navy">{product.price} €</span>
+                <span className="text-4xl font-playfair font-black text-saphir-navy">{product.price} FCFA</span>
                 {product.stock > 0 ? (
                    <span className="text-xs font-bold text-green-500 bg-green-50 px-3 py-1 rounded-full uppercase tracking-widest">En Stock</span>
                 ) : (

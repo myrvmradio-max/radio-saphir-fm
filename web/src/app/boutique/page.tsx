@@ -119,7 +119,7 @@ export default function BoutiquePage() {
                 <div className="px-2">
                   <p className="text-[9px] font-black text-saphir-electric uppercase tracking-[0.2em] mb-2">{product.category}</p>
                   <h4 className="text-xl font-black text-saphir-navy mb-2 group-hover:text-saphir-electric transition-colors line-clamp-1">{product.name}</h4>
-                  <p className="text-2xl font-playfair font-black text-saphir-navy/40">{product.price} €</p>
+                  <p className="text-2xl font-playfair font-black text-saphir-navy/40">{product.price} FCFA</p>
                 </div>
               </Link>
             ))}
