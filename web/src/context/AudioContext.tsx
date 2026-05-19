@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useRef } from "react";
+import { logListenerSession } from "@/lib/telemetry";
 
 interface AudioContextType {
   isPlaying: boolean;
@@ -122,6 +123,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         audio.crossOrigin = "anonymous";
         await audio.play();
         setIsPlaying(true);
+        logListenerSession("web");
       }
     } catch (error) {
       console.error("Global audio play error:", error);

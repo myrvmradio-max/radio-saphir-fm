@@ -142,6 +142,28 @@ function Accueil({ isPlaying, isBuffering, togglePlayback, pulseAnim, spin, glow
   );
 }
 
+async function logListenerSessionMobile() {
+  try {
+    const response = await fetch('https://ipapi.co/json/', { headers: { 'Accept': 'application/json' } });
+    let country = 'International';
+    let city = 'Inconnu';
+    if (response.ok) {
+      const data = await response.json();
+      if (data.country_name) {
+        country = data.country_name === 'Ivory Coast' ? 'Côte d\'Ivoire' : data.country_name;
+      }
+      if (data.city) {
+        city = data.city;
+      }
+    }
+    await supabase.from('listener_logs').insert([
+      { country, city, platform: 'mobile' }
+    ]);
+  } catch (e) {
+    console.log("Telemetry error:", e);
+  }
+}
+
 // ─────────────────────────────────────────────────────
 //  Main App
 // ─────────────────────────────────────────────────────
@@ -366,6 +388,7 @@ export default function App() {
         await TrackPlayer.play();
         setIsPlaying(true);
         setIsBuffering(false);
+        logListenerSessionMobile();
       }
     } catch (e) {
       console.error("Playback error:", e);
