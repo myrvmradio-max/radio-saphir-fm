@@ -167,7 +167,12 @@ function Accueil({ isPlaying, isBuffering, togglePlayback, pulseAnim, spin, glow
               {isBuffering ? (
                 <ActivityIndicator color="#fff" size="large" />
               ) : (
-                <Ionicons name={isPlaying ? "mic" : "mic-outline"} size={44} color="#fff" />
+                <Ionicons 
+                  name={isPlaying ? "pause" : "play"} 
+                  size={44} 
+                  color="#fff" 
+                  style={!isPlaying ? { marginLeft: 6 } : null} 
+                />
               )}
             </LinearGradient>
           </TouchableOpacity>
@@ -757,8 +762,8 @@ const styles = StyleSheet.create({
   cardValue: { color: '#fff', fontSize: 20, fontWeight: '800' },
   cardLabel: { color: '#555', fontSize: 10, fontWeight: '700', marginTop: 4 },
   cardDivider: { width: 1, height: 30, backgroundColor: 'rgba(255,255,255,0.05)' },
-  customBadge: { backgroundColor: 'rgba(255,255,255,0.03)', padding: 15, borderRadius: 15, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)', alignItems: 'center', marginTop: 20, width: 150 },
-  badgeLarge: { color: '#FFFFFF', fontSize: 24, fontWeight: 'bold' },
+  customBadge: { backgroundColor: 'rgba(255,255,255,0.03)', paddingVertical: 10, paddingHorizontal: 22, borderRadius: 15, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)', alignItems: 'center', marginTop: 20 },
+  badgeLarge: { color: '#FFFFFF', fontSize: 18, fontWeight: 'bold', letterSpacing: 0.5 },
   badgeSmall: { color: 'rgba(255,255,255,0.6)', fontSize: 12, fontWeight: '700', marginTop: 4 },
 
   navbar: { flexDirection: 'row', height: 80, backgroundColor: '#0A0A15', borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.05)', paddingBottom: 20 },
