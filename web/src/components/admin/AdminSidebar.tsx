@@ -36,6 +36,13 @@ const MENU_ITEMS = [
 export default function AdminSidebar() {
   const pathname = usePathname();
 
+  const handleLogout = async () => {
+    if (confirm("Voulez-vous vous déconnecter ?")) {
+      const { supabase } = await import("@/lib/supabase");
+      await supabase.auth.signOut();
+    }
+  };
+
   return (
     <aside className="w-64 h-screen bg-saphir-navy text-white flex flex-col fixed left-0 top-0 z-50">
       <div className="p-6 border-b border-white/5 flex-shrink-0">
@@ -74,7 +81,10 @@ export default function AdminSidebar() {
           <Home size={18} />
           Retour au site
         </Link>
-        <button className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-red-400/60 hover:bg-red-400/10 hover:text-red-400 transition-all text-xs">
+        <button 
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-red-400/60 hover:bg-red-400/10 hover:text-red-400 transition-all text-xs text-left"
+        >
           <LogOut size={18} />
           Déconnexion
         </button>
