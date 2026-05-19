@@ -82,36 +82,58 @@ function VisualizerBar({ delay, isPlaying }) {
 function Accueil({ isPlaying, isBuffering, togglePlayback, pulseAnim, spin, glowOpacity, currentTitle, currentArtist }) {
   return (
     <View style={styles.tabContent}>
-      <View style={styles.playerCenter}>
-        {/* Play Button + Glow (ON TOP) */}
-        <View style={styles.playControlContainer}>
-          <Animated.View style={[styles.playBtnWrap, { transform: [{ scale: pulseAnim }] }]}>
-            {/* Glow Ambiant Layers */}
-            <Animated.View style={[styles.playGlow2, { opacity: glowOpacity }]} />
-            <Animated.View style={[styles.playGlow, { opacity: glowOpacity }]} />
-            
-            <TouchableOpacity onPress={togglePlayback} activeOpacity={0.85} style={styles.playBtnTouchable}>
-              <LinearGradient
-                colors={isPlaying ? ['#A855F7', '#6366F1', '#4F46E5'] : ['#1E1B4B', '#312E81']}
-                start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-                style={styles.playBtn}
-              >
-                {isBuffering ? <ActivityIndicator color="#fff" size="large" /> : isPlaying ? (
-                  <View style={styles.pauseIconWrap}><View style={styles.pauseBar} /><View style={styles.pauseBar} /></View>
-                ) : <View style={styles.playTriangle} />}
-              </LinearGradient>
-            </TouchableOpacity>
-          </Animated.View>
+      {/* Central Glass Neon Card */}
+      <View style={styles.neonCard}>
+        {/* Logo inside */}
+        <View style={styles.cardLogoContainer}>
+          <Image
+            source={require('./assets/Logo-Saphir_officiel.png')}
+            style={styles.cardLogoImage}
+            resizeMode="contain"
+          />
         </View>
 
+        {/* Visualizer Pink Fuchsia */}
+        <View style={styles.vizContainer}>
+          {[0, 100, 200, 50, 150, 250, 80, 180, 120, 220, 90, 190, 60, 160, 240].map((delay, i) => (
+            <VisualizerBar key={i} delay={delay} isPlaying={isPlaying} />
+          ))}
+        </View>
+
+        {/* EN DIRECT text */}
+        <Text style={styles.onAirText}>— EN DIRECT —</Text>
       </View>
 
+      {/* Mic play button in center */}
+      <View style={styles.playControlContainer}>
+        <Animated.View style={[styles.playBtnWrap, { transform: [{ scale: pulseAnim }] }]}>
+          {/* Ambient Glows */}
+          <Animated.View style={[styles.playGlow2, { opacity: glowOpacity }]} />
+          <Animated.View style={[styles.playGlow, { opacity: glowOpacity }]} />
+          
+          <TouchableOpacity onPress={togglePlayback} activeOpacity={0.85} style={styles.playBtnTouchable}>
+            <LinearGradient
+              colors={['#8A2BE2', '#4F46E5']}
+              start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+              style={styles.playBtn}
+            >
+              {isBuffering ? (
+                <ActivityIndicator color="#fff" size="large" />
+              ) : (
+                <Ionicons name={isPlaying ? "mic" : "mic-outline"} size={44} color="#fff" />
+              )}
+            </LinearGradient>
+          </TouchableOpacity>
+        </Animated.View>
+      </View>
+
+      {/* Track info perfectly centered */}
       <View style={styles.trackInfo}>
         <Text style={styles.trackTitle}>{currentTitle}</Text>
         <Text style={styles.trackArtist}>{currentArtist}</Text>
       </View>
 
-      {/* Badge en bas */}
+      {/* Bottom badge */}
       <View style={styles.customBadge}>
         <Text style={styles.badgeLarge}>106.8 FM</Text>
         <Text style={styles.badgeSmall}>BOUAKE</Text>
@@ -545,27 +567,60 @@ const styles = StyleSheet.create({
   tabContent: { flex: 1, justifyContent: 'space-around', alignItems: 'center', padding: 24 },
   playerCenter: { justifyContent: 'center', alignItems: 'center' },
   
-  playControlContainer: { width: 200, height: 200, justifyContent: 'center', alignItems: 'center', zIndex: 10 },
-  halo: { position: 'absolute', width: 120, height: 120, borderRadius: 60, borderWidth: 1, borderColor: '#A855F7' },
-  playBtnWrap: { width: 120, height: 120, borderRadius: 60, overflow: 'visible', justifyContent: 'center', alignItems: 'center' },
-  playGlow: { position: 'absolute', width: 180, height: 180, borderRadius: 90, backgroundColor: '#A855F7', opacity: 0.15 },
-  playGlow2: { position: 'absolute', width: 140, height: 140, borderRadius: 70, backgroundColor: '#6366F1', opacity: 0.25 },
-  playBtnTouchable: { width: 120, height: 120, borderRadius: 60 },
-  playBtn: { width: 120, height: 120, borderRadius: 60, justifyContent: 'center', alignItems: 'center' },
-  playTriangle: { width: 0, height: 0, borderTopWidth: 15, borderBottomWidth: 15, borderLeftWidth: 25, borderTopColor: 'transparent', borderBottomColor: 'transparent', borderLeftColor: '#fff', marginLeft: 5 },
-  pauseIconWrap: { flexDirection: 'row', gap: 8 },
-  pauseBar: { width: 6, height: 25, backgroundColor: '#fff', borderRadius: 3 },
+  neonCard: {
+    width: width * 0.84,
+    height: 230,
+    borderRadius: 35,
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+    shadowColor: '#A855F7',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.6,
+    shadowRadius: 20,
+    elevation: 15,
+    marginTop: 20,
+  },
+  cardLogoContainer: {
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 22,
+    paddingVertical: 10,
+    borderRadius: 20,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  cardLogoImage: {
+    width: width * 0.52,
+    height: 60,
+  },
+  onAirText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '700',
+    letterSpacing: 4,
+    marginTop: 10,
+  },
 
-  orbitRing: { position: 'absolute', width: 220, height: 220, borderRadius: 110, justifyContent: 'center', alignItems: 'center', zIndex: 1 },
-  orbitDot: { position: 'absolute', width: 6, height: 6, borderRadius: 3, backgroundColor: '#A855F7' },
-  staticRing: { position: 'absolute', width: 200, height: 200, borderRadius: 100, borderWidth: 1, borderColor: 'rgba(168,85,247,0.1)', borderStyle: 'dashed', zIndex: 0 },
+  playControlContainer: { width: 140, height: 140, justifyContent: 'center', alignItems: 'center', zIndex: 10, marginTop: 15 },
+  playBtnWrap: { width: 90, height: 90, borderRadius: 45, overflow: 'visible', justifyContent: 'center', alignItems: 'center' },
+  playGlow: { position: 'absolute', width: 130, height: 130, borderRadius: 65, backgroundColor: '#A855F7', opacity: 0.25 },
+  playGlow2: { position: 'absolute', width: 110, height: 110, borderRadius: 55, backgroundColor: '#D946EF', opacity: 0.35 },
+  playBtnTouchable: { width: 90, height: 90, borderRadius: 45 },
+  playBtn: { width: 90, height: 90, borderRadius: 45, justifyContent: 'center', alignItems: 'center', shadowColor: '#8A2BE2', shadowOpacity: 0.8, shadowRadius: 15, elevation: 10 },
 
-  trackInfo: { alignItems: 'center', marginTop: 40 },
-  trackTitle: { color: '#fff', fontSize: 18, fontWeight: '900' },
-  trackArtist: { color: 'rgba(255,255,255,0.6)', fontSize: 14, marginTop: 6 },
+  trackInfo: { alignItems: 'center', marginTop: 25 },
+  trackTitle: { color: '#fff', fontSize: 18, fontWeight: '900', textAlign: 'center', paddingHorizontal: 20 },
+  trackArtist: { color: 'rgba(255,255,255,0.6)', fontSize: 14, marginTop: 6, textAlign: 'center', paddingHorizontal: 20 },
 
-  vizContainer: { flexDirection: 'row', height: 40, gap: 3, marginBottom: 20, alignItems: 'flex-end', justifyContent: 'center' },
-  vizBar: { width: 3, height: 30, backgroundColor: '#A855F7', borderRadius: 2 },
+  vizContainer: { flexDirection: 'row', height: 40, gap: 4, marginBottom: 15, alignItems: 'flex-end', justifyContent: 'center' },
+  vizBar: { width: 4, height: 35, backgroundColor: '#D946EF', borderRadius: 2 },
 
   glassCard: { marginHorizontal: 24, padding: 20, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.03)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)', marginBottom: 20 },
   cardRow: { flexDirection: 'row', justifyContent: 'space-around' },

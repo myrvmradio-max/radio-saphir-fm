@@ -222,19 +222,10 @@ export default function SplashScreen({ onDone }: { onDone: () => void }) {
           ))}
         </Animated.View>
 
-        {/* Slogan */}
+        {/* Slogan -> Bienvenue */}
         <Animated.Text style={[styles.slogan, { opacity: sloganOpacity }]}>
-          Radio Saphir, encore plus proche de vous.
+          Bienvenue sur la radio Saphir 106.8 FM
         </Animated.Text>
-
-        {/* Info divider */}
-        <Animated.View style={[styles.line, { opacity: infoOpacity }]} />
-
-        {/* Contact info */}
-        <Animated.View style={{ opacity: infoOpacity, alignItems: 'center' }}>
-          <Text style={styles.phone}>☎  27 31 60 08 62 · 07 07 93 19 06</Text>
-          <Text style={styles.website}>www.radiosaphir.com</Text>
-        </Animated.View>
       </View>
     </Animated.View>
   );
@@ -244,18 +235,16 @@ const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 32 },
   logoWhiteBg: {
     backgroundColor: '#FFFFFF',
-    padding: 15,
-    borderRadius: 25,
+    paddingHorizontal: 25,
+    paddingVertical: 12,
+    borderRadius: 22,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 10,
     elevation: 8,
   },
-  logoImage: { width: width - 80, height: 120 },
+  logoImage: { width: width * 0.62, height: 80 },
   eqRow: { flexDirection: 'row', alignItems: 'flex-end', height: 50, marginTop: 30, marginBottom: 10 },
   slogan: { color: '#fff', fontSize: 16, fontWeight: '600', textAlign: 'center', marginTop: 15, letterSpacing: 0.3 },
-  line: { width: '60%', height: 1, backgroundColor: 'rgba(255,255,255,0.2)', marginVertical: 20 },
-  phone: { color: 'rgba(255,255,255,0.7)', fontSize: 13, fontWeight: '500', marginBottom: 6 },
-  website: { color: '#5B8EF5', fontSize: 14, fontWeight: '700' },
 });
