@@ -2,6 +2,7 @@
   "expo": {
     "name": "Saphir FM",
     "slug": "radio-saphir",
+    "owner": "saphirfm",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/Icone2.png",
@@ -16,7 +17,9 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.radiosaphir.app",
       "infoPlist": {
-        "UIBackgroundModes": ["audio"]
+        "UIBackgroundModes": [
+          "audio"
+        ]
       }
     },
     "android": {
@@ -26,15 +29,21 @@
       },
       "edgeToEdgeEnabled": true,
       "package": "com.radiosaphir.app",
-      "permissions": ["FOREGROUND_SERVICE", "WAKE_LOCK"]
+      "permissions": [
+        "FOREGROUND_SERVICE",
+        "FOREGROUND_SERVICE_MEDIA_PLAYBACK",
+        "WAKE_LOCK",
+        "POST_NOTIFICATIONS"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
-        "projectId": "d1dced01-a7a1-49ee-9edc-80721ebb1bce"
+        "projectId": "7592648b-701b-43a4-8228-a496d447f8aa"
       }
-    }
+    },
+    "plugins": []
   }
 }

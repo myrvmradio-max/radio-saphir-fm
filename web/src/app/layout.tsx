@@ -49,6 +49,9 @@ export const metadata: Metadata = {
   },
 };
 
+import { AudioProvider } from "@/context/AudioContext";
+import FloatingPlayer from "@/components/FloatingPlayer";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -59,7 +62,10 @@ export default function RootLayout({
       <body
         className={`${poppins.variable} ${playfair.variable} font-sans antialiased`}
       >
-        {children}
+        <AudioProvider>
+          {children}
+          <FloatingPlayer />
+        </AudioProvider>
       </body>
     </html>
   );

@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 
 export const dynamic = 'force-dynamic';
 
-export default async function AboutPage() {
+export default async function RadioPage() {
   // Valeurs par défaut
   let aboutText = "Saphir FM 106.8 est votre station de radio de référence basée au cœur de Bouaké, en Côte d'Ivoire. Moderne, dynamique et proche de son audience, Saphir FM vous accompagne au quotidien avec une programmation riche et variée.";
   let contactAddress = "Air France 2 rue wattao, Bouaké, Côte d'Ivoire";
@@ -37,14 +37,14 @@ export default async function AboutPage() {
           <div className="max-w-4xl mx-auto text-center mb-16">
             <div className="inline-flex items-center gap-2 bg-saphir-electric/10 px-4 py-2 rounded-full mb-6">
               <Info size={16} className="text-saphir-electric" />
-              <span className="text-[10px] font-black tracking-[0.2em] uppercase text-saphir-electric">À Propos</span>
+              <span className="text-[10px] font-black tracking-[0.2em] uppercase text-saphir-electric">La Radio</span>
             </div>
             <h1 className="text-5xl md:text-7xl font-black text-saphir-navy mb-6 tracking-tight">
-              L'Histoire de <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-saphir-electric to-saphir-navy">Saphir FM</span>
+              Saphir FM <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-saphir-electric to-saphir-navy">106.8 FM</span>
             </h1>
             <p className="text-lg text-saphir-navy/40 font-medium max-w-2xl mx-auto">
-              Découvrez qui nous sommes, nos valeurs et comment nous contacter.
+              Votre fréquence de référence à Bouaké. Découvrez notre histoire et comment nous contacter.
             </p>
           </div>
 

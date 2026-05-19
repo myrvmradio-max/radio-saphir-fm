@@ -38,14 +38,13 @@ export default function Navbar() {
   const navLinks = [
     { name: "ACCUEIL", href: "/" },
     { name: "ACTUALITÉS", href: "/articles" },
-    { name: "LA RADIO", href: "/la-radio" },
+    { name: "RADIO", href: "/radio" },
     { name: "MÉDIATHÈQUE", subItems: [
         { name: "PODCAST", href: "/podcasts" },
         { name: "SAPHIR TV", href: "/videos" },
       ]
     },
     { name: "BOUTIQUE", href: "/boutique" },
-    { name: "À PROPOS", href: "/a-propos" },
   ];
 
   return (

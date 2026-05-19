@@ -17,7 +17,7 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { Audio } from 'expo-av';
+import TrackPlayer, { Capability } from 'react-native-track-player';
 import { supabase } from './lib/supabase';
 
 const { width, height } = Dimensions.get('window');
@@ -50,25 +50,13 @@ function FloatingBlob({ size, color, initialX, initialY, driftX, driftY, duratio
 
   return (
     <Animated.View style={{
-      position: 'absolute', top: initialY, left: initialX, width: size, height: size, borderRadius: size / 2,
-      backgroundColor: color, opacity, transform: [{ translateX }, { translateY }, { scale }]
+      position: 'absolute', top: initialY, left: initialX, width: size, height: size,
+      borderWidth: 1, borderColor: color, opacity, transform: [{ translateX }, { translateY }, { scale }]
     }} />
   );
 }
 
-function RippleHalo({ delay, isPlaying }) {
-  const anim = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    if (isPlaying) {
-      Animated.loop(
-        Animated.timing(anim, { toValue: 1, duration: 2500, delay, easing: Easing.out(Easing.quad), useNativeDriver: true })
-      ).start();
-    } else { anim.setValue(0); }
-  }, [isPlaying]);
-  const scale = anim.interpolate({ inputRange: [0, 1], outputRange: [1, 2.5] });
-  const opacity = anim.interpolate({ inputRange: [0, 0.7, 1], outputRange: [0.5, 0.2, 0] });
-  return <Animated.View style={[styles.halo, { transform: [{ scale }], opacity }]} />;
-}
+// RippleHalo supprimé
 
 function VisualizerBar({ delay, isPlaying }) {
   const anim = useRef(new Animated.Value(0.3)).current;
@@ -89,67 +77,19 @@ function VisualizerBar({ delay, isPlaying }) {
 //  Screens
 // ─────────────────────────────────────────────────────
 
-function MarqueeText() {
-  const screenWidth = Dimensions.get('window').width;
-  const textWidth = 350;
-  const scrollAnim = useRef(new Animated.Value(screenWidth)).current;
-  
-  useEffect(() => {
-    const animate = () => {
-      scrollAnim.setValue(screenWidth);
-      Animated.timing(scrollAnim, {
-        toValue: -textWidth,
-        duration: 10000,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      }).start(({ finished }) => {
-        if (finished) animate();
-      });
-    };
-    animate();
-  }, []);
-
-  return (
-    <View style={{ width: screenWidth, height: 25, overflow: 'hidden', marginTop: 10 }}>
-      <Animated.Text
-        numberOfLines={1}
-        style={{
-          color: 'rgba(255,255,255,0.85)',
-          fontSize: 14,
-          fontWeight: '700',
-          letterSpacing: 1,
-          position: 'absolute',
-          transform: [{ translateX: scrollAnim }],
-        }}
-      >
-        ✦  Radio Saphir  —  Bouaké  —  106.8 Fm  ✦
-      </Animated.Text>
-    </View>
-  );
-}
+// MarqueeText supprimé
 
 function Accueil({ isPlaying, isBuffering, togglePlayback, pulseAnim, spin, glowOpacity, currentTitle, currentArtist }) {
   return (
     <View style={styles.tabContent}>
-      <MarqueeText />
-
       <View style={styles.playerCenter}>
-        {/* Background Rings */}
-        <View style={styles.staticRing} />
-        <Animated.View style={[styles.orbitRing, { transform: [{ rotate: spin }] }]}>
-          {[...Array(8)].map((_, i) => (
-            <View key={i} style={[styles.orbitDot, { transform: [{ rotate: `${i * 45}deg` }, { translateY: -110 }], opacity: isPlaying ? 1 : 0.2 }]} />
-          ))}
-        </Animated.View>
-
-        {/* Play Button + Halos (ON TOP) */}
+        {/* Play Button + Glow (ON TOP) */}
         <View style={styles.playControlContainer}>
-          <RippleHalo delay={0} isPlaying={isPlaying} />
-          <RippleHalo delay={800} isPlaying={isPlaying} />
-          <RippleHalo delay={1600} isPlaying={isPlaying} />
-
           <Animated.View style={[styles.playBtnWrap, { transform: [{ scale: pulseAnim }] }]}>
+            {/* Glow Ambiant Layers */}
+            <Animated.View style={[styles.playGlow2, { opacity: glowOpacity }]} />
             <Animated.View style={[styles.playGlow, { opacity: glowOpacity }]} />
+            
             <TouchableOpacity onPress={togglePlayback} activeOpacity={0.85} style={styles.playBtnTouchable}>
               <LinearGradient
                 colors={isPlaying ? ['#A855F7', '#6366F1', '#4F46E5'] : ['#1E1B4B', '#312E81']}
@@ -164,10 +104,17 @@ function Accueil({ isPlaying, isBuffering, togglePlayback, pulseAnim, spin, glow
           </Animated.View>
         </View>
 
-        <View style={styles.trackInfo}>
-          <Text style={styles.trackTitle}>{currentTitle}</Text>
-          <Text style={styles.trackArtist}>{currentArtist}</Text>
-        </View>
+      </View>
+
+      <View style={styles.trackInfo}>
+        <Text style={styles.trackTitle}>{currentTitle}</Text>
+        <Text style={styles.trackArtist}>{currentArtist}</Text>
+      </View>
+
+      {/* Badge en bas */}
+      <View style={styles.customBadge}>
+        <Text style={styles.badgeLarge}>106.8 FM</Text>
+        <Text style={styles.badgeSmall}>BOUAKE</Text>
       </View>
     </View>
   );
@@ -197,7 +144,6 @@ export default function App() {
   const [formMessage, setFormMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
 
-  const sound = useRef(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const rotateAnim = useRef(new Animated.Value(0)).current;
   const glowAnim = useRef(new Animated.Value(0.4)).current;
@@ -210,16 +156,8 @@ export default function App() {
     fetchAboutText();
     fetchContactInfo();
     
-    // Configure background audio
-    Audio.setAudioModeAsync({
-      allowsRecordingIOS: false,
-      staysActiveInBackground: true,
-      playsInSilentModeIOS: true,
-      shouldDuckAndroid: true,
-      playThroughEarpieceAndroid: false,
-    }).catch(err => console.error("Error setting audio mode:", err));
-
-    return () => { if (sound.current) sound.current.unloadAsync(); };
+    // Audio mode configuration removed (handled by TrackPlayer)
+    return () => {};
   }, []);
 
   async function fetchStreamUrl() {
@@ -252,8 +190,19 @@ export default function App() {
       const station = Array.isArray(data) ? data[0] : data;
       
       if (station && station.now_playing && station.now_playing.song) {
-        setCurrentTitle(station.now_playing.song.title || 'Saphir FM');
-        setCurrentArtist(station.now_playing.song.artist || 'La Radio Qui Vous Ressemble');
+        const title = station.now_playing.song.title || 'Saphir FM';
+        const artist = station.now_playing.song.artist || 'La Radio Qui Vous Ressemble';
+        setCurrentTitle(title);
+        setCurrentArtist(artist);
+        
+        try {
+          TrackPlayer.updateNowPlayingMetadata({
+            title: title,
+            artist: artist,
+          });
+        } catch (err) {
+          // Player might not be setup yet
+        }
       }
     } catch (error) {
       console.log("Erreur NowPlaying:", error);
@@ -265,6 +214,33 @@ export default function App() {
     const interval = setInterval(fetchNowPlaying, 20000);
     return () => clearInterval(interval);
   }, []);
+
+  const isPlayerSetup = useRef(false);
+  useEffect(() => {
+    if (showSplash) return;
+    if (!streamUrl) return;
+
+    async function setup() {
+      if (isPlayerSetup.current) return;
+      try {
+        await TrackPlayer.setupPlayer();
+        await TrackPlayer.updateOptions({
+          capabilities: [
+            Capability.Play,
+            Capability.Stop,
+          ],
+          compactCapabilities: [
+            Capability.Play,
+            Capability.Stop,
+          ],
+        });
+        isPlayerSetup.current = true;
+      } catch (e) {
+        console.log(e);
+      }
+    }
+    setup();
+  }, [showSplash, streamUrl]);
 
 
 
@@ -348,47 +324,46 @@ export default function App() {
   const togglePlayback = async () => {
     try {
       if (isPlaying) {
-        if (sound.current) {
-          try {
-            await sound.current.pauseAsync();
-          } catch (err) {
-            console.log("Ignore pause error:", err.message);
-          }
-        }
+        // STOP COMPLET
+        await TrackPlayer.stop();
+        // Vide totalement la queue
+        await TrackPlayer.reset();
         setIsPlaying(false);
       } else {
         setIsBuffering(true);
-        
-        if (sound.current) {
-          try {
-            await sound.current.unloadAsync();
-          } catch (err) {
-            console.log("Ignore unload error:", err.message);
-          }
-        }
-        
-        const { sound: newSound } = await Audio.Sound.createAsync(
-          { uri: streamUrl },
-          { shouldPlay: false }
-        );
-        sound.current = newSound;
-        await sound.current.playAsync();
-        
-        setIsBuffering(false);
+        // Reset propre avant reload
+        await TrackPlayer.reset();
+        // Ajoute le stream frais
+        await TrackPlayer.add({
+          id: 'radiosaphir',
+          url: streamUrl + '?t=' + Date.now(),
+          title: currentTitle,
+          artist: currentArtist,
+        });
+        // Lance lecture
+        await TrackPlayer.play();
         setIsPlaying(true);
+        setIsBuffering(false);
       }
     } catch (e) {
-      console.error("Playback error with URL:", streamUrl, e);
+      console.error("Playback error:", e);
       setIsBuffering(false);
+      setIsPlaying(false);
       
-      // If the official stream fails (likely offline), try the test stream to show the app works
+      // Test stream fallback
       const TEST_STREAM = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
       if (streamUrl !== TEST_STREAM) {
-        alert("La radio est actuellement HORS LIGNE. Lancement d'un flux de test pour vérifier la connexion.");
+        alert("Erreur de lecture. Tentative avec le flux de test.");
         setStreamUrl(TEST_STREAM);
         try {
-          const { sound: testSound } = await Audio.Sound.createAsync({ uri: TEST_STREAM }, { shouldPlay: true });
-          sound.current = testSound;
+          await TrackPlayer.reset();
+          await TrackPlayer.add({
+            id: 'test',
+            url: TEST_STREAM + '?t=' + Date.now(),
+            title: 'Flux de Test',
+            artist: 'Saphir FM',
+          });
+          await TrackPlayer.play();
           setIsPlaying(true);
         } catch(err) { console.error(err); }
       }
@@ -403,7 +378,7 @@ export default function App() {
   return (
     <View style={styles.root}>
       <StatusBar style="light" />
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: '#06040F' }]} />
+      <View style={[StyleSheet.absoluteFill, { backgroundColor: '#1A1528' }]} />
       <FloatingBlob size={400} color="#7C3AED" initialX={-150} initialY={-100} driftX={60} driftY={60} duration={8000} opacity={0.15} />
       <FloatingBlob size={300} color="#EC4899" initialX={width - 200} initialY={height * 0.4} driftX={-40} driftY={-80} duration={9000} opacity={0.1} />
 
@@ -567,13 +542,14 @@ const styles = StyleSheet.create({
   liveLabel: { color: '#fff', fontSize: 10, fontWeight: '800' },
 
   main: { flex: 1 },
-  tabContent: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 },
-  playerCenter: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  tabContent: { flex: 1, justifyContent: 'space-around', alignItems: 'center', padding: 24 },
+  playerCenter: { justifyContent: 'center', alignItems: 'center' },
   
   playControlContainer: { width: 200, height: 200, justifyContent: 'center', alignItems: 'center', zIndex: 10 },
   halo: { position: 'absolute', width: 120, height: 120, borderRadius: 60, borderWidth: 1, borderColor: '#A855F7' },
   playBtnWrap: { width: 120, height: 120, borderRadius: 60, overflow: 'visible', justifyContent: 'center', alignItems: 'center' },
-  playGlow: { position: 'absolute', width: 140, height: 140, borderRadius: 70, backgroundColor: '#A855F7', opacity: 0.3 },
+  playGlow: { position: 'absolute', width: 180, height: 180, borderRadius: 90, backgroundColor: '#A855F7', opacity: 0.15 },
+  playGlow2: { position: 'absolute', width: 140, height: 140, borderRadius: 70, backgroundColor: '#6366F1', opacity: 0.25 },
   playBtnTouchable: { width: 120, height: 120, borderRadius: 60 },
   playBtn: { width: 120, height: 120, borderRadius: 60, justifyContent: 'center', alignItems: 'center' },
   playTriangle: { width: 0, height: 0, borderTopWidth: 15, borderBottomWidth: 15, borderLeftWidth: 25, borderTopColor: 'transparent', borderBottomColor: 'transparent', borderLeftColor: '#fff', marginLeft: 5 },
@@ -585,7 +561,7 @@ const styles = StyleSheet.create({
   staticRing: { position: 'absolute', width: 200, height: 200, borderRadius: 100, borderWidth: 1, borderColor: 'rgba(168,85,247,0.1)', borderStyle: 'dashed', zIndex: 0 },
 
   trackInfo: { alignItems: 'center', marginTop: 40 },
-  trackTitle: { color: '#fff', fontSize: 22, fontWeight: '900' },
+  trackTitle: { color: '#fff', fontSize: 18, fontWeight: '900' },
   trackArtist: { color: 'rgba(255,255,255,0.6)', fontSize: 14, marginTop: 6 },
 
   vizContainer: { flexDirection: 'row', height: 40, gap: 3, marginBottom: 20, alignItems: 'flex-end', justifyContent: 'center' },
@@ -597,6 +573,9 @@ const styles = StyleSheet.create({
   cardValue: { color: '#fff', fontSize: 20, fontWeight: '800' },
   cardLabel: { color: '#555', fontSize: 10, fontWeight: '700', marginTop: 4 },
   cardDivider: { width: 1, height: 30, backgroundColor: 'rgba(255,255,255,0.05)' },
+  customBadge: { backgroundColor: 'rgba(255,255,255,0.03)', padding: 15, borderRadius: 15, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)', alignItems: 'center', marginTop: 20, width: 150 },
+  badgeLarge: { color: '#FFFFFF', fontSize: 24, fontWeight: 'bold' },
+  badgeSmall: { color: 'rgba(255,255,255,0.6)', fontSize: 12, fontWeight: '700', marginTop: 4 },
 
   navbar: { flexDirection: 'row', height: 80, backgroundColor: '#0A0A15', borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.05)', paddingBottom: 20 },
   navbtn: { flex: 1, justifyContent: 'center', alignItems: 'center' },

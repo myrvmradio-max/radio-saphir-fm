@@ -2,105 +2,10 @@
 
 import { Play, Mic, Radio, Pause, Clock } from "lucide-react";
 import Link from "next/link";
-import { useState, useRef, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
+import { useAudio } from "@/context/AudioContext";
 
 export default function Hero() {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  
-  const [currentProgram, setCurrentProgram] = useState({
-    name: "Chargement...",
-    host: "...",
-    time: "--:--",
-    isLoading: true
-  });
-
-  useEffect(() => {
-    async function fetchCurrentProgram() {
-      try {
-        const now = new Date();
-        const currentTime = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
-        const currentDay = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"][now.getDay()];
-
-        const { data, error } = await supabase
-          .from('programmes')
-          .select('*')
-          .eq('day', currentDay)
-          .lte('start_time', currentTime)
-          .gte('end_time', currentTime)
-          .single();
-
-        if (data) {
-          setCurrentProgram({
-            name: data.name,
-            host: data.host,
-            time: `${data.start_time.substring(0, 5)} - ${data.end_time.substring(0, 5)}`,
-            isLoading: false
-          });
-        } else {
-          setCurrentProgram({
-            name: "Saphir FM - En Direct",
-            host: "Direct",
-            time: "24/7",
-            isLoading: false
-          });
-        }
-      } catch (err) {
-        console.error("Error fetching program:", err);
-        setCurrentProgram(prev => ({ ...prev, isLoading: false }));
-      }
-    }
-
-    fetchCurrentProgram();
-    const interval = setInterval(fetchCurrentProgram, 60000);
-    return () => clearInterval(interval);
-  }, []);
-  
-  const STREAM_URL = "https://stream.radiosaphir.com/listen/radiosaphir-106.8-fm/radio.mp3";
-
-  // Synchronisation si le stream se coupe ou est mis en pause par le système
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const handleEnded = () => setIsPlaying(false);
-    const handlePause = () => setIsPlaying(false);
-
-    audio.addEventListener("ended", handleEnded);
-    audio.addEventListener("pause", handlePause);
-
-    return () => {
-      audio.removeEventListener("ended", handleEnded);
-      audio.removeEventListener("pause", handlePause);
-    };
-  }, []);
-
-  const togglePlay = async () => {
-    if (!audioRef.current) return;
-
-    const audio = audioRef.current;
-
-    try {
-      if (isPlaying) {
-        // STOP COMPLET
-        audio.pause();
-        audio.currentTime = 0; // Remet le temps à zéro
-        audio.removeAttribute("src"); // Déconnecte le flux
-        audio.load(); // Recharge l'élément pour couper la connexion
-        setIsPlaying(false);
-      } else {
-        // Recharge le stream proprement
-        audio.src = STREAM_URL;
-        audio.crossOrigin = "anonymous"; // Pour iOS/Safari
-        await audio.play();
-        setIsPlaying(true);
-      }
-    } catch (error) {
-      console.error("Audio error:", error);
-      setIsPlaying(false);
-    }
-  };
+  const { isPlaying, isBuffering, togglePlay, currentProgram } = useAudio();
 
   return (
     <section className="relative min-h-[90vh] flex items-center pt-24 md:pt-32 pb-20 overflow-hidden">
@@ -229,7 +134,6 @@ export default function Hero() {
           </div>
         </div>
       </div>
-      <audio ref={audioRef} preload="none" />
     </section>
   );
 }
