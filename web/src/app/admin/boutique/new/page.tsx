@@ -6,8 +6,10 @@ import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Save, ShoppingBag, Loader2, Link as LinkIcon } from "lucide-react";
 import Link from "next/link";
 import FileUploader from "@/components/admin/FileUploader";
+import { useToast } from "@/context/ToastContext";
 
 export default function NewProduct() {
+  const { showToast } = useToast();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -38,7 +40,7 @@ export default function NewProduct() {
 
   const handleSubmit = async () => {
     if (!formData.name || !formData.price) {
-      alert("Le nom et le prix sont obligatoires");
+      showToast("Le nom et le prix sont obligatoires", "warning");
       return;
     }
 
@@ -60,15 +62,16 @@ export default function NewProduct() {
 
       if (error) throw error;
 
-      alert("Produit ajouté avec succès !");
+      showToast("Produit ajouté avec succès !", "success");
       router.push("/admin/boutique");
     } catch (error: any) {
       console.error("Error creating product:", error);
-      alert("Erreur lors de la création : " + error.message);
+      showToast("Erreur lors de la création : " + error.message, "error");
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-20">

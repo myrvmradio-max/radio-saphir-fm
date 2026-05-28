@@ -14,8 +14,10 @@ import {
   Loader2
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { useToast } from "@/context/ToastContext";
 
 export default function AdminTeam() {
+  const { confirm, showToast } = useToast();
   const [team, setTeam] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -39,15 +41,27 @@ export default function AdminTeam() {
   }
 
   async function deleteMember(id: string) {
-    if (!confirm("Supprimer ce membre ?")) return;
+    const ok = await confirm({
+      title: "Supprimer le collaborateur",
+      message: "Voulez-vous vraiment supprimer ce membre de votre équipe ? Il perdra immédiatement ses accès à l'administration. Cette action est irréversible.",
+      confirmText: "Supprimer",
+      cancelText: "Annuler",
+      type: "danger"
+    });
+    
+    if (!ok) return;
+    
     try {
       const { error } = await supabase.from("profiles").delete().eq("id", id);
       if (error) throw error;
       setTeam(team.filter(m => m.id !== id));
-    } catch (err) {
+      showToast("Membre de l'équipe supprimé", "success");
+    } catch (err: any) {
       console.error("Error deleting member:", err);
+      showToast("Erreur lors de la suppression", "error");
     }
   }
+
 
   return (
     <div className="space-y-8">

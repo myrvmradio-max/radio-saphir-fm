@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import { Loader2 } from "lucide-react";
+import { ToastProvider } from "@/context/ToastContext";
 
 export default function AdminLayout({
   children,
@@ -61,13 +62,16 @@ export default function AdminLayout({
   if (!authenticated) return null;
 
   return (
-    <div className="min-h-screen bg-[#F4F7FF]">
-      <AdminSidebar />
-      <main className="pl-64">
-        <div className="p-8">
-          {children}
-        </div>
-      </main>
-    </div>
+    <ToastProvider>
+      <div className="min-h-screen bg-[#F4F7FF]">
+        <AdminSidebar />
+        <main className="pl-64">
+          <div className="p-8">
+            {children}
+          </div>
+        </main>
+      </div>
+    </ToastProvider>
   );
 }
+

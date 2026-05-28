@@ -17,6 +17,7 @@ import {
   Home
 } from "lucide-react";
 import Image from "next/image";
+import { useToast } from "@/context/ToastContext";
 
 const MENU_ITEMS = [
   { icon: LayoutDashboard, label: "Tableau de bord", href: "/admin" },
@@ -33,13 +34,23 @@ const MENU_ITEMS = [
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const { confirm } = useToast();
 
   const handleLogout = async () => {
-    if (confirm("Voulez-vous vous déconnecter ?")) {
+    const ok = await confirm({
+      title: "Déconnexion",
+      message: "Voulez-vous vraiment vous déconnecter de votre espace d'administration ?",
+      confirmText: "Se déconnecter",
+      cancelText: "Annuler",
+      type: "danger"
+    });
+    
+    if (ok) {
       const { supabase } = await import("@/lib/supabase");
       await supabase.auth.signOut();
     }
   };
+
 
   return (
     <aside className="w-64 h-screen bg-saphir-navy text-white flex flex-col fixed left-0 top-0 z-50">

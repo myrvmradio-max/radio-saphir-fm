@@ -6,8 +6,10 @@ import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Save, Youtube, Loader2 } from "lucide-react";
 import Link from "next/link";
 import FileUploader from "@/components/admin/FileUploader";
+import { useToast } from "@/context/ToastContext";
 
 export default function NewVideo() {
+  const { showToast } = useToast();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -19,7 +21,7 @@ export default function NewVideo() {
 
   const handleSubmit = async () => {
     if (!formData.title || !formData.video_url) {
-      alert("Le titre et l'URL de la vidéo sont obligatoires");
+      showToast("Le titre et l'URL de la vidéo sont obligatoires", "warning");
       return;
     }
 
@@ -36,15 +38,16 @@ export default function NewVideo() {
 
       if (error) throw error;
 
-      alert("Vidéo ajoutée avec succès !");
+      showToast("Vidéo ajoutée avec succès !", "success");
       router.push("/admin/videos");
     } catch (error: any) {
       console.error("Error adding video:", error);
-      alert("Erreur lors de l'ajout : " + error.message);
+      showToast("Erreur lors de l'ajout : " + error.message, "error");
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-20">

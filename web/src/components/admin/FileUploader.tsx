@@ -11,6 +11,7 @@ import {
   Loader2, 
   Plus
 } from "lucide-react";
+import { useToast } from "@/context/ToastContext";
 
 interface FileUploaderProps {
   type: "image" | "images" | "audio";
@@ -29,6 +30,7 @@ export default function FileUploader({
   onAudioDuration,
   label
 }: FileUploaderProps) {
+  const { showToast } = useToast();
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [dragActive, setDragActive] = useState(false);
@@ -91,11 +93,11 @@ export default function FileUploader({
         
         // Validation basique
         if (type === "audio" && !file.type.startsWith("audio/")) {
-          alert("Veuillez sélectionner un fichier audio valide.");
+          showToast("Veuillez sélectionner un fichier audio valide.", "error");
           continue;
         }
         if ((type === "image" || type === "images") && !file.type.startsWith("image/")) {
-          alert("Veuillez sélectionner une image valide.");
+          showToast("Veuillez sélectionner une image valide.", "error");
           continue;
         }
 
@@ -164,15 +166,16 @@ export default function FileUploader({
         }
       }
 
-      alert("Téléversement réussi !");
+      showToast("Téléversement réussi !", "success");
     } catch (error: any) {
       console.error("Erreur d'upload:", error);
-      alert("Erreur lors du téléversement : " + error.message);
+      showToast("Erreur lors du téléversement : " + error.message, "error");
     } finally {
       setUploading(false);
       setProgress(0);
     }
   };
+
 
   // Supprimer un fichier
   const handleRemove = (indexToRemove?: number) => {

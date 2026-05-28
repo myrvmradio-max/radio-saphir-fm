@@ -6,8 +6,10 @@ import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Save, Loader2, Package, Tag, Trash2, Globe, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
 import FileUploader from "@/components/admin/FileUploader";
+import { useToast } from "@/context/ToastContext";
 
 export default function EditProduct() {
+  const { showToast } = useToast();
   const router = useRouter();
   const { id } = useParams();
   const [loading, setLoading] = useState(true);
@@ -74,7 +76,7 @@ export default function EditProduct() {
 
   const handleSubmit = async () => {
     if (!formData.name || !formData.price || !formData.slug) {
-      alert("Veuillez remplir tous les champs obligatoires (Nom, Prix, Slug)");
+      showToast("Veuillez remplir tous les champs obligatoires (Nom, Prix, Slug)", "warning");
       return;
     }
 
@@ -99,15 +101,16 @@ export default function EditProduct() {
 
       if (error) throw error;
 
-      alert("Produit mis à jour avec succès !");
+      showToast("Produit mis à jour avec succès !", "success");
       router.push("/admin/boutique");
     } catch (error: any) {
       console.error("Error updating product:", error);
-      alert("Erreur lors de la mise à jour : " + error.message);
+      showToast("Erreur lors de la mise à jour : " + error.message, "error");
     } finally {
       setSaving(false);
     }
   };
+
 
   if (loading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-saphir-navy/20" size={40} /></div>;
 

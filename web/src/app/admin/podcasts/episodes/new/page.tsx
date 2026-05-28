@@ -6,8 +6,10 @@ import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Save, Mic, Music, Loader2 } from "lucide-react";
 import Link from "next/link";
 import FileUploader from "@/components/admin/FileUploader";
+import { useToast } from "@/context/ToastContext";
 
 function NewEpisodeContent() {
+  const { showToast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
   const seriesId = searchParams.get("series");
@@ -36,7 +38,7 @@ function NewEpisodeContent() {
 
   const handleSubmit = async () => {
     if (!formData.title || !formData.audio_url) {
-      alert("Le titre et l'URL audio sont obligatoires");
+      showToast("Le titre et l'URL audio sont obligatoires", "warning");
       return;
     }
 
@@ -55,15 +57,16 @@ function NewEpisodeContent() {
 
       if (error) throw error;
 
-      alert("Épisode ajouté avec succès !");
+      showToast("Épisode ajouté avec succès !", "success");
       router.push(`/admin/podcasts/episodes?series=${seriesId}`);
     } catch (error: any) {
       console.error("Error adding episode:", error);
-      alert("Erreur lors de l'ajout : " + error.message);
+      showToast("Erreur lors de l'ajout : " + error.message, "error");
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-20">

@@ -14,8 +14,10 @@ import {
   ChevronRight,
   Loader2
 } from "lucide-react";
+import { useToast } from "@/context/ToastContext";
 
 export default function AdminBoutique() {
+  const { confirm, showToast } = useToast();
   const [products, setProducts] = useState<any[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
   const [stats, setStats] = useState({
@@ -81,17 +83,27 @@ export default function AdminBoutique() {
   }
 
   async function deleteProduct(id: string) {
-    if (!confirm("Voulez-vous vraiment supprimer ce produit ?")) return;
+    const ok = await confirm({
+      title: "Supprimer le produit",
+      message: "Voulez-vous vraiment supprimer ce produit de la boutique ? Cette action est irréversible.",
+      confirmText: "Supprimer",
+      cancelText: "Annuler",
+      type: "danger"
+    });
+    
+    if (!ok) return;
     
     try {
       const { error } = await supabase.from("products").delete().eq("id", id);
       if (error) throw error;
       setProducts(products.filter(p => p.id !== id));
+      showToast("Produit supprimé avec succès", "success");
     } catch (error) {
       console.error("Error deleting product:", error);
-      alert("Erreur lors de la suppression");
+      showToast("Erreur lors de la suppression", "error");
     }
   }
+
 
   const formatTimeAgo = (dateStr: string) => {
     const date = new Date(dateStr);

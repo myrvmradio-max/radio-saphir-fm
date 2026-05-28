@@ -14,8 +14,10 @@ import {
   Headphones,
   Loader2
 } from "lucide-react";
+import { useToast } from "@/context/ToastContext";
 
 export default function AdminPodcasts() {
+  const { confirm, showToast } = useToast();
   const [series, setSeries] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -40,17 +42,27 @@ export default function AdminPodcasts() {
   }
 
   async function deleteSeries(id: string) {
-    if (!confirm("Voulez-vous vraiment supprimer cette série ?")) return;
+    const ok = await confirm({
+      title: "Supprimer la série",
+      message: "Voulez-vous vraiment supprimer cette série de podcasts ? Tous les épisodes liés seront conservés mais détachés. Cette action est irréversible.",
+      confirmText: "Supprimer",
+      cancelText: "Annuler",
+      type: "danger"
+    });
+    
+    if (!ok) return;
     
     try {
       const { error } = await supabase.from("series").delete().eq("id", id);
       if (error) throw error;
       setSeries(series.filter(s => s.id !== id));
+      showToast("Série supprimée avec succès", "success");
     } catch (error) {
       console.error("Error deleting series:", error);
-      alert("Erreur lors de la suppression");
+      showToast("Erreur lors de la suppression", "error");
     }
   }
+
 
   return (
     <div className="space-y-8">

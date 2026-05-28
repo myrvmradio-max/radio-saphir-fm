@@ -15,8 +15,10 @@ import {
   Check
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { useToast } from "@/context/ToastContext";
 
 export default function AdminSettings() {
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState("general");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -80,10 +82,11 @@ export default function AdminSettings() {
       if (error) throw error;
       
       setSaved(true);
+      showToast("Configuration sauvegardée avec succès !", "success");
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
       console.error("Error saving settings:", err);
-      alert("Erreur lors de la sauvegarde");
+      showToast("Erreur lors de la sauvegarde", "error");
     } finally {
       setSaving(false);
     }

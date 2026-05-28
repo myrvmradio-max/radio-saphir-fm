@@ -14,8 +14,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import FileUploader from "@/components/admin/FileUploader";
+import { useToast } from "@/context/ToastContext";
 
 export default function NewArticle() {
+  const { showToast } = useToast();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -35,7 +37,7 @@ export default function NewArticle() {
 
   const handleSubmit = async () => {
     if (!formData.title || !formData.content) {
-      alert("Veuillez remplir tous les champs obligatoires");
+      showToast("Veuillez remplir tous les champs obligatoires", "warning");
       return;
     }
 
@@ -57,15 +59,16 @@ export default function NewArticle() {
 
       if (error) throw error;
 
-      alert("Article publié avec succès !");
+      showToast("Article publié avec succès !", "success");
       router.push("/admin/articles");
     } catch (error: any) {
       console.error("Error publishing article:", error);
-      alert("Erreur lors de la publication : " + error.message);
+      showToast("Erreur lors de la publication : " + error.message, "error");
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="max-w-5xl mx-auto space-y-8 pb-20">

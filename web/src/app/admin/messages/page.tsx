@@ -14,8 +14,10 @@ import {
   User
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { useToast } from "@/context/ToastContext";
 
 export default function AdminMessages() {
+  const { confirm, showToast } = useToast();
   const [messages, setMessages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -46,16 +48,28 @@ export default function AdminMessages() {
   }
 
   async function deleteMessage(id: string) {
-    if (!confirm("Supprimer ce message ?")) return;
+    const ok = await confirm({
+      title: "Supprimer le message",
+      message: "Voulez-vous vraiment supprimer ce message de l'auditeur ? Cette action est irréversible.",
+      confirmText: "Supprimer",
+      cancelText: "Annuler",
+      type: "danger"
+    });
+    
+    if (!ok) return;
+    
     try {
       const { error } = await supabase.from("messages").delete().eq("id", id);
       if (error) throw error;
       setMessages(messages.filter(m => m.id !== id));
+      showToast("Message supprimé avec succès", "success");
       if (selectedId === id) setSelectedId(messages[0]?.id || null);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error deleting message:", err);
+      showToast("Erreur lors de la suppression : " + err.message, "error");
     }
   }
+
 
   const selectedMessage = messages.find(m => m.id === selectedId);
 

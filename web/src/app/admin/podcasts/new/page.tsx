@@ -6,8 +6,10 @@ import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Save, Mic, Headphones, Loader2 } from "lucide-react";
 import Link from "next/link";
 import FileUploader from "@/components/admin/FileUploader";
+import { useToast } from "@/context/ToastContext";
 
 export default function NewPodcast() {
+  const { showToast } = useToast();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -18,7 +20,7 @@ export default function NewPodcast() {
 
   const handleSubmit = async () => {
     if (!formData.title) {
-      alert("Le titre est obligatoire");
+      showToast("Le titre est obligatoire", "warning");
       return;
     }
 
@@ -34,15 +36,16 @@ export default function NewPodcast() {
 
       if (error) throw error;
 
-      alert("Série créée avec succès !");
+      showToast("Série créée avec succès !", "success");
       router.push("/admin/podcasts");
     } catch (error: any) {
       console.error("Error creating series:", error);
-      alert("Erreur lors de la création : " + error.message);
+      showToast("Erreur lors de la création : " + error.message, "error");
     } finally {
       setLoading(false);
     }
   };
+
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-20">
       <div className="flex justify-between items-center">

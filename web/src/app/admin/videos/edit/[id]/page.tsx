@@ -6,8 +6,10 @@ import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Save, Youtube, Loader2, Play } from "lucide-react";
 import Link from "next/link";
 import FileUploader from "@/components/admin/FileUploader";
+import { useToast } from "@/context/ToastContext";
 
 export default function EditVideo() {
+  const { showToast } = useToast();
   const router = useRouter();
   const { id } = useParams();
   const [loading, setLoading] = useState(true);
@@ -51,7 +53,7 @@ export default function EditVideo() {
 
   const handleSubmit = async () => {
     if (!formData.title || !formData.video_url) {
-      alert("Le titre et l'URL de la vidéo sont obligatoires");
+      showToast("Le titre et l'URL de la vidéo sont obligatoires", "warning");
       return;
     }
 
@@ -69,15 +71,16 @@ export default function EditVideo() {
 
       if (error) throw error;
 
-      alert("Vidéo mise à jour avec succès !");
+      showToast("Vidéo mise à jour avec succès !", "success");
       router.push("/admin/videos");
     } catch (error: any) {
       console.error("Error updating video:", error);
-      alert("Erreur lors de la mise à jour : " + error.message);
+      showToast("Erreur lors de la mise à jour : " + error.message, "error");
     } finally {
       setSaving(false);
     }
   };
+
 
   if (loading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-saphir-navy/20" size={40} /></div>;
 

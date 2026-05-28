@@ -15,8 +15,10 @@ import {
   Calendar,
   Loader2
 } from "lucide-react";
+import { useToast } from "@/context/ToastContext";
 
 function EpisodesContent() {
+  const { confirm, showToast } = useToast();
   const searchParams = useSearchParams();
   const router = useRouter();
   const seriesId = searchParams.get("series");
@@ -51,15 +53,27 @@ function EpisodesContent() {
   }
 
   async function deleteEpisode(id: string) {
-    if (!confirm("Supprimer cet épisode ?")) return;
+    const ok = await confirm({
+      title: "Supprimer l'épisode",
+      message: "Voulez-vous vraiment supprimer cet épisode ? Cette action est irréversible.",
+      confirmText: "Supprimer",
+      cancelText: "Annuler",
+      type: "danger"
+    });
+    
+    if (!ok) return;
+    
     try {
       const { error } = await supabase.from("podcasts").delete().eq("id", id);
       if (error) throw error;
       setEpisodes(episodes.filter(e => e.id !== id));
-    } catch (err) {
+      showToast("Épisode supprimé avec succès", "success");
+    } catch (err: any) {
       console.error("Error deleting episode:", err);
+      showToast("Erreur lors de la suppression : " + err.message, "error");
     }
   }
+
 
   if (loading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-saphir-navy/20" size={40} /></div>;
 

@@ -14,8 +14,10 @@ import {
   Calendar,
   Loader2
 } from "lucide-react";
+import { useToast } from "@/context/ToastContext";
 
 export default function AdminVideos() {
+  const { confirm, showToast } = useToast();
   const [videos, setVideos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -40,17 +42,27 @@ export default function AdminVideos() {
   }
 
   async function deleteVideo(id: string) {
-    if (!confirm("Voulez-vous vraiment supprimer cette vidéo ?")) return;
+    const ok = await confirm({
+      title: "Supprimer la vidéo",
+      message: "Voulez-vous vraiment supprimer cette vidéo du catalogue ? Cette action est irréversible.",
+      confirmText: "Supprimer",
+      cancelText: "Annuler",
+      type: "danger"
+    });
+    
+    if (!ok) return;
     
     try {
       const { error } = await supabase.from("videos").delete().eq("id", id);
       if (error) throw error;
       setVideos(videos.filter(v => v.id !== id));
+      showToast("Vidéo supprimée avec succès", "success");
     } catch (error) {
       console.error("Error deleting video:", error);
-      alert("Erreur lors de la suppression");
+      showToast("Erreur lors de la suppression", "error");
     }
   }
+
 
   return (
     <div className="space-y-8">

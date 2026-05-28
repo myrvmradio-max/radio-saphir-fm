@@ -14,10 +14,12 @@ import {
   Loader2
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { useToast } from "@/context/ToastContext";
 
 const DAYS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
 
 export default function AdminProgrammes() {
+  const { confirm, showToast } = useToast();
   const [activeDay, setActiveDay] = useState("Lundi");
   const [programmes, setProgrammes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,12 +40,27 @@ export default function AdminProgrammes() {
   }, [activeDay]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Supprimer ce créneau ?")) return;
-    const { error } = await supabase.from('programmes').delete().eq('id', id);
-    if (!error) {
+    const ok = await confirm({
+      title: "Supprimer le créneau",
+      message: "Voulez-vous vraiment supprimer ce créneau de la grille des programmes ? Cette action est irréversible.",
+      confirmText: "Supprimer",
+      cancelText: "Annuler",
+      type: "danger"
+    });
+    
+    if (!ok) return;
+    
+    try {
+      const { error } = await supabase.from('programmes').delete().eq('id', id);
+      if (error) throw error;
       setProgrammes(prev => prev.filter(p => p.id !== id));
+      showToast("Créneau supprimé avec succès", "success");
+    } catch (err: any) {
+      console.error("Error deleting slot:", err);
+      showToast("Erreur lors de la suppression", "error");
     }
   };
+
 
   return (
     <div className="space-y-8">

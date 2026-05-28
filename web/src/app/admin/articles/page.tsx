@@ -11,8 +11,10 @@ import {
   Trash2, 
   ExternalLink 
 } from "lucide-react";
+import { useToast } from "@/context/ToastContext";
 
 export default function AdminArticles() {
+  const { confirm, showToast } = useToast();
   const [articles, setArticles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -37,17 +39,27 @@ export default function AdminArticles() {
   }
 
   async function deleteArticle(id: string) {
-    if (!confirm("Voulez-vous vraiment supprimer cet article ?")) return;
+    const ok = await confirm({
+      title: "Supprimer l'article",
+      message: "Voulez-vous vraiment supprimer cet article ? Cette action est irréversible.",
+      confirmText: "Supprimer",
+      cancelText: "Annuler",
+      type: "danger"
+    });
+    
+    if (!ok) return;
     
     try {
       const { error } = await supabase.from("articles").delete().eq("id", id);
       if (error) throw error;
       setArticles(articles.filter(a => a.id !== id));
+      showToast("Article supprimé avec succès", "success");
     } catch (error) {
       console.error("Error deleting article:", error);
-      alert("Erreur lors de la suppression");
+      showToast("Erreur lors de la suppression", "error");
     }
   }
+
 
   return (
     <div className="space-y-8">

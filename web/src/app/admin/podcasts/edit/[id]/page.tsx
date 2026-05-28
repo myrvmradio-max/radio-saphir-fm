@@ -6,8 +6,10 @@ import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Save, Loader2, Mic, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
 import FileUploader from "@/components/admin/FileUploader";
+import { useToast } from "@/context/ToastContext";
 
 export default function EditSeries() {
+  const { showToast } = useToast();
   const router = useRouter();
   const { id } = useParams();
   const [loading, setLoading] = useState(true);
@@ -49,7 +51,7 @@ export default function EditSeries() {
 
   const handleSubmit = async () => {
     if (!formData.title) {
-      alert("Le titre est obligatoire");
+      showToast("Le titre est obligatoire", "warning");
       return;
     }
 
@@ -66,15 +68,16 @@ export default function EditSeries() {
 
       if (error) throw error;
 
-      alert("Série mise à jour avec succès !");
+      showToast("Série mise à jour avec succès !", "success");
       router.push("/admin/podcasts");
     } catch (error: any) {
       console.error("Error updating series:", error);
-      alert("Erreur lors de la mise à jour : " + error.message);
+      showToast("Erreur lors de la mise à jour : " + error.message, "error");
     } finally {
       setSaving(false);
     }
   };
+
 
   if (loading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-saphir-navy/20" size={40} /></div>;
 
