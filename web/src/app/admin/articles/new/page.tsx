@@ -13,6 +13,7 @@ import {
   Loader2
 } from "lucide-react";
 import Link from "next/link";
+import FileUploader from "@/components/admin/FileUploader";
 
 export default function NewArticle() {
   const router = useRouter();
@@ -132,27 +133,14 @@ export default function NewArticle() {
         {/* Colonne Latérale (Paramètres) */}
         <div className="space-y-6">
            {/* Image de couverture */}
-           <div className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm space-y-4">
-             <label className="text-xs font-bold text-saphir-navy/40 uppercase tracking-widest">Image de couverture (URL)</label>
-             <input 
-               type="text"
-               placeholder="https://exple.com/image.jpg"
-               className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 text-xs text-saphir-navy focus:ring-2 focus:ring-saphir-electric/20"
+           <div className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm">
+             <FileUploader
+               type="image"
+               folder="articles"
                value={formData.cover_image}
-               onChange={(e) => setFormData({...formData, cover_image: e.target.value})}
+               onChange={(url) => setFormData({...formData, cover_image: url})}
+               label="Image de couverture"
              />
-             <div className="aspect-video bg-gray-50 rounded-2xl border-2 border-dashed border-gray-100 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-gray-100/50 transition-all group overflow-hidden">
-                {formData.cover_image ? (
-                  <img src={formData.cover_image} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  <>
-                    <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-gray-300 group-hover:text-saphir-electric shadow-sm">
-                       <ImageIcon size={20} />
-                    </div>
-                    <span className="text-[10px] font-bold text-gray-300 uppercase tracking-tighter">Aperçu de l'image</span>
-                  </>
-                )}
-             </div>
            </div>
 
            {/* Catégories */}

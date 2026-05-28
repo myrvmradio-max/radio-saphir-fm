@@ -44,6 +44,17 @@
         "projectId": "7592648b-701b-43a4-8228-a496d447f8aa"
       }
     },
-    "plugins": []
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35,
+            "buildToolsVersion": "35.0.0"
+          }
+        }
+      ]
+    ]
   }
 }

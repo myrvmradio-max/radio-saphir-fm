@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Save, ShoppingBag, Loader2, Link as LinkIcon } from "lucide-react";
 import Link from "next/link";
+import FileUploader from "@/components/admin/FileUploader";
 
 export default function NewProduct() {
   const router = useRouter();
@@ -152,13 +153,13 @@ export default function NewProduct() {
         </div>
 
         <div className="space-y-4">
-            <label className="text-xs font-bold text-saphir-navy/40 uppercase tracking-widest">URLs des images (séparées par une virgule)</label>
-            <textarea 
-              placeholder="https://exple.com/image1.jpg, https://exple.com/image2.jpg" 
-              className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-bold text-saphir-navy text-xs h-24 focus:ring-2 focus:ring-saphir-electric/20" 
-              value={formData.image_urls}
-              onChange={(e) => setFormData({...formData, image_urls: e.target.value})}
-            />
+          <FileUploader
+            type="images"
+            folder="products"
+            value={formData.image_urls}
+            onChange={(urls) => setFormData({...formData, image_urls: urls})}
+            label="Images du produit"
+          />
         </div>
 
         <div className="space-y-4">

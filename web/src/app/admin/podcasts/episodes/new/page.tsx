@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Save, Mic, Music, Loader2 } from "lucide-react";
 import Link from "next/link";
+import FileUploader from "@/components/admin/FileUploader";
 
 function NewEpisodeContent() {
   const router = useRouter();
@@ -100,20 +101,20 @@ function NewEpisodeContent() {
 
         <div className="grid md:grid-cols-2 gap-8">
           <div className="space-y-4">
-            <label className="text-xs font-bold text-saphir-navy/40 uppercase tracking-widest flex items-center gap-2"><Music size={12}/> URL du fichier audio (MP3)</label>
-            <input 
-              type="text" 
-              placeholder="https://exple.com/audio.mp3" 
-              className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-bold text-saphir-navy focus:ring-2 focus:ring-saphir-electric/20 text-xs" 
+            <FileUploader
+              type="audio"
+              folder="audios"
               value={formData.audio_url}
-              onChange={(e) => setFormData({...formData, audio_url: e.target.value})}
+              onChange={(url) => setFormData({...formData, audio_url: url})}
+              onAudioDuration={(dur) => setFormData(prev => ({...prev, duration: dur.toString()}))}
+              label="Fichier audio (MP3)"
             />
           </div>
           <div className="space-y-4">
             <label className="text-xs font-bold text-saphir-navy/40 uppercase tracking-widest">Durée (secondes)</label>
             <input 
               type="number" 
-              placeholder="1800" 
+              placeholder="Ex: 1800 (calculé automatiquement)" 
               className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-bold text-saphir-navy focus:ring-2 focus:ring-saphir-electric/20" 
               value={formData.duration}
               onChange={(e) => setFormData({...formData, duration: e.target.value})}

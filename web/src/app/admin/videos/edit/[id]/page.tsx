@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Save, Youtube, Loader2, Play } from "lucide-react";
 import Link from "next/link";
+import FileUploader from "@/components/admin/FileUploader";
 
 export default function EditVideo() {
   const router = useRouter();
@@ -122,13 +123,12 @@ export default function EditVideo() {
             />
           </div>
           <div className="space-y-4">
-            <label className="text-xs font-bold text-saphir-navy/40 uppercase tracking-widest">URL de la miniature (Thumbnail)</label>
-            <input 
-              type="text" 
-              placeholder="https://exple.com/thumb.jpg" 
-              className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-bold text-saphir-navy focus:ring-2 focus:ring-saphir-electric/20" 
+            <FileUploader
+              type="image"
+              folder="videos"
               value={formData.thumbnail}
-              onChange={(e) => setFormData({...formData, thumbnail: e.target.value})}
+              onChange={(url) => setFormData({...formData, thumbnail: url})}
+              label="Miniature de la vidéo"
             />
           </div>
         </div>

@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Save, Loader2, Mic, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
+import FileUploader from "@/components/admin/FileUploader";
 
 export default function EditSeries() {
   const router = useRouter();
@@ -108,13 +109,12 @@ export default function EditSeries() {
             />
           </div>
           <div className="space-y-4">
-            <label className="text-xs font-bold text-saphir-navy/40 uppercase tracking-widest">Image de couverture (URL)</label>
-            <input 
-              type="text" 
-              placeholder="https://exple.com/podcast.jpg" 
-              className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 font-bold text-saphir-navy focus:ring-2 focus:ring-saphir-electric/20" 
+            <FileUploader
+              type="image"
+              folder="covers"
               value={formData.cover_image}
-              onChange={(e) => setFormData({...formData, cover_image: e.target.value})}
+              onChange={(url) => setFormData({...formData, cover_image: url})}
+              label="Image de couverture"
             />
           </div>
         </div>
