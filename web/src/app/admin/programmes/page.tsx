@@ -11,7 +11,8 @@ import {
   MoreVertical,
   Edit2,
   Trash2,
-  Loader2
+  Loader2,
+  X
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/context/ToastContext";
@@ -21,12 +22,33 @@ const DAYS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dima
 export default function AdminProgrammes() {
   const { confirm, showToast } = useToast();
   const [activeDay, setActiveDay] = useState("Lundi");
-  const [programmes, setProgrammes] = useState([]);
+  const [programmes, setProgrammes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Modal State
+  const [modalOpen, setModalOpen] = useState(false);
+  const [savingSlot, setSavingSlot] = useState(false);
+  const [newSlot, setNewSlot] = useState({
+    name: "",
+    host: "",
+    day: activeDay,
+    start_time: "08:00",
+    end_time: "10:00",
+    type: "Direct"
+  });
+
+  // Keep modal's day updated with selected active day when opening
   useEffect(() => {
-    async function fetchProgrammes() {
-      setLoading(true);
+    setNewSlot(prev => ({ ...prev, day: activeDay }));
+  }, [activeDay, modalOpen]);
+
+  useEffect(() => {
+    fetchProgrammes();
+  }, [activeDay]);
+
+  async function fetchProgrammes() {
+    setLoading(true);
+    try {
       const { data, error } = await supabase
         .from('programmes')
         .select('*')
@@ -34,10 +56,12 @@ export default function AdminProgrammes() {
         .order('start_time', { ascending: true });
 
       if (data) setProgrammes(data);
+    } catch (err) {
+      console.error("Error fetching programmes:", err);
+    } finally {
       setLoading(false);
     }
-    fetchProgrammes();
-  }, [activeDay]);
+  }
 
   const handleDelete = async (id: string) => {
     const ok = await confirm({
@@ -61,6 +85,57 @@ export default function AdminProgrammes() {
     }
   };
 
+  const handleAddSlot = async () => {
+    if (!newSlot.name || !newSlot.host || !newSlot.start_time || !newSlot.end_time) {
+      showToast("Veuillez remplir tous les champs obligatoires", "warning");
+      return;
+    }
+
+    setSavingSlot(true);
+    try {
+      // Format times to have standard seconds syntax HH:MM:SS if needed
+      const formattedStartTime = newSlot.start_time.length === 5 ? `${newSlot.start_time}:00` : newSlot.start_time;
+      const formattedEndTime = newSlot.end_time.length === 5 ? `${newSlot.end_time}:00` : newSlot.end_time;
+
+      const { data, error } = await supabase
+        .from('programmes')
+        .insert([
+          {
+            name: newSlot.name,
+            host: newSlot.host,
+            day: newSlot.day,
+            start_time: formattedStartTime,
+            end_time: formattedEndTime,
+            type: newSlot.type
+          }
+        ])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      showToast("Créneau ajouté avec succès !", "success");
+      setModalOpen(false);
+      setNewSlot({
+        name: "",
+        host: "",
+        day: activeDay,
+        start_time: "08:00",
+        end_time: "10:00",
+        type: "Direct"
+      });
+
+      // Reload if it matches the current viewed day
+      if (newSlot.day === activeDay) {
+        fetchProgrammes();
+      }
+    } catch (err: any) {
+      console.error("Error creating programme slot:", err);
+      showToast("Erreur lors de l'ajout : " + err.message, "error");
+    } finally {
+      setSavingSlot(false);
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -70,7 +145,10 @@ export default function AdminProgrammes() {
           <h1 className="text-3xl font-bold text-saphir-navy mb-2">Grille des Programmes</h1>
           <p className="text-saphir-navy/40 text-sm">Gérez l'occupation de l'antenne 24h/24.</p>
         </div>
-        <button className="flex items-center gap-2 bg-saphir-navy text-white px-6 py-3 rounded-2xl font-bold hover:bg-saphir-electric transition-all shadow-lg">
+        <button 
+          onClick={() => setModalOpen(true)}
+          className="flex items-center gap-2 bg-saphir-navy text-white px-6 py-3 rounded-2xl font-bold hover:bg-saphir-electric transition-all shadow-lg active:scale-95"
+        >
           <Plus size={20} />
           Ajouter un créneau
         </button>
@@ -156,13 +234,143 @@ export default function AdminProgrammes() {
         </div>
 
         {/* Empty Slot Placeholder */}
-        <div className="p-12 bg-gray-50/30 border-t border-gray-50 flex flex-col items-center justify-center gap-4 group cursor-pointer hover:bg-gray-50 transition-all">
+        <div 
+          onClick={() => setModalOpen(true)}
+          className="p-12 bg-gray-50/30 border-t border-gray-50 flex flex-col items-center justify-center gap-4 group cursor-pointer hover:bg-gray-50 transition-all"
+        >
            <div className="w-12 h-12 rounded-full border-2 border-dashed border-gray-200 flex items-center justify-center text-gray-300 group-hover:text-saphir-electric group-hover:border-saphir-electric transition-all">
              <Plus size={24} />
            </div>
            <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">Ajouter une émission</p>
         </div>
       </div>
+
+      {/* PREMIUM PROGRAMME CREATION MODAL */}
+      {modalOpen && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 animate-in fade-in duration-200">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-[#0D1B4C]/50 backdrop-blur-md transition-opacity duration-300"
+            onClick={() => setModalOpen(false)}
+          />
+
+          {/* Modal Box */}
+          <div className="relative bg-white rounded-[2.5rem] w-full max-w-md p-8 border border-gray-100 shadow-2xl shadow-saphir-navy/20 overflow-hidden transform transition-all duration-300 scale-100 animate-in zoom-in-95 duration-200">
+            {/* Close Button */}
+            <button 
+              onClick={() => setModalOpen(false)}
+              className="absolute top-6 right-6 text-[#0D1B4C]/40 hover:text-[#0D1B4C] transition-all p-1.5 rounded-xl hover:bg-gray-50"
+            >
+              <X size={18} />
+            </button>
+
+            {/* Header Icon & Title */}
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-indigo-50 border border-indigo-100 rounded-xl flex items-center justify-center text-saphir-electric">
+                <Clock size={20} />
+              </div>
+              <div>
+                <h3 className="text-xl font-black text-[#0D1B4C] tracking-tight">Ajouter un Programme</h3>
+                <p className="text-[10px] font-bold text-[#0D1B4C]/40 uppercase tracking-widest">Nouveau créneau horaire</p>
+              </div>
+            </div>
+
+            {/* Form Fields */}
+            <div className="space-y-4 mb-8">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-[#0D1B4C]/40 uppercase tracking-widest block">Nom de l'émission *</label>
+                <input 
+                  type="text" 
+                  placeholder="Ex: Le Morning Saphir"
+                  className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-3 px-4 font-bold text-saphir-navy text-sm outline-none focus:ring-2 focus:ring-saphir-electric/20 focus:bg-white transition-all"
+                  value={newSlot.name}
+                  onChange={(e) => setNewSlot({...newSlot, name: e.target.value})}
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-[#0D1B4C]/40 uppercase tracking-widest block">Animateur / Présentateur *</label>
+                <input 
+                  type="text" 
+                  placeholder="Ex: DJ Saphir & Invité"
+                  className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-3 px-4 font-bold text-saphir-navy text-sm outline-none focus:ring-2 focus:ring-saphir-electric/20 focus:bg-white transition-all"
+                  value={newSlot.host}
+                  onChange={(e) => setNewSlot({...newSlot, host: e.target.value})}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-[#0D1B4C]/40 uppercase tracking-widest block">Jour *</label>
+                  <select
+                    className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-3 px-4 font-bold text-saphir-navy text-sm outline-none focus:ring-2 focus:ring-saphir-electric/20 focus:bg-white transition-all"
+                    value={newSlot.day}
+                    onChange={(e) => setNewSlot({...newSlot, day: e.target.value})}
+                  >
+                    {DAYS.map(d => (
+                      <option key={d}>{d}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-[#0D1B4C]/40 uppercase tracking-widest block">Type *</label>
+                  <select
+                    className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-3 px-4 font-bold text-saphir-navy text-sm outline-none focus:ring-2 focus:ring-saphir-electric/20 focus:bg-white transition-all"
+                    value={newSlot.type}
+                    onChange={(e) => setNewSlot({...newSlot, type: e.target.value})}
+                  >
+                    <option>Direct</option>
+                    <option>Enregistré</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-[#0D1B4C]/40 uppercase tracking-widest block">Heure de début *</label>
+                  <input 
+                    type="time" 
+                    className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-3 px-4 font-bold text-saphir-navy text-sm outline-none focus:ring-2 focus:ring-saphir-electric/20 focus:bg-white transition-all"
+                    value={newSlot.start_time}
+                    onChange={(e) => setNewSlot({...newSlot, start_time: e.target.value})}
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-[#0D1B4C]/40 uppercase tracking-widest block">Heure de fin *</label>
+                  <input 
+                    type="time" 
+                    className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-3 px-4 font-bold text-saphir-navy text-sm outline-none focus:ring-2 focus:ring-saphir-electric/20 focus:bg-white transition-all"
+                    value={newSlot.end_time}
+                    onChange={(e) => setNewSlot({...newSlot, end_time: e.target.value})}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setModalOpen(false)}
+                className="flex-1 px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-black uppercase tracking-widest text-[#0D1B4C]/50 hover:bg-gray-100 hover:text-[#0D1B4C] transition-all duration-200 active:scale-95"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={handleAddSlot}
+                disabled={savingSlot}
+                className="flex-1 px-5 py-4 bg-[#6A7CFF] hover:bg-[#5365E6] text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-[#6A7CFF]/20 transition-all duration-200 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {savingSlot ? <Loader2 size={14} className="animate-spin" /> : null}
+                {savingSlot ? "Enregistrement..." : "Enregistrer"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
