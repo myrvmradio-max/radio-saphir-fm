@@ -18,6 +18,7 @@ function EditEpisodeContent() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [seriesName, setSeriesName] = useState("");
+  const [allSeries, setAllSeries] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -29,19 +30,30 @@ function EditEpisodeContent() {
 
   useEffect(() => {
     if (id) {
-      fetchEpisode();
+      fetchEpisodeAndSeries();
     }
   }, [id]);
 
-  async function fetchEpisode() {
+  async function fetchEpisodeAndSeries() {
     try {
-      const { data, error } = await supabase
-        .from("podcasts")
-        .select("*, series(title)")
-        .eq("id", id)
-        .single();
+      const [episodeRes, seriesRes] = await Promise.all([
+        supabase
+          .from("podcasts")
+          .select("*, series(title)")
+          .eq("id", id)
+          .single(),
+        supabase
+          .from("series")
+          .select("id, title")
+          .order("created_at", { ascending: false })
+      ]);
 
-      if (error) throw error;
+      if (seriesRes.data) {
+        setAllSeries(seriesRes.data);
+      }
+
+      if (episodeRes.error) throw episodeRes.error;
+      const data = episodeRes.data;
       if (data) {
         setFormData({
           title: data.title,
@@ -79,6 +91,7 @@ function EditEpisodeContent() {
           description: formData.description,
           audio_url: formData.audio_url,
           duration: parseInt(formData.duration) || 0,
+          series_id: formData.series_id || null,
           cover_image: formData.cover_image || null
         })
         .eq("id", id);
@@ -86,7 +99,13 @@ function EditEpisodeContent() {
       if (error) throw error;
 
       showToast("Épisode mis à jour avec succès !", "success");
-      router.push(`/admin/podcasts/episodes?series=${formData.series_id || querySeriesId}`);
+      
+      const targetSeriesId = formData.series_id || querySeriesId;
+      if (targetSeriesId) {
+        router.push(`/admin/podcasts/episodes?series=${targetSeriesId}`);
+      } else {
+        router.push("/admin/podcasts");
+      }
     } catch (error: any) {
       console.error("Error updating episode:", error);
       showToast("Erreur lors de la mise à jour : " + error.message, "error");
@@ -130,6 +149,25 @@ function EditEpisodeContent() {
       </div>
 
       <div className="bg-white p-10 rounded-[3rem] border border-gray-100 shadow-sm space-y-8">
+        <div className="space-y-4">
+          <label className="text-xs font-bold text-saphir-navy/40 uppercase tracking-widest block">Série / Émission d'appartenance</label>
+          <select 
+            className="w-full bg-gray-50 border-none rounded-xl py-3.5 px-4 font-bold text-saphir-navy focus:ring-2 focus:ring-saphir-electric/20"
+            value={formData.series_id || ""}
+            onChange={(e) => {
+              const val = e.target.value;
+              setFormData({ ...formData, series_id: val });
+              const found = allSeries.find(s => s.id === val);
+              setSeriesName(found ? found.title : "");
+            }}
+          >
+            <option value="">-- Podcast indépendant / Aucun --</option>
+            {allSeries.map((s) => (
+              <option key={s.id} value={s.id}>{s.title}</option>
+            ))}
+          </select>
+        </div>
+
         <div className="space-y-4">
           <label className="text-xs font-bold text-saphir-navy/40 uppercase tracking-widest">Titre de l'épisode</label>
           <input 

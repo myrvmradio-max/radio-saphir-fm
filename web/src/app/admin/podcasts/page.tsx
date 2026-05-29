@@ -81,13 +81,22 @@ export default function AdminPodcasts() {
           <h1 className="text-3xl font-bold text-saphir-navy mb-2">Gestion des Podcasts</h1>
           <p className="text-saphir-navy/40">Gérez vos séries, émissions et épisodes.</p>
         </div>
-        <Link 
-          href="/admin/podcasts/new"
-          className="flex items-center gap-2 bg-saphir-navy text-white px-6 py-3 rounded-2xl font-bold hover:bg-saphir-electric transition-all shadow-lg shadow-saphir-navy/10"
-        >
-          <Plus size={20} />
-          Nouvelle Série
-        </Link>
+        <div className="flex gap-3">
+          <Link 
+            href="/admin/podcasts/episodes/new"
+            className="flex items-center gap-2 bg-white border border-gray-100 text-saphir-navy px-6 py-3 rounded-2xl font-bold text-xs hover:bg-gray-50 transition-all shadow-sm"
+          >
+            <Plus size={16} className="text-saphir-electric" />
+            Nouvel Épisode
+          </Link>
+          <Link 
+            href="/admin/podcasts/new"
+            className="flex items-center gap-2 bg-saphir-navy text-white px-6 py-3 rounded-2xl font-bold text-xs hover:bg-saphir-electric transition-all shadow-lg shadow-saphir-navy/10"
+          >
+            <Plus size={16} />
+            Nouvelle Série
+          </Link>
+        </div>
       </div>
 
       {/* Stats Quick View */}

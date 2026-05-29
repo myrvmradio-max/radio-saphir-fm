@@ -15,6 +15,8 @@ function NewEpisodeContent() {
   const seriesId = searchParams.get("series");
   
   const [loading, setLoading] = useState(false);
+  const [allSeries, setAllSeries] = useState<any[]>([]);
+  const [selectedSeriesId, setSelectedSeriesId] = useState(seriesId || "");
   const [seriesName, setSeriesName] = useState("");
   const [formData, setFormData] = useState({
     title: "",
@@ -25,16 +27,29 @@ function NewEpisodeContent() {
   });
 
   useEffect(() => {
-    if (!seriesId) {
-      router.push("/admin/podcasts");
-      return;
-    }
-    fetchSeries();
-  }, [seriesId]);
+    fetchAllSeries();
+  }, []);
 
-  async function fetchSeries() {
-    const { data } = await supabase.from("series").select("title").eq("id", seriesId).single();
-    if (data) setSeriesName(data.title);
+  async function fetchAllSeries() {
+    try {
+      const { data, error } = await supabase
+        .from("series")
+        .select("id, title")
+        .order("created_at", { ascending: false });
+      
+      if (error) throw error;
+      setAllSeries(data || []);
+      
+      if (seriesId && data) {
+        const found = data.find((s: any) => s.id === seriesId);
+        if (found) {
+          setSeriesName(found.title);
+          setSelectedSeriesId(seriesId);
+        }
+      }
+    } catch (err: any) {
+      console.error("Error fetching all series:", err);
+    }
   }
 
   const handleSubmit = async () => {
@@ -51,7 +66,7 @@ function NewEpisodeContent() {
           description: formData.description,
           audio_url: formData.audio_url,
           duration: parseInt(formData.duration) || 0,
-          series_id: seriesId,
+          series_id: selectedSeriesId || null,
           cover_image: formData.cover_image || null,
           published_at: new Date().toISOString()
         }
@@ -60,7 +75,12 @@ function NewEpisodeContent() {
       if (error) throw error;
 
       showToast("Épisode ajouté avec succès !", "success");
-      router.push(`/admin/podcasts/episodes?series=${seriesId}`);
+      
+      if (selectedSeriesId) {
+        router.push(`/admin/podcasts/episodes?series=${selectedSeriesId}`);
+      } else {
+        router.push("/admin/podcasts");
+      }
     } catch (error: any) {
       console.error("Error adding episode:", error);
       showToast("Erreur lors de l'ajout : " + error.message, "error");
@@ -69,17 +89,22 @@ function NewEpisodeContent() {
     }
   };
 
+  const backUrl = selectedSeriesId 
+    ? `/admin/podcasts/episodes?series=${selectedSeriesId}` 
+    : "/admin/podcasts";
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-20">
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-4">
-          <Link href={`/admin/podcasts/episodes?series=${seriesId}`} className="w-10 h-10 bg-white border border-gray-100 rounded-xl flex items-center justify-center text-saphir-navy hover:text-saphir-electric transition-all shadow-sm">
+          <Link href={backUrl} className="w-10 h-10 bg-white border border-gray-100 rounded-xl flex items-center justify-center text-saphir-navy hover:text-saphir-electric transition-all shadow-sm">
             <ArrowLeft size={20} />
           </Link>
           <div>
             <h1 className="text-3xl font-bold text-saphir-navy">Nouvel Épisode</h1>
-            <p className="text-xs font-bold text-saphir-navy/30 uppercase tracking-widest">Dans : {seriesName}</p>
+            {selectedSeriesId && seriesName && (
+              <p className="text-xs font-bold text-saphir-navy/30 uppercase tracking-widest">Dans : {seriesName}</p>
+            )}
           </div>
         </div>
         <button 
@@ -93,6 +118,25 @@ function NewEpisodeContent() {
       </div>
 
       <div className="bg-white p-10 rounded-[3rem] border border-gray-100 shadow-sm space-y-8">
+        <div className="space-y-4">
+          <label className="text-xs font-bold text-saphir-navy/40 uppercase tracking-widest block">Série / Émission d'appartenance</label>
+          <select 
+            className="w-full bg-gray-50 border-none rounded-xl py-3.5 px-4 font-bold text-saphir-navy focus:ring-2 focus:ring-saphir-electric/20"
+            value={selectedSeriesId}
+            onChange={(e) => {
+              const val = e.target.value;
+              setSelectedSeriesId(val);
+              const found = allSeries.find(s => s.id === val);
+              setSeriesName(found ? found.title : "");
+            }}
+          >
+            <option value="">-- Podcast indépendant / Aucun --</option>
+            {allSeries.map((s) => (
+              <option key={s.id} value={s.id}>{s.title}</option>
+            ))}
+          </select>
+        </div>
+
         <div className="space-y-4">
           <label className="text-xs font-bold text-saphir-navy/40 uppercase tracking-widest">Titre de l'épisode</label>
           <input 
