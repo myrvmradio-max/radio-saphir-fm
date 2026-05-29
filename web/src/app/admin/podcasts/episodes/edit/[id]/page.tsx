@@ -1,40 +1,67 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Save, Mic, Music, Loader2 } from "lucide-react";
+import { ArrowLeft, Save, Loader2 } from "lucide-react";
 import Link from "next/link";
 import FileUploader from "@/components/admin/FileUploader";
 import { useToast } from "@/context/ToastContext";
 
-function NewEpisodeContent() {
+function EditEpisodeContent() {
   const { showToast } = useToast();
   const router = useRouter();
+  const { id } = useParams();
   const searchParams = useSearchParams();
-  const seriesId = searchParams.get("series");
-  
-  const [loading, setLoading] = useState(false);
+  const querySeriesId = searchParams.get("series");
+
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [seriesName, setSeriesName] = useState("");
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     audio_url: "",
     duration: "",
-    cover_image: ""
+    cover_image: "",
+    series_id: ""
   });
 
   useEffect(() => {
-    if (!seriesId) {
-      router.push("/admin/podcasts");
-      return;
+    if (id) {
+      fetchEpisode();
     }
-    fetchSeries();
-  }, [seriesId]);
+  }, [id]);
 
-  async function fetchSeries() {
-    const { data } = await supabase.from("series").select("title").eq("id", seriesId).single();
-    if (data) setSeriesName(data.title);
+  async function fetchEpisode() {
+    try {
+      const { data, error } = await supabase
+        .from("podcasts")
+        .select("*, series(title)")
+        .eq("id", id)
+        .single();
+
+      if (error) throw error;
+      if (data) {
+        setFormData({
+          title: data.title,
+          description: data.description || "",
+          audio_url: data.audio_url || "",
+          duration: data.duration?.toString() || "0",
+          cover_image: data.cover_image || "",
+          series_id: data.series_id || ""
+        });
+        if (data.series) {
+          setSeriesName(data.series.title);
+        }
+      }
+    } catch (err: any) {
+      console.error("Error fetching episode:", err);
+      showToast("Erreur lors du chargement de l'épisode : " + err.message, "error");
+      router.push("/admin/podcasts");
+    } finally {
+      setLoading(false);
+    }
   }
 
   const handleSubmit = async () => {
@@ -43,52 +70,62 @@ function NewEpisodeContent() {
       return;
     }
 
-    setLoading(true);
+    setSaving(true);
     try {
-      const { error } = await supabase.from("podcasts").insert([
-        {
+      const { error } = await supabase
+        .from("podcasts")
+        .update({
           title: formData.title,
           description: formData.description,
           audio_url: formData.audio_url,
           duration: parseInt(formData.duration) || 0,
-          series_id: seriesId,
-          cover_image: formData.cover_image || null,
-          published_at: new Date().toISOString()
-        }
-      ]);
+          cover_image: formData.cover_image || null
+        })
+        .eq("id", id);
 
       if (error) throw error;
 
-      showToast("Épisode ajouté avec succès !", "success");
-      router.push(`/admin/podcasts/episodes?series=${seriesId}`);
+      showToast("Épisode mis à jour avec succès !", "success");
+      router.push(`/admin/podcasts/episodes?series=${formData.series_id || querySeriesId}`);
     } catch (error: any) {
-      console.error("Error adding episode:", error);
-      showToast("Erreur lors de l'ajout : " + error.message, "error");
+      console.error("Error updating episode:", error);
+      showToast("Erreur lors de la mise à jour : " + error.message, "error");
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
+  const backUrl = `/admin/podcasts/episodes?series=${formData.series_id || querySeriesId || ""}`;
+
+  if (loading) {
+    return (
+      <div className="flex justify-center p-20">
+        <Loader2 className="animate-spin text-saphir-navy/20" size={40} />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-20">
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-4">
-          <Link href={`/admin/podcasts/episodes?series=${seriesId}`} className="w-10 h-10 bg-white border border-gray-100 rounded-xl flex items-center justify-center text-saphir-navy hover:text-saphir-electric transition-all shadow-sm">
+          <Link href={backUrl} className="w-10 h-10 bg-white border border-gray-100 rounded-xl flex items-center justify-center text-saphir-navy hover:text-saphir-electric transition-all shadow-sm">
             <ArrowLeft size={20} />
           </Link>
           <div>
-            <h1 className="text-3xl font-bold text-saphir-navy">Nouvel Épisode</h1>
-            <p className="text-xs font-bold text-saphir-navy/30 uppercase tracking-widest">Dans : {seriesName}</p>
+            <h1 className="text-3xl font-bold text-saphir-navy">Modifier l'Épisode</h1>
+            {seriesName && (
+              <p className="text-xs font-bold text-saphir-navy/30 uppercase tracking-widest">Dans : {seriesName}</p>
+            )}
           </div>
         </div>
         <button 
           onClick={handleSubmit}
-          disabled={loading}
+          disabled={saving}
           className="flex items-center gap-2 px-6 py-3 bg-saphir-navy text-white rounded-2xl font-bold text-sm hover:bg-saphir-electric transition-all shadow-lg disabled:opacity-50"
         >
-          {loading ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-          {loading ? "Ajout..." : "Publier l'épisode"}
+          {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+          {saving ? "Enregistrement..." : "Enregistrer les modifications"}
         </button>
       </div>
 
@@ -152,10 +189,10 @@ function NewEpisodeContent() {
   );
 }
 
-export default function NewEpisode() {
+export default function EditEpisode() {
   return (
     <Suspense fallback={<div className="flex justify-center p-20"><Loader2 className="animate-spin text-saphir-navy/20" size={40} /></div>}>
-      <NewEpisodeContent />
+      <EditEpisodeContent />
     </Suspense>
   );
 }

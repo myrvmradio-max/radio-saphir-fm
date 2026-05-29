@@ -132,6 +132,12 @@ function EpisodesContent() {
                   </td>
                   <td className="px-8 py-5 text-right">
                     <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Link 
+                        href={`/admin/podcasts/episodes/edit/${ep.id}?series=${seriesId}`}
+                        className="p-2 hover:bg-gray-100 rounded-lg text-saphir-navy/40 hover:text-saphir-navy transition-all"
+                      >
+                        <Edit2 size={16} />
+                      </Link>
                       <button 
                         onClick={() => deleteEpisode(ep.id)}
                         className="p-2 hover:bg-red-50 rounded-lg text-saphir-navy/20 hover:text-red-500 transition-all"
