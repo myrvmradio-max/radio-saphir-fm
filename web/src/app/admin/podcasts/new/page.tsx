@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Save, Mic, Headphones, Loader2 } from "lucide-react";
+import { ArrowLeft, Save, Mic, Headphones, Loader2, Info } from "lucide-react";
 import Link from "next/link";
 import FileUploader from "@/components/admin/FileUploader";
 import { useToast } from "@/context/ToastContext";
@@ -66,6 +66,19 @@ export default function NewPodcast() {
       </div>
 
       <div className="bg-white p-10 rounded-[3rem] border border-gray-100 shadow-sm space-y-8">
+        {/* Info Banner */}
+        <div className="flex gap-4 bg-saphir-electric/[0.03] border border-saphir-electric/10 rounded-2xl p-5 items-start">
+          <div className="w-10 h-10 rounded-xl bg-saphir-electric/10 flex items-center justify-center text-saphir-electric flex-shrink-0">
+            <Info size={20} />
+          </div>
+          <div className="space-y-1">
+            <h4 className="text-sm font-bold text-saphir-navy">Pourquoi pas de fichier audio ici ?</h4>
+            <p className="text-xs text-saphir-navy/65 leading-relaxed font-medium">
+              Une <strong>série de podcasts</strong> (comme une émission de radio) regroupe plusieurs épisodes. Vous pourrez téléverser les fichiers audio (.mp3) individuellement pour chaque épisode dès que la série aura été créée.
+            </p>
+          </div>
+        </div>
+
         <div className="grid md:grid-cols-2 gap-8">
           <div className="space-y-4">
             <label className="text-xs font-bold text-saphir-navy/40 uppercase tracking-widest">Titre de l'émission</label>

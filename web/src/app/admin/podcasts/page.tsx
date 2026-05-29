@@ -19,6 +19,7 @@ import { useToast } from "@/context/ToastContext";
 export default function AdminPodcasts() {
   const { confirm, showToast } = useToast();
   const [series, setSeries] = useState<any[]>([]);
+  const [totalEpisodes, setTotalEpisodes] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -27,13 +28,21 @@ export default function AdminPodcasts() {
 
   async function fetchSeries() {
     try {
-      const { data, error } = await supabase
-        .from("series")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const [seriesRes, episodesCountRes] = await Promise.all([
+        supabase
+          .from("series")
+          .select("*")
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("podcasts")
+          .select("*", { count: "exact", head: true })
+      ]);
       
-      if (error) throw error;
-      setSeries(data || []);
+      if (seriesRes.error) throw seriesRes.error;
+      if (episodesCountRes.error) throw episodesCountRes.error;
+
+      setSeries(seriesRes.data || []);
+      setTotalEpisodes(episodesCountRes.count || 0);
     } catch (error) {
       console.error("Error fetching series:", error);
     } finally {
@@ -88,7 +97,9 @@ export default function AdminPodcasts() {
               <Headphones size={24} />
            </div>
            <div>
-              <div className="text-xl font-bold text-saphir-navy">12</div>
+              <div className="text-xl font-bold text-saphir-navy">
+                {loading ? <Loader2 size={18} className="animate-spin text-saphir-navy/20" /> : series.length}
+              </div>
               <div className="text-[10px] font-bold text-saphir-navy/30 uppercase tracking-widest">Séries Actives</div>
            </div>
         </div>
@@ -97,7 +108,9 @@ export default function AdminPodcasts() {
               <Mic size={24} />
            </div>
            <div>
-              <div className="text-xl font-bold text-saphir-navy">156</div>
+              <div className="text-xl font-bold text-saphir-navy">
+                {loading ? <Loader2 size={18} className="animate-spin text-saphir-navy/20" /> : totalEpisodes}
+              </div>
               <div className="text-[10px] font-bold text-saphir-navy/30 uppercase tracking-widest">Épisodes Total</div>
            </div>
         </div>
@@ -142,10 +155,14 @@ export default function AdminPodcasts() {
                  </div>
                  <p className="text-xs text-saphir-navy/60 mb-8 line-clamp-2">{s.description || 'Aucune description'}</p>
                  <div className="flex gap-2">
-                    <Link href={`/admin/podcasts/edit/${s.id}`} className="flex-1 flex items-center justify-center gap-2 py-3 bg-gray-50 rounded-xl font-bold text-xs text-saphir-navy hover:bg-saphir-navy hover:text-white transition-all">
+                    <Link href={`/admin/podcasts/episodes?series=${s.id}`} className="flex-1 flex items-center justify-center gap-2 py-3 bg-gray-50 rounded-xl font-bold text-xs text-saphir-navy hover:bg-saphir-navy hover:text-white transition-all">
                       <Edit2 size={14} /> Gérer
                     </Link>
-                    <Link href={`/admin/podcasts/episodes?series=${s.id}`} className="w-12 h-12 flex items-center justify-center bg-saphir-electric/10 text-saphir-electric rounded-xl hover:bg-saphir-electric hover:text-white transition-all">
+                    <Link 
+                      href={`/admin/podcasts/episodes/new?series=${s.id}`} 
+                      className="w-12 h-12 flex items-center justify-center bg-saphir-electric/10 text-saphir-electric rounded-xl hover:bg-saphir-electric hover:text-white transition-all"
+                      title="Ajouter un épisode"
+                    >
                       <Plus size={20} />
                     </Link>
                  </div>
