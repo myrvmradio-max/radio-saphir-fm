@@ -1,8 +1,8 @@
 {
   "expo": {
     "name": "Saphir FM",
-    "slug": "saphir",
-    "owner": "commune123",
+    "slug": "saphir-fm",
+    "owner": "sorasaphir",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/Icone2.png",
@@ -41,7 +41,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "16be04b0-e8f8-442d-ae85-c4430b43245d"
+        "projectId": "22cf0840-6262-4b1b-a59a-f650bbfa8e40"
       }
     },
     "plugins": [
