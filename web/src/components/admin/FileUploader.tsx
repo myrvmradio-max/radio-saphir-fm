@@ -244,8 +244,9 @@ export default function FileUploader({
               </div>
               <div className="text-center px-4">
                 <p className="text-xs font-bold text-saphir-navy">
-                  Glissez-déposez votre fichier ici, ou{" "}
-                  <span className="text-saphir-electric hover:underline">parcourez</span>
+                  {type === "audio" 
+                    ? "Cliquez pour ajouter votre fichier audio" 
+                    : "Cliquez pour ajouter l'image de couverture"}
                 </p>
                 <p className="text-[10px] text-saphir-navy/40 font-medium mt-1">
                   {type === "audio"
