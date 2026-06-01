@@ -713,7 +713,7 @@ const styles = StyleSheet.create({
   liveLabel: { color: '#fff', fontSize: 10, fontWeight: '800' },
 
   main: { flex: 1 },
-  tabContent: { flex: 1, justifyContent: 'space-around', alignItems: 'center', padding: 24 },
+  tabContent: { flex: 1, justifyContent: 'space-around', alignItems: 'center', paddingHorizontal: 24, paddingTop: 24, paddingBottom: 110 },
   playerCenter: { justifyContent: 'center', alignItems: 'center' },
   
   neonCard: {
