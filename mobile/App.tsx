@@ -13,6 +13,7 @@ import {
   Image,
   ScrollView,
   TextInput,
+  Share,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -440,6 +441,17 @@ export default function App() {
     }
   }
 
+  const handleShare = async () => {
+    try {
+      await Share.share({
+        message: "Écoutez Saphir FM 106.8 - La Radio Qui Vous Ressemble ! Retrouvez-nous sur : https://www.radiosaphir.com/",
+        url: "https://www.radiosaphir.com/",
+      });
+    } catch (error: any) {
+      console.log("Erreur de partage:", error.message);
+    }
+  };
+
   useEffect(() => {
     if (isPlaying) {
       Animated.loop(Animated.sequence([
@@ -672,6 +684,7 @@ export default function App() {
           <NavBtn icon="book" label="Histoire" active={activeTab === 'histoire'} onPress={() => setActiveTab('histoire')} />
           <NavBtn icon="cart" label="Produit" active={activeTab === 'produit'} onPress={() => setActiveTab('produit')} />
           <NavBtn icon="call" label="Contact" active={activeTab === 'contact'} onPress={() => setActiveTab('contact')} />
+          <NavBtn icon="share-social" label="Partager" active={false} onPress={handleShare} />
         </View>
       </SafeAreaView>
     </View>
@@ -690,7 +703,7 @@ function NavBtn({ icon, label, active, onPress }) {
 const styles = StyleSheet.create({
   root: { flex: 1 },
   safe: { flex: 1 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 55, paddingHorizontal: 24 },
+  header: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 55, paddingHorizontal: 24 },
   headerLogoWhiteBg: { backgroundColor: '#fff', padding: 8, borderRadius: 12 },
   headerLogo: { width: 100, height: 35 },
   livePill: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: 'rgba(255,255,255,0.05)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 },
@@ -766,7 +779,14 @@ const styles = StyleSheet.create({
   badgeLarge: { color: '#FFFFFF', fontSize: 18, fontWeight: 'bold', letterSpacing: 0.5 },
   badgeSmall: { color: 'rgba(255,255,255,0.6)', fontSize: 12, fontWeight: '700', marginTop: 4 },
 
-  navbar: { flexDirection: 'row', height: 80, backgroundColor: '#0A0A15', borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.05)', paddingBottom: 20 },
+  navbar: { 
+    flexDirection: 'row', 
+    height: 80, 
+    backgroundColor: 'rgba(10, 10, 21, 0.75)', 
+    borderTopWidth: 1.5, 
+    borderTopColor: 'rgba(168, 85, 247, 0.25)', 
+    paddingBottom: 20 
+  },
   navbtn: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   navlabel: { fontSize: 10, fontWeight: '700', marginTop: 4 },
 
