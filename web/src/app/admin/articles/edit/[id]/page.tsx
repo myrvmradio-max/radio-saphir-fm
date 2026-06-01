@@ -222,10 +222,12 @@ export default function EditArticle() {
            <label className="text-xs font-bold text-saphir-navy/40 uppercase tracking-widest flex items-center gap-2"><FileText size={12}/> Contenu de l'article (Markdown ou HTML supporté)</label>
            <textarea 
              className="w-full bg-gray-50 border-none rounded-2xl py-4 px-4 font-medium text-saphir-navy h-96 resize-none focus:ring-2 focus:ring-saphir-electric/20" 
-             value={formData.content}
-             onChange={(e) => setFormData({...formData, content: e.target.value})}
-           ></textarea>
+            value={formData.content}
+            onChange={(e) => setFormData({...formData, content: e.target.value})}
+          ></textarea>
         </div>
+      </div>
+
       {/* Modal d'aperçu de l'article */}
       {showPreview && (
         <div className="fixed inset-0 z-[150] bg-saphir-navy/60 backdrop-blur-xl flex items-center justify-center p-4 md:p-8 overflow-y-auto animate-fade-in">
