@@ -692,10 +692,12 @@ export default function App() {
 }
 
 function NavBtn({ icon, label, active, onPress }) {
+  const tintColor = active ? '#000000' : 'rgba(0, 0, 0, 0.45)';
+  const fontWeight = active ? '900' : '600';
   return (
     <TouchableOpacity style={styles.navbtn} onPress={onPress}>
-      <Ionicons name={active ? icon : `${icon}-outline`} size={24} color={active ? '#A855F7' : '#555'} />
-      <Text style={[styles.navlabel, { color: active ? '#A855F7' : '#555' }]}>{label}</Text>
+      <Ionicons name={active ? icon : `${icon}-outline`} size={24} color={tintColor} />
+      <Text style={[styles.navlabel, { color: tintColor, fontWeight }]}>{label}</Text>
     </TouchableOpacity>
   );
 }
@@ -781,14 +783,33 @@ const styles = StyleSheet.create({
 
   navbar: { 
     flexDirection: 'row', 
-    height: 80, 
-    backgroundColor: 'rgba(10, 10, 21, 0.75)', 
-    borderTopWidth: 1.5, 
-    borderTopColor: 'rgba(168, 85, 247, 0.25)', 
-    paddingBottom: 20 
+    height: 68, 
+    backgroundColor: '#8A2BE2', // Violet pur
+    borderRadius: 34,           // Forme de capsule/pilule parfaite
+    position: 'absolute',       // Flotte par-dessus l'écran
+    bottom: 24,                 // Décollé du bas
+    left: 20,                   // Marge gauche
+    right: 20,                  // Marge droite
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 8,
+    paddingBottom: 0,
   },
-  navbtn: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  navlabel: { fontSize: 10, fontWeight: '700', marginTop: 4 },
+  navbtn: { 
+    flex: 1, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    height: '100%' 
+  },
+  navlabel: { 
+    fontSize: 9, 
+    marginTop: 3, 
+    letterSpacing: 0.5 
+  },
 
   scroll: { flex: 1, padding: 24 },
   title: { color: '#fff', fontSize: 28, fontWeight: '900', marginBottom: 20 },
