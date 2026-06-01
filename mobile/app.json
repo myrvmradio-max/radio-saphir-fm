@@ -1,8 +1,8 @@
 {
   "expo": {
     "name": "Saphir FM",
-    "slug": "radio-saphir",
-    "owner": "saphirfm",
+    "slug": "saphir",
+    "owner": "commune123",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/Icone2.png",
@@ -41,7 +41,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "7592648b-701b-43a4-8228-a496d447f8aa"
+        "projectId": "16be04b0-e8f8-442d-ae85-c4430b43245d"
       }
     },
     "plugins": [
