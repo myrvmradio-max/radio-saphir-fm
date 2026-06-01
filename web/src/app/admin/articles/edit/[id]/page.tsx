@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Save, Loader2, Globe, Image as ImageIcon, FileText } from "lucide-react";
+import { ArrowLeft, Save, Loader2, Globe, Image as ImageIcon, FileText, Eye, Music } from "lucide-react";
 import Link from "next/link";
 import FileUploader from "@/components/admin/FileUploader";
 import { useToast } from "@/context/ToastContext";
@@ -14,6 +14,7 @@ export default function EditArticle() {
   const { id } = useParams();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   
   const [formData, setFormData] = useState({
     title: "",
@@ -118,14 +119,24 @@ export default function EditArticle() {
           </Link>
           <h1 className="text-3xl font-bold text-saphir-navy">Modifier l'Article</h1>
         </div>
-        <button 
-          onClick={handleSubmit}
-          disabled={saving}
-          className="flex items-center gap-2 px-6 py-3 bg-saphir-navy text-white rounded-2xl font-bold text-sm hover:bg-saphir-electric transition-all shadow-lg disabled:opacity-50"
-        >
-          {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-          {saving ? "Mise à jour..." : "Enregistrer"}
-        </button>
+        <div className="flex gap-3">
+          <button 
+            type="button"
+            onClick={() => setShowPreview(true)}
+            className="flex items-center gap-2 px-6 py-3 border border-gray-100 bg-white text-saphir-navy rounded-2xl font-bold text-sm hover:bg-gray-50 transition-all"
+          >
+            <Eye size={18} />
+            Aperçu
+          </button>
+          <button 
+            onClick={handleSubmit}
+            disabled={saving}
+            className="flex items-center gap-2 px-6 py-3 bg-saphir-navy text-white rounded-2xl font-bold text-sm hover:bg-saphir-electric transition-all shadow-lg disabled:opacity-50"
+          >
+            {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+            {saving ? "Mise à jour..." : "Enregistrer"}
+          </button>
+        </div>
       </div>
 
       <div className="bg-white p-10 rounded-[3rem] border border-gray-100 shadow-sm space-y-8">
@@ -215,7 +226,91 @@ export default function EditArticle() {
              onChange={(e) => setFormData({...formData, content: e.target.value})}
            ></textarea>
         </div>
-      </div>
+      {/* Modal d'aperçu de l'article */}
+      {showPreview && (
+        <div className="fixed inset-0 z-[150] bg-saphir-navy/60 backdrop-blur-xl flex items-center justify-center p-4 md:p-8 overflow-y-auto animate-fade-in">
+          <div className="bg-[#FDFDFF] w-full max-w-5xl rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] border border-white/20">
+            {/* Modal Header */}
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-white">
+              <div>
+                <h3 className="font-bold text-saphir-navy text-lg">Aperçu de la publication</h3>
+                <p className="text-xs text-saphir-navy/40 font-medium">Voici à quoi ressemblera votre article sur le site public.</p>
+              </div>
+              <button 
+                onClick={() => setShowPreview(false)}
+                className="px-5 py-2.5 bg-gray-50 hover:bg-gray-100 text-saphir-navy rounded-xl font-bold text-xs transition-all"
+              >
+                Fermer l'aperçu
+              </button>
+            </div>
+            
+            {/* Modal Body (Scrollable Article content) */}
+            <div className="flex-1 overflow-y-auto p-8 md:p-12 space-y-8">
+              <style>{`
+                .preview-html-content p { margin-bottom: 1.5rem; line-height: 1.8; font-size: 1.05rem; color: rgba(13, 27, 76, 0.75); }
+                .preview-html-content h2 { font-size: 1.5rem; font-weight: 800; color: #0D1B4C; margin-top: 2rem; margin-bottom: 1rem; }
+                .preview-html-content h3 { font-size: 1.25rem; font-weight: 700; color: #0D1B4C; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+                .preview-html-content ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1.5rem; color: rgba(13, 27, 76, 0.75); }
+                .preview-html-content ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 1.5rem; color: rgba(13, 27, 76, 0.75); }
+                .preview-html-content li { margin-bottom: 0.5rem; }
+                .preview-html-content a { color: #6A7CFF; text-decoration: underline; font-weight: 600; }
+                .preview-html-content blockquote { border-left: 4px solid #6A7CFF; padding-left: 1.25rem; font-style: italic; margin: 1.5rem 0; color: rgba(13, 27, 76, 0.6); }
+              `}</style>
+
+              <article className="max-w-3xl mx-auto space-y-8">
+                <header className="space-y-4">
+                  <div className="flex items-center gap-3 text-xs font-bold text-saphir-navy/30 uppercase tracking-widest">
+                    <span className="bg-saphir-electric/10 text-saphir-electric px-3 py-1 rounded-full">
+                      {formData.category}
+                    </span>
+                    <span>•</span>
+                    <span>{new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}</span>
+                  </div>
+                  <h1 className="text-3xl md:text-5xl font-black text-saphir-navy font-playfair tracking-tight leading-tight">
+                    {formData.title || "Sans titre"}
+                  </h1>
+                </header>
+
+                {/* Cover image preview */}
+                <div className="aspect-[21/9] w-full bg-gray-50 rounded-[2rem] border border-gray-100 overflow-hidden relative shadow-md">
+                  {formData.cover_image ? (
+                    <img src={formData.cover_image} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-indigo-50 to-indigo-100 flex flex-col items-center justify-center text-saphir-navy/10 gap-2">
+                      <ImageIcon size={40} className="text-saphir-navy/10" />
+                      <span className="font-bold tracking-widest text-[10px] uppercase">Aperçu de la couverture</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Inline Premium Audio Player Preview */}
+                {formData.audio_url && (
+                  <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-md flex items-center gap-4">
+                    <div className="w-10 h-10 bg-saphir-navy text-white rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Music size={18} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-bold text-saphir-navy truncate">Audio de l'article</p>
+                      <p className="text-[10px] text-saphir-navy/40 font-medium truncate">{formData.audio_url}</p>
+                    </div>
+                    <div className="text-[10px] font-bold text-emerald-500 bg-emerald-50 px-2 py-1 rounded">
+                      Téléchargement Actif
+                    </div>
+                  </div>
+                )}
+
+                {/* Rendered HTML Content */}
+                <div className="bg-white rounded-[2rem] p-8 border border-gray-50 shadow-inner">
+                  <div 
+                    className="preview-html-content text-saphir-navy/80 font-medium"
+                    dangerouslySetInnerHTML={{ __html: formData.content || "<p class='italic text-gray-350'>Aucun contenu rédigé pour le moment...</p>" }}
+                  />
+                </div>
+              </article>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
