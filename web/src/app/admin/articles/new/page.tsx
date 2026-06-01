@@ -25,7 +25,8 @@ export default function NewArticle() {
     category: "Politique",
     content: "",
     status: "published",
-    cover_image: ""
+    cover_image: "",
+    audio_url: ""
   });
 
   const generateSlug = (text: string) => {
@@ -53,6 +54,7 @@ export default function NewArticle() {
           category: formData.category,
           status: formData.status,
           cover_image: formData.cover_image || null,
+          audio_url: formData.audio_url || null,
           published_at: formData.status === "published" ? new Date().toISOString() : null
         }
       ]);
@@ -123,7 +125,7 @@ export default function NewArticle() {
           <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm space-y-4 min-h-[400px]">
              <label className="flex items-center gap-2 text-xs font-bold text-saphir-navy/40 uppercase tracking-widest border-b border-gray-50 pb-4">
               Contenu de la publication
-            </label>
+             </label>
             <textarea 
               placeholder="Commencez à rédiger ici..." 
               className="w-full h-full min-h-[300px] border-none focus:ring-0 text-saphir-navy leading-relaxed resize-none"
@@ -143,6 +145,17 @@ export default function NewArticle() {
                value={formData.cover_image}
                onChange={(url) => setFormData({...formData, cover_image: url})}
                label="Image de couverture"
+             />
+           </div>
+
+           {/* Fichier audio */}
+           <div className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm">
+             <FileUploader
+               type="audio"
+               folder="articles"
+               value={formData.audio_url}
+               onChange={(url) => setFormData({...formData, audio_url: url})}
+               label="Audio de l'article (optionnel)"
              />
            </div>
 

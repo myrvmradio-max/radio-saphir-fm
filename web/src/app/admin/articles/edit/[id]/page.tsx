@@ -22,7 +22,8 @@ export default function EditArticle() {
     excerpt: "",
     cover_image: "",
     category: "Général",
-    status: "published"
+    status: "published",
+    audio_url: ""
   });
 
   useEffect(() => {
@@ -46,7 +47,8 @@ export default function EditArticle() {
           excerpt: data.excerpt || "",
           cover_image: data.cover_image || "",
           category: data.category || "Général",
-          status: data.status || "published"
+          status: data.status || "published",
+          audio_url: data.audio_url || ""
         });
       }
     } catch (err) {
@@ -86,6 +88,7 @@ export default function EditArticle() {
           content: formData.content,
           excerpt: formData.excerpt,
           cover_image: formData.cover_image || null,
+          audio_url: formData.audio_url || null,
           category: formData.category,
           status: formData.status
         })
@@ -182,6 +185,16 @@ export default function EditArticle() {
             value={formData.cover_image}
             onChange={(url) => setFormData({...formData, cover_image: url})}
             label="Image de couverture"
+          />
+        </div>
+
+        <div className="space-y-4">
+          <FileUploader
+            type="audio"
+            folder="articles"
+            value={formData.audio_url}
+            onChange={(url) => setFormData({...formData, audio_url: url})}
+            label="Audio de l'article (optionnel)"
           />
         </div>
 

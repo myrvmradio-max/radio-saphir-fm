@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { useAudio } from "@/context/AudioContext";
 import { 
   ChevronLeft, 
   Share2, 
@@ -14,9 +15,130 @@ import {
   Calendar,
   Newspaper,
   Loader2,
-  ArrowRight
+  ArrowRight,
+  Play,
+  Pause,
+  Download
 } from "lucide-react";
 import Link from "next/link";
+
+function ArticleAudioPlayer({ audioUrl, title }: { audioUrl: string; title: string }) {
+  const { isPlaying: isLivePlaying, togglePlay: toggleLivePlay } = useAudio();
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+
+  const handlePlayPause = async () => {
+    if (isLivePlaying) {
+      await toggleLivePlay();
+    }
+
+    if (!audioRef.current) {
+      audioRef.current = new Audio(audioUrl);
+
+      audioRef.current.addEventListener("timeupdate", () => {
+        if (audioRef.current) {
+          setCurrentTime(audioRef.current.currentTime);
+        }
+      });
+
+      audioRef.current.addEventListener("loadedmetadata", () => {
+        if (audioRef.current) {
+          setDuration(audioRef.current.duration);
+        }
+      });
+
+      audioRef.current.addEventListener("ended", () => {
+        setIsPlaying(false);
+        setCurrentTime(0);
+      });
+    }
+
+    const audio = audioRef.current;
+
+    if (isPlaying) {
+      audio.pause();
+      setIsPlaying(false);
+    } else {
+      try {
+        await audio.play();
+        setIsPlaying(true);
+      } catch (err) {
+        console.error("Error playing article audio:", err);
+      }
+    }
+  };
+
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const time = parseFloat(e.target.value);
+    setCurrentTime(time);
+    if (audioRef.current) {
+      audioRef.current.currentTime = time;
+    }
+  };
+
+  const formatTime = (secs: number) => {
+    const minutes = Math.floor(secs / 60);
+    const seconds = Math.floor(secs % 60).toString().padStart(2, '0');
+    return `${minutes}:${seconds}`;
+  };
+
+  return (
+    <div className="bg-white/80 backdrop-blur-xl border border-gray-100 rounded-[2rem] p-6 shadow-xl shadow-saphir-navy/5 flex flex-col sm:flex-row items-center gap-6 group hover:border-saphir-electric/25 transition-all duration-300">
+      <button 
+        onClick={handlePlayPause}
+        className={`w-14 h-14 rounded-full flex items-center justify-center transition-all shadow-lg active:scale-95 flex-shrink-0 ${
+          isPlaying 
+            ? "bg-saphir-electric text-white shadow-saphir-electric/25" 
+            : "bg-saphir-navy text-white shadow-saphir-navy/15 hover:bg-saphir-electric hover:shadow-saphir-electric/25"
+        }`}
+      >
+        {isPlaying ? (
+          <Pause size={22} fill="white" />
+        ) : (
+          <Play size={22} fill="white" className="ml-0.5" />
+        )}
+      </button>
+
+      <div className="flex-1 w-full min-w-0 space-y-2">
+        <div className="flex justify-between items-center text-[10px] font-black uppercase text-saphir-navy/40 tracking-wider">
+          <span className="truncate">Écouter la publication</span>
+          <span className="font-mono text-saphir-navy/50">{formatTime(currentTime)} / {formatTime(duration || 0)}</span>
+        </div>
+        
+        <input 
+          type="range" 
+          min="0" 
+          max={duration || 100}
+          value={currentTime} 
+          onChange={handleSeek}
+          className="w-full h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-saphir-electric focus:outline-none"
+        />
+      </div>
+
+      <a 
+        href={audioUrl} 
+        download={`${title}.mp3`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center text-saphir-navy/40 hover:bg-saphir-navy hover:text-white hover:scale-105 active:scale-95 transition-all shadow-sm flex-shrink-0"
+        title="Télécharger l'audio de la publication"
+      >
+        <Download size={18} />
+      </a>
+    </div>
+  );
+}
 
 export default function ArticleDetailPage() {
   const { slug } = useParams();
@@ -251,6 +373,13 @@ export default function ArticleDetailPage() {
               </div>
             )}
           </div>
+
+          {/* Lecteur Audio Premium (si disponible) */}
+          {article.audio_url && (
+            <div className="max-w-3xl mx-auto mb-8">
+              <ArticleAudioPlayer audioUrl={article.audio_url} title={article.title} />
+            </div>
+          )}
 
           {/* Rich Content Body */}
           <div className="max-w-3xl mx-auto bg-white rounded-[2.5rem] p-8 md:p-12 border border-gray-50 shadow-xl shadow-saphir-navy/5 mb-16">
