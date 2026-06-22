@@ -20,10 +20,12 @@ ALTER TABLE public.programmes ENABLE ROW LEVEL SECURITY;
 
 -- Politiques de sécurité pour 'programmes'
 -- Lecture publique pour tout le monde (visiteurs du site)
+DROP POLICY IF EXISTS "Lecture publique des programmes" ON public.programmes;
 CREATE POLICY "Lecture publique des programmes" 
 ON public.programmes FOR SELECT USING (true);
 
 -- Contrôle total pour les administrateurs connectés
+DROP POLICY IF EXISTS "Accès complet admin sur les programmes" ON public.programmes;
 CREATE POLICY "Accès complet admin sur les programmes" 
 ON public.programmes FOR ALL TO authenticated USING (true);
 
@@ -47,9 +49,11 @@ ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
 -- Politiques de sécurité pour 'profiles'
 -- Lecture publique pour tout le monde (pour afficher l'équipe sur la page d'accueil)
+DROP POLICY IF EXISTS "Lecture publique des profils" ON public.profiles;
 CREATE POLICY "Lecture publique des profils" 
 ON public.profiles FOR SELECT USING (true);
 
 -- Contrôle total pour les administrateurs connectés
+DROP POLICY IF EXISTS "Accès complet admin sur les profils" ON public.profiles;
 CREATE POLICY "Accès complet admin sur les profils" 
 ON public.profiles FOR ALL TO authenticated USING (true);
