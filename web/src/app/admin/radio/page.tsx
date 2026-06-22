@@ -110,7 +110,7 @@ export default function AdminRadioStats() {
             val: Math.round((count / total) * 100)
           }))
           .sort((a, b) => b.count - a.count)
-          .slice(0, 8);
+          .slice(0, 12);
 
         // 2. Group by hour (24 hours baseline)
         const hourCounts = new Array(24).fill(0);
