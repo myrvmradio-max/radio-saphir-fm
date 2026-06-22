@@ -110,7 +110,7 @@ export default function AdminRadioStats() {
             val: Math.round((count / total) * 100)
           }))
           .sort((a, b) => b.count - a.count)
-          .slice(0, 4);
+          .slice(0, 8);
 
         // 2. Group by hour (24 hours baseline)
         const hourCounts = new Array(24).fill(0);
@@ -141,8 +141,11 @@ export default function AdminRadioStats() {
         setDbStats({
           totalLogs: 0,
           topRegions: [
-            { name: "Côte d'Ivoire", val: 80, count: 0 },
-            { name: "France", val: 12, count: 0 },
+            { name: "Côte d'Ivoire", val: 50, count: 0 },
+            { name: "France", val: 15, count: 0 },
+            { name: "États-Unis", val: 12, count: 0 },
+            { name: "Canada", val: 10, count: 0 },
+            { name: "Bénin", val: 5, count: 0 },
             { name: "Burkina Faso", val: 5, count: 0 },
             { name: "Autres", val: 3, count: 0 }
           ],

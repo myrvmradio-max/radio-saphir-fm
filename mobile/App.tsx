@@ -154,30 +154,27 @@ function Accueil({ isPlaying, isBuffering, togglePlayback, pulseAnim, spin, glow
     <View style={styles.tabContent}>
       {/* Mic play button in center */}
       <View style={styles.playControlContainer}>
-        <Animated.View style={[styles.playBtnWrap, { transform: [{ scale: pulseAnim }] }]}>
-          {/* Ambient Glows */}
-          <Animated.View style={[styles.playGlow2, { opacity: glowOpacity }]} />
-          <Animated.View style={[styles.playGlow, { opacity: glowOpacity }]} />
-          
-          <TouchableOpacity onPress={togglePlayback} activeOpacity={0.85} style={styles.playBtnTouchable}>
-            <LinearGradient
-              colors={['#8A2BE2', '#4F46E5']}
-              start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-              style={styles.playBtn}
-            >
-              {isBuffering ? (
-                <ActivityIndicator color="#fff" size="large" />
-              ) : (
-                <Ionicons 
-                  name={isPlaying ? "pause" : "play"} 
-                  size={44} 
-                  color="#fff" 
-                  style={!isPlaying ? { marginLeft: 6 } : null} 
-                />
-              )}
-            </LinearGradient>
+        {/* Deuxième contour (animé sur play) */}
+        <Animated.View style={[
+          styles.outerCircle, 
+          { transform: [{ scale: isPlaying ? pulseAnim : 1 }] }
+        ]} />
+
+        {/* Premier cercle */}
+        <View style={styles.innerCircle}>
+          <TouchableOpacity onPress={togglePlayback} activeOpacity={0.85} style={styles.playBtnCenter}>
+            {isBuffering ? (
+              <ActivityIndicator color="#fff" size="large" />
+            ) : (
+              <Ionicons 
+                name={isPlaying ? "pause" : "play"} 
+                size={46} 
+                color="#fff" 
+                style={!isPlaying ? { marginLeft: 6 } : null} 
+              />
+            )}
           </TouchableOpacity>
-        </Animated.View>
+        </View>
       </View>
 
       {/* Track info perfectly centered */}
@@ -195,25 +192,100 @@ function Accueil({ isPlaying, isBuffering, togglePlayback, pulseAnim, spin, glow
   );
 }
 
+function translateCountryToFrench(country: string): string {
+  const translations: { [key: string]: string } = {
+    "United States": "États-Unis",
+    "United States of America": "États-Unis",
+    "US": "États-Unis",
+    "USA": "États-Unis",
+    "Canada": "Canada",
+    "United Kingdom": "Royaume-Uni",
+    "UK": "Royaume-Uni",
+    "Ivory Coast": "Côte d'Ivoire",
+    "Cote d'Ivoire": "Côte d'Ivoire",
+    "CI": "Côte d'Ivoire",
+    "Benin": "Bénin",
+    "Senegal": "Sénégal",
+    "Cameroon": "Cameroun",
+    "Guinea": "Guinée",
+    "Morocco": "Maroc",
+    "Algeria": "Algérie",
+    "Tunisia": "Tunisie",
+    "Belgium": "Belgique",
+    "Switzerland": "Suisse",
+    "Germany": "Allemagne",
+    "Spain": "Espagne",
+    "Italy": "Italie",
+    "Netherlands": "Pays-Bas",
+    "Brazil": "Brésil",
+    "Burkina Faso": "Burkina Faso",
+    "Togo": "Togo",
+    "Mali": "Mali",
+    "Niger": "Niger",
+    "Gabon": "Gabon",
+    "Congo": "Congo",
+    "Democratic Republic of the Congo": "RDC (Congo)",
+    "Madagascar": "Madagascar"
+  };
+  return translations[country] || country;
+}
+
 async function logListenerSessionMobile() {
+  let country = 'International';
+  let city = 'Inconnu';
+
+  // 1. Essai avec freeipapi.com (stable, HTTPS, 60 req/min)
   try {
-    const response = await fetch('https://ipapi.co/json/', { headers: { 'Accept': 'application/json' } });
-    let country = 'International';
-    let city = 'Inconnu';
+    const response = await fetch('https://freeipapi.com/api/json');
     if (response.ok) {
       const data = await response.json();
-      if (data.country_name) {
-        country = data.country_name === 'Ivory Coast' ? 'Côte d\'Ivoire' : data.country_name;
-      }
-      if (data.city) {
-        city = data.city;
+      if (data.countryName) {
+        country = translateCountryToFrench(data.countryName);
+        city = data.cityName || 'Inconnu';
       }
     }
+  } catch (err) {
+    console.warn("Échec de géolocalisation mobile avec freeipapi.com:", err);
+  }
+
+  // 2. Fallback avec ipwho.is (10 000 req/jour)
+  if (country === 'International') {
+    try {
+      const response = await fetch('https://ipwho.is/?lang=fr');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.country) {
+          country = data.country; // Traduit par l'API
+          city = data.city || 'Inconnu';
+        }
+      }
+    } catch (err) {
+      console.warn("Échec de géolocalisation mobile avec ipwho.is:", err);
+    }
+  }
+
+  // 3. Dernier recours avec ipapi.co
+  if (country === 'International') {
+    try {
+      const response = await fetch('https://ipapi.co/json/', { headers: { 'Accept': 'application/json' } });
+      if (response.ok) {
+        const data = await response.json();
+        if (data.country_name) {
+          country = translateCountryToFrench(data.country_name);
+          city = data.city || 'Inconnu';
+        }
+      }
+    } catch (err) {
+      console.warn("Échec de géolocalisation mobile avec ipapi.co:", err);
+    }
+  }
+
+  try {
     await supabase.from('listener_logs').insert([
       { country, city, platform: 'mobile' }
     ]);
   } catch (e) {
-    console.log("Telemetry error:", e);
+    console.log("Telemetry error on saving mobile session:", e);
   }
 }
 
@@ -231,7 +303,15 @@ export default function App() {
   const [streamUrl, setStreamUrl] = useState('https://stream.radiosaphir.com/listen/radiosaphir-106.8-fm/radio.mp3');
   const [currentTitle, setCurrentTitle] = useState('Saphir FM');
   const [currentArtist, setCurrentArtist] = useState('La Radio Qui Vous Ressemble');
-  const [aboutText, setAboutText] = useState("Saphir FM 106.8 est votre station de radio de référence basée au cœur de Bouaké, en Côte d'Ivoire. Moderne, dynamique et proche de son audience, Saphir FM vous accompagne au quotidien avec une programmation riche et variée.");
+  const [aboutText, setAboutText] = useState(`Saphir FM
+106.8 FM
+Votre fréquence de référence à Bouaké. Découvrez notre histoire et comment nous contacter.
+
+Saphir FM 106.8 est votre station de radio de référence basée au cœur de Bouaké, en Côte d'Ivoire. Moderne, dynamique et proche de son audience, Saphir FM vous accompagne au quotidien avec une programmation riche et variée.
+
+Retrouvez le meilleur de la musique ivoirienne et africaine (Zouglou, Coupé Décalé, Afrobeat), des flashs d'information en direct pour rester connecté à l'actualité de Bouaké et de la Côte d'Ivoire, ainsi que des émissions culturelles et des talk-shows passionnants.
+
+Saphir FM, c'est l'image du son ! Nous nous engageons à vous offrir le meilleur du divertissement et de l'information.`);
   const [contactAddress, setContactAddress] = useState("Air France 2 rue wattao, Bouaké, Côte d'Ivoire");
   const [contactPhone, setContactPhone] = useState("(+225) 07 07 93 19 06\n(+225) 01 01 72 73 75\n(+225) 27 31 60 08 62");
   const [contactEmail, setContactEmail] = useState("radiosaphirfm@gmail.com");
@@ -563,7 +643,6 @@ export default function App() {
             <ScrollView style={styles.scroll} contentContainerStyle={{ paddingBottom: 100 }}>
               <Text style={styles.title}>Notre Histoire</Text>
               <View style={styles.card}><Text style={styles.text}>{aboutText}</Text></View>
-              {articles.map(a => <View key={a.id} style={styles.article}><Text style={styles.atitle}>{a.title}</Text></View>)}
             </ScrollView>
           )}
           {activeTab === 'produit' && (
@@ -757,12 +836,32 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
 
-  playControlContainer: { width: 140, height: 140, justifyContent: 'center', alignItems: 'center', zIndex: 10, marginTop: 15 },
-  playBtnWrap: { width: 90, height: 90, borderRadius: 45, overflow: 'visible', justifyContent: 'center', alignItems: 'center' },
-  playGlow: { position: 'absolute', width: 130, height: 130, borderRadius: 65, backgroundColor: '#A855F7', opacity: 0.25 },
-  playGlow2: { position: 'absolute', width: 110, height: 110, borderRadius: 55, backgroundColor: '#D946EF', opacity: 0.35 },
-  playBtnTouchable: { width: 90, height: 90, borderRadius: 45 },
-  playBtn: { width: 90, height: 90, borderRadius: 45, justifyContent: 'center', alignItems: 'center', shadowColor: '#8A2BE2', shadowOpacity: 0.8, shadowRadius: 15, elevation: 10 },
+  playControlContainer: { width: 150, height: 150, justifyContent: 'center', alignItems: 'center', zIndex: 10, marginTop: 15 },
+  outerCircle: {
+    position: 'absolute',
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 1.5,
+    borderColor: '#A855F7',
+    opacity: 0.6,
+  },
+  innerCircle: {
+    width: 86,
+    height: 86,
+    borderRadius: 43,
+    backgroundColor: 'rgba(168, 85, 247, 0.25)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(168, 85, 247, 0.5)',
+  },
+  playBtnCenter: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 
   trackInfo: { alignItems: 'center', marginTop: 25 },
   trackTitle: { color: '#fff', fontSize: 18, fontWeight: '900', textAlign: 'center', paddingHorizontal: 20 },
