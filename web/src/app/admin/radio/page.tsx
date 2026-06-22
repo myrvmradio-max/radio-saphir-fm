@@ -94,22 +94,20 @@ export default function AdminRadioStats() {
       if (logs && logs.length > 0) {
         // Calculate peak audience (maximum unique countries/logs in any 5 min window, or relative math)
         // Here we can take the absolute size or estimate relative peak
-        // 1. Group by Country/Region (filter out "International" fallback)
-        let filteredTotal = 0;
+        const total = logs.length;
+        
+        // 1. Group by Country/Region
         const groups: { [key: string]: number } = {};
         logs.forEach(log => {
           const region = log.country || "International";
-          if (region && region !== "International") {
-            groups[region] = (groups[region] || 0) + 1;
-            filteredTotal++;
-          }
+          groups[region] = (groups[region] || 0) + 1;
         });
 
         const sortedRegions = Object.entries(groups)
           .map(([name, count]) => ({
             name,
             count,
-            val: filteredTotal > 0 ? Math.round((count / filteredTotal) * 100) : 0
+            val: Math.round((count / total) * 100)
           }))
           .sort((a, b) => b.count - a.count)
           .slice(0, 12);
