@@ -23,7 +23,7 @@ export default function RadioPlayer() {
           .eq('day', currentDay)
           .lte('start_time', currentTime)
           .gte('end_time', currentTime)
-          .single();
+          .maybeSingle();
 
         if (data) {
           setCurrentProgram({
