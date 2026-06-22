@@ -376,6 +376,9 @@ export default function AdminRadioStats() {
           </div>
         )}
       </div>
+      <div className="text-center text-[9px] text-gray-300 mt-4">
+        Database: {process.env.NEXT_PUBLIC_SUPABASE_URL || "Non définie"}
+      </div>
     </div>
   );
 }
