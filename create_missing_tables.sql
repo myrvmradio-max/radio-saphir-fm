@@ -33,9 +33,14 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     full_name TEXT NOT NULL,
     email TEXT UNIQUE,
-    role TEXT DEFAULT 'Animateur', -- 'Administrateur', 'Animateur', 'Journaliste'
+    role TEXT DEFAULT 'Animateur', -- 'Administrateur', 'Directeur', 'Animateur', 'Journaliste', 'Technicien'
+    avatar_url TEXT, -- URL de la photo de profil
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- NOTE : Si vous avez déjà créé la table 'profiles' précédemment, 
+-- exécutez la ligne suivante dans votre éditeur SQL Supabase pour ajouter la colonne :
+-- ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS avatar_url TEXT;
 
 -- Activation de la sécurité RLS
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;

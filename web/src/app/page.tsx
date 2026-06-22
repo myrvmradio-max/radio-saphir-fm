@@ -313,9 +313,15 @@ export default function Home() {
             ) : (
               team.map((member) => (
                 <div key={member.id} className="flex flex-col items-center bg-gray-50/50 p-8 rounded-3xl border border-gray-100/50 hover:shadow-xl hover:bg-white hover:border-saphir-electric/20 transition-all text-center group">
-                  <div className="w-24 h-24 bg-gradient-to-tr from-saphir-navy to-saphir-electric text-white font-bold text-2xl rounded-full flex items-center justify-center mb-4 shadow-lg group-hover:scale-105 transition-transform uppercase select-none">
-                    {member.full_name?.substring(0, 2) || '??'}
-                  </div>
+                  {member.avatar_url ? (
+                    <div className="w-24 h-24 rounded-full overflow-hidden mb-4 shadow-lg group-hover:scale-105 transition-transform border border-gray-100 relative flex items-center justify-center bg-white flex-shrink-0">
+                      <img src={member.avatar_url} alt={member.full_name} className="w-full h-full object-cover" />
+                    </div>
+                  ) : (
+                    <div className="w-24 h-24 bg-gradient-to-tr from-saphir-navy to-saphir-electric text-white font-bold text-2xl rounded-full flex items-center justify-center mb-4 shadow-lg group-hover:scale-105 transition-transform uppercase select-none flex-shrink-0">
+                      {member.full_name?.substring(0, 2) || '??'}
+                    </div>
+                  )}
                   <h4 className="font-bold text-lg text-saphir-navy mb-1">{member.full_name}</h4>
                   <p className="text-[10px] font-black text-saphir-electric uppercase tracking-widest bg-[#E8EFFF] px-3.5 py-1 rounded-full">{member.role || 'Collaborateur'}</p>
                 </div>

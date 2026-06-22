@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/context/ToastContext";
+import FileUploader from "@/components/admin/FileUploader";
 
 export default function AdminTeam() {
   const { confirm, showToast } = useToast();
@@ -28,7 +29,8 @@ export default function AdminTeam() {
   const [newMember, setNewMember] = useState({
     full_name: "",
     email: "",
-    role: "Animateur"
+    role: "Animateur",
+    avatar_url: ""
   });
 
   useEffect(() => {
@@ -87,6 +89,7 @@ export default function AdminTeam() {
             full_name: newMember.full_name,
             email: newMember.email,
             role: newMember.role,
+            avatar_url: newMember.avatar_url || null,
             created_at: new Date().toISOString()
           }
         ])
@@ -98,7 +101,7 @@ export default function AdminTeam() {
       setTeam([...team, data]);
       showToast("Membre ajouté avec succès !", "success");
       setModalOpen(false);
-      setNewMember({ full_name: "", email: "", role: "Animateur" });
+      setNewMember({ full_name: "", email: "", role: "Animateur", avatar_url: "" });
     } catch (err: any) {
       console.error("Error creating member:", err);
       showToast("Erreur lors de la création : " + err.message, "error");
@@ -168,9 +171,15 @@ export default function AdminTeam() {
                 <tr key={member.id} className="hover:bg-gray-50/30 transition-colors group">
                   <td className="px-8 py-5">
                     <div className="flex items-center gap-4">
-                        <div className={`w-12 h-12 bg-saphir-navy rounded-2xl flex items-center justify-center text-white font-bold text-sm uppercase`}>
-                          {member.full_name?.substring(0,2) || '??'}
-                        </div>
+                        {member.avatar_url ? (
+                          <div className="w-12 h-12 rounded-2xl overflow-hidden relative border border-gray-100 flex-shrink-0 flex items-center justify-center">
+                            <img src={member.avatar_url} alt="" className="w-full h-full object-cover" />
+                          </div>
+                        ) : (
+                          <div className={`w-12 h-12 bg-saphir-navy rounded-2xl flex items-center justify-center text-white font-bold text-sm uppercase`}>
+                             {member.full_name?.substring(0,2) || '??'}
+                          </div>
+                        )}
                         <div>
                           <div className="font-bold text-saphir-navy text-sm">{member.full_name}</div>
                           <div className="text-xs text-saphir-navy/30 flex items-center gap-1 font-medium italic"><Mail size={12}/> {member.email}</div>
@@ -261,6 +270,17 @@ export default function AdminTeam() {
               </div>
 
               <div className="space-y-2">
+                <label className="text-[10px] font-bold text-[#0D1B4C]/40 uppercase tracking-widest block">Photo de profil</label>
+                <FileUploader
+                  type="images"
+                  folder="profiles"
+                  value={newMember.avatar_url}
+                  onChange={(url) => setNewMember({...newMember, avatar_url: url})}
+                  label="Photo du collaborateur"
+                />
+              </div>
+
+              <div className="space-y-2">
                 <label className="text-[10px] font-bold text-[#0D1B4C]/40 uppercase tracking-widest block">Rôle / Accès *</label>
                 <select
                   className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-3.5 px-4 font-bold text-saphir-navy text-sm outline-none focus:ring-2 focus:ring-saphir-electric/20 focus:bg-white transition-all"
@@ -268,8 +288,10 @@ export default function AdminTeam() {
                   onChange={(e) => setNewMember({...newMember, role: e.target.value})}
                 >
                   <option>Administrateur</option>
+                  <option>Directeur</option>
                   <option>Animateur</option>
                   <option>Journaliste</option>
+                  <option>Technicien</option>
                 </select>
               </div>
             </div>
