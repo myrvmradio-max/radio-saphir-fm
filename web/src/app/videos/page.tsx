@@ -43,67 +43,42 @@ export default function VideosPage() {
           <h1 className="font-playfair text-5xl md:text-6xl font-bold text-saphir-navy mb-6">Saphir TV</h1>
           <p className="text-saphir-navy/40 max-w-2xl text-lg">Vivez l'expérience Saphir FM en images : interviews exclusives, coulisses et lives studio.</p>
         </div>
-      </div>
-
-      <section className="py-12 container mx-auto px-6">
-        {loading ? (
-          <div className="aspect-video bg-gray-50 rounded-[3rem] animate-pulse"></div>
-        ) : videos.length === 0 ? (
-          <div className="py-20 text-center text-saphir-navy/20 font-bold uppercase tracking-widest">
-            Aucune vidéo disponible
-          </div>
-        ) : (
-          <Link href={videos[0].video_url} target="_blank" className="block relative aspect-video bg-gray-50 rounded-[3rem] overflow-hidden border border-gray-100 group cursor-pointer shadow-2xl">
-             <div className="absolute inset-0 bg-gradient-to-t from-saphir-navy/60 via-transparent to-transparent opacity-80 z-10"></div>
-             {videos[0].thumbnail && (
-               <img src={videos[0].thumbnail} alt="" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-             )}
-             <div className="absolute inset-0 flex items-center justify-center z-20">
-                <div className="w-24 h-24 bg-white text-saphir-navy rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:bg-saphir-electric group-hover:text-white transition-all">
-                  <Play fill="currentColor" size={32} className="ml-2" />
-                </div>
-             </div>
-             <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end z-30">
-                <div>
-                  <span className="bg-saphir-electric text-white px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase mb-4 inline-block">Dernier Replay</span>
-                  <h2 className="text-4xl font-bold mb-2 text-white line-clamp-1">{videos[0].title}</h2>
-                  <div className="flex items-center gap-4 text-white/60 text-sm font-medium">
-                     <span className="flex items-center gap-1"><Calendar size={14} /> {new Date(videos[0].created_at).toLocaleDateString()}</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 text-white/60 hover:text-white transition-colors font-bold uppercase tracking-widest text-[10px]">
-                  Regarder <ExternalLink size={16} />
-                </div>
-             </div>
-          </Link>
-        )}
-      </section>
-
-      <section className="py-24 container mx-auto px-6 pb-32">
-        <h3 className="text-2xl font-bold mb-12">Plus de vidéos</h3>
+      </div>      <section className="py-16 container mx-auto px-6 pb-32">
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
           {loading ? (
-             [1, 2, 3].map((i) => (
+             [1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="animate-pulse">
                 <div className="aspect-video bg-gray-100 rounded-[2rem] mb-6"></div>
                 <div className="h-6 bg-gray-100 w-full mb-2 rounded"></div>
                 <div className="h-4 bg-gray-100 w-1/3 rounded"></div>
               </div>
             ))
+          ) : videos.length === 0 ? (
+            <div className="col-span-full py-20 text-center text-saphir-navy/20 font-bold uppercase tracking-widest bg-gray-50/50 rounded-3xl border border-dashed border-gray-100">
+              Aucune vidéo disponible
+            </div>
           ) : (
-            videos.slice(1).map((video) => (
+            videos.map((video) => (
               <Link href={video.video_url} target="_blank" key={video.id} className="group cursor-pointer">
-                <div className="aspect-video bg-gray-50 rounded-[2rem] mb-6 border border-gray-100 relative overflow-hidden flex items-center justify-center">
+                <div className="aspect-video bg-white rounded-[2rem] mb-6 border border-gray-100 relative overflow-hidden flex items-center justify-center shadow-lg group-hover:shadow-2xl transition-all duration-300">
                    {video.thumbnail ? (
                      <img src={video.thumbnail} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                    ) : (
-                     <Play size={24} className="text-saphir-navy/10 group-hover:opacity-100 group-hover:text-saphir-electric transition-all" />
+                     <div className="w-full h-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+                       <Play size={24} className="text-saphir-navy/20 group-hover:text-saphir-electric transition-colors" />
+                     </div>
                    )}
+                   {/* Play Button Icon on Hover */}
+                   <div className="absolute inset-0 bg-saphir-navy/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                     <div className="w-14 h-14 bg-white text-saphir-navy rounded-full flex items-center justify-center shadow-2xl transform scale-75 group-hover:scale-100 transition-all duration-300">
+                       <Play fill="currentColor" size={20} className="ml-1" />
+                     </div>
+                   </div>
                 </div>
-                <h4 className="font-bold text-lg leading-snug group-hover:text-saphir-electric transition-colors line-clamp-2">
+                <h4 className="font-bold text-lg leading-snug group-hover:text-saphir-electric transition-colors line-clamp-2 px-1">
                   {video.title}
                 </h4>
-                <p className="mt-3 text-[10px] text-saphir-navy/30 uppercase font-bold tracking-widest italic">{video.category || 'Replay'} • {new Date(video.created_at).toLocaleDateString()}</p>
+                <p className="mt-3 text-[10px] text-saphir-navy/30 uppercase font-bold tracking-widest italic px-1">{video.category || 'Replay'} • {new Date(video.created_at).toLocaleDateString()}</p>
               </Link>
             ))
           )}
