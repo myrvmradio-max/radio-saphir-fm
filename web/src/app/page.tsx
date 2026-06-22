@@ -190,7 +190,7 @@ export default function Home() {
             </div>
           ) : (
             products.map((product) => (
-              <div key={product.id} className="group">
+              <Link href={`/boutique/${product.slug || product.id}`} key={product.id} className="group cursor-pointer block">
                 <div className="aspect-square bg-gray-50 rounded-3xl mb-6 border border-gray-100 relative overflow-hidden flex items-center justify-center">
                   {product.images?.[0] ? (
                     <img src={product.images[0]} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
@@ -205,7 +205,7 @@ export default function Home() {
                 </div>
                 <h4 className="font-bold text-saphir-navy mb-1">{product.name}</h4>
                 <p className="text-saphir-electric font-bold">{product.price} FCFA</p>
-              </div>
+              </Link>
             ))
           )}
         </div>
