@@ -53,7 +53,7 @@ export default function VideosPage() {
             Aucune vidéo disponible
           </div>
         ) : (
-          <Link href={videos[0].url} target="_blank" className="block relative aspect-video bg-gray-50 rounded-[3rem] overflow-hidden border border-gray-100 group cursor-pointer shadow-2xl">
+          <Link href={videos[0].video_url} target="_blank" className="block relative aspect-video bg-gray-50 rounded-[3rem] overflow-hidden border border-gray-100 group cursor-pointer shadow-2xl">
              <div className="absolute inset-0 bg-gradient-to-t from-saphir-navy/60 via-transparent to-transparent opacity-80 z-10"></div>
              {videos[0].thumbnail && (
                <img src={videos[0].thumbnail} alt="" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
@@ -92,7 +92,7 @@ export default function VideosPage() {
             ))
           ) : (
             videos.slice(1).map((video) => (
-              <Link href={video.url} target="_blank" key={video.id} className="group cursor-pointer">
+              <Link href={video.video_url} target="_blank" key={video.id} className="group cursor-pointer">
                 <div className="aspect-video bg-gray-50 rounded-[2rem] mb-6 border border-gray-100 relative overflow-hidden flex items-center justify-center">
                    {video.thumbnail ? (
                      <img src={video.thumbnail} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />

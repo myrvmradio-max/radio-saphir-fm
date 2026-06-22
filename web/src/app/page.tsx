@@ -6,7 +6,7 @@ import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import RadioPlayer from "@/components/RadioPlayer";
 import Footer from "@/components/Footer";
-import { Newspaper, Headphones, ShoppingBag, Youtube, ArrowRight, Play, Loader2 } from "lucide-react";
+import { Newspaper, Headphones, ShoppingBag, Youtube, ArrowRight, Play, Loader2, Users } from "lucide-react";
 import Link from "next/link";
 
 export default function Home() {
@@ -14,6 +14,7 @@ export default function Home() {
   const [podcasts, setPodcasts] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
   const [videos, setVideos] = useState<any[]>([]);
+  const [team, setTeam] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,18 +24,21 @@ export default function Home() {
           { data: artData },
           { data: podData },
           { data: prodData },
-          { data: vidData }
+          { data: vidData },
+          { data: teamData }
         ] = await Promise.all([
           supabase.from("articles").select("*").eq("status", "published").order("published_at", { ascending: false }).limit(3),
           supabase.from("series").select("*").order("created_at", { ascending: false }).limit(4),
           supabase.from("products").select("*").eq("active", true).order("created_at", { ascending: false }).limit(4),
-          supabase.from("videos").select("*").order("created_at", { ascending: false }).limit(3)
+          supabase.from("videos").select("*").order("created_at", { ascending: false }).limit(3),
+          supabase.from("profiles").select("*").order("created_at", { ascending: true }).limit(8)
         ]);
 
         setArticles(artData || []);
         setPodcasts(podData || []);
         setProducts(prodData || []);
         setVideos(vidData || []);
+        setTeam(teamData || []);
       } catch (error) {
         console.error("Error fetching homepage data:", error);
       } finally {
@@ -237,7 +241,7 @@ export default function Home() {
               <>
                 {/* Featured Video */}
                 {videos[0] && (
-                  <Link href={videos[0].url} target="_blank" className="aspect-video bg-white border border-gray-100 rounded-[2.5rem] flex items-center justify-center relative group cursor-pointer overflow-hidden shadow-xl">
+                  <Link href={videos[0].video_url} target="_blank" className="aspect-video bg-white border border-gray-100 rounded-[2.5rem] flex items-center justify-center relative group cursor-pointer overflow-hidden shadow-xl">
                      <div className="absolute inset-0 bg-gradient-to-t from-saphir-navy/40 to-transparent"></div>
                      {videos[0].thumbnail && (
                        <img src={videos[0].thumbnail} alt="" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
@@ -257,7 +261,7 @@ export default function Home() {
                 {/* Secondary Videos */}
                 <div className="grid grid-rows-2 gap-8">
                    {videos.slice(1, 3).map((video) => (
-                     <Link href={video.url} target="_blank" key={video.id} className="flex gap-6 group cursor-pointer bg-white p-4 rounded-3xl border border-gray-100 hover:shadow-lg transition-all">
+                     <Link href={video.video_url} target="_blank" key={video.id} className="flex gap-6 group cursor-pointer bg-white p-4 rounded-3xl border border-gray-100 hover:shadow-lg transition-all">
                         <div className="w-40 aspect-video bg-gray-50 rounded-2xl flex-shrink-0 flex items-center justify-center overflow-hidden relative">
                            {video.thumbnail ? (
                              <img src={video.thumbnail} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
@@ -275,6 +279,47 @@ export default function Home() {
                    ))}
                 </div>
               </>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 6: ÉQUIPE */}
+      <section className="py-24 bg-white border-t border-gray-100">
+        <div className="container mx-auto px-6">
+          <div className="flex justify-between items-end mb-12">
+            <div>
+              <div className="flex items-center gap-2 text-saphir-electric font-bold text-sm tracking-widest uppercase mb-2">
+                <Users size={16} className="text-saphir-electric" />
+                <span>Notre Équipe</span>
+              </div>
+              <h2 className="font-playfair text-4xl md:text-5xl font-bold text-saphir-navy">Les voix de votre radio</h2>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            {loading ? (
+              [1, 2, 3, 4].map((i) => (
+                <div key={i} className="animate-pulse flex flex-col items-center">
+                  <div className="w-24 h-24 bg-gray-100 rounded-full mb-4"></div>
+                  <div className="h-4 bg-gray-100 w-2/3 mb-2 rounded"></div>
+                  <div className="h-3 bg-gray-100 w-1/3 rounded"></div>
+                </div>
+              ))
+            ) : team.length === 0 ? (
+              <div className="col-span-4 py-10 text-center text-saphir-navy/20 font-bold uppercase tracking-widest bg-gray-50/50 rounded-3xl border border-dashed border-gray-100">
+                Aucun membre d'équipe disponible
+              </div>
+            ) : (
+              team.map((member) => (
+                <div key={member.id} className="flex flex-col items-center bg-gray-50/50 p-8 rounded-3xl border border-gray-100/50 hover:shadow-xl hover:bg-white hover:border-saphir-electric/20 transition-all text-center group">
+                  <div className="w-24 h-24 bg-gradient-to-tr from-saphir-navy to-saphir-electric text-white font-bold text-2xl rounded-full flex items-center justify-center mb-4 shadow-lg group-hover:scale-105 transition-transform uppercase select-none">
+                    {member.full_name?.substring(0, 2) || '??'}
+                  </div>
+                  <h4 className="font-bold text-lg text-saphir-navy mb-1">{member.full_name}</h4>
+                  <p className="text-[10px] font-black text-saphir-electric uppercase tracking-widest bg-[#E8EFFF] px-3.5 py-1 rounded-full">{member.role || 'Collaborateur'}</p>
+                </div>
+              ))
             )}
           </div>
         </div>
