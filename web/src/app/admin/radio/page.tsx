@@ -43,7 +43,7 @@ export default function AdminRadioStats() {
   // Fetch real-time streaming info from AzuraCast API
   async function fetchLiveStream() {
     try {
-      const res = await fetch("https://stream.radiosaphir.com/api/nowplaying");
+      const res = await fetch("https://stream.radiosaphir.com/api/nowplaying", { cache: 'no-store' });
       if (res.ok) {
         const payload = await res.json();
         const data = Array.isArray(payload) ? payload[0] : payload;
@@ -84,12 +84,23 @@ export default function AdminRadioStats() {
   // Fetch telemetry logs from Supabase
   async function fetchDbLogs() {
     try {
-      const { data: logs, error } = await supabase
-        .from("listener_logs")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      
+      if (!supabaseUrl || !supabaseAnonKey) {
+        throw new Error("Supabase credentials are not defined");
+      }
 
-      if (error) throw error;
+      const res = await fetch(`${supabaseUrl}/rest/v1/listener_logs?select=*&order=created_at.desc`, {
+        cache: 'no-store',
+        headers: {
+          'apikey': supabaseAnonKey,
+          'Authorization': `Bearer ${supabaseAnonKey}`
+        }
+      });
+
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      const logs = await res.json();
 
       if (logs && logs.length > 0) {
         // Calculate peak audience (maximum unique countries/logs in any 5 min window, or relative math)
