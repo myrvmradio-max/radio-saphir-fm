@@ -28,13 +28,30 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     isLoading: true
   });
 
-  const STREAM_URL = "https://stream.radiosaphir.com/listen/radiosaphir-106.8-fm/radio.mp3";
+  const [streamUrl, setStreamUrl] = useState("https://play.radioking.io/saphir-fm2");
 
-  // Fetch current program logic
+  // Fetch current program and settings logic
   useEffect(() => {
-    async function fetchCurrentProgram() {
+    async function fetchRadioData() {
       try {
         const { supabase } = await import("@/lib/supabase");
+        
+        // 1. Fetch Stream URL from settings
+        try {
+          const { data: streamData } = await supabase
+            .from("settings")
+            .select("value")
+            .eq("key", "stream_url")
+            .maybeSingle();
+          
+          if (streamData && streamData.value && streamData.value.includes("http")) {
+            setStreamUrl(streamData.value);
+          }
+        } catch (streamErr) {
+          console.error("Error fetching stream_url in Context:", streamErr);
+        }
+
+        // 2. Fetch current program
         const now = new Date();
         const currentTime = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
         const currentDay = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"][now.getDay()];
@@ -73,8 +90,8 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    fetchCurrentProgram();
-    const interval = setInterval(fetchCurrentProgram, 60000);
+    fetchRadioData();
+    const interval = setInterval(fetchRadioData, 60000);
     return () => clearInterval(interval);
   }, []);
 
@@ -119,7 +136,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         setIsPlaying(false);
       } else {
         setIsBuffering(true);
-        audio.src = STREAM_URL + "?t=" + Date.now();
+        audio.src = streamUrl + "?t=" + Date.now();
         audio.crossOrigin = "anonymous";
         await audio.play();
         setIsPlaying(true);
