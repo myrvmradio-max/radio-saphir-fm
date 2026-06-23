@@ -71,8 +71,7 @@ export default function AdminSettings() {
     try {
       const updates = Object.entries(config).map(([key, value]) => ({
         key,
-        value,
-        updated_at: new Date().toISOString()
+        value
       }));
 
       const { error } = await supabase
