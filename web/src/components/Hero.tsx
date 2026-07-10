@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useAudio } from "@/context/AudioContext";
 
 export default function Hero() {
-  const { isPlaying, isBuffering, togglePlay, currentProgram } = useAudio();
+  const { isPlaying, isBuffering, togglePlay, currentProgram, isStreamOffline } = useAudio();
 
   return (
     <section className="relative min-h-[90vh] flex items-center pt-24 md:pt-32 pb-20 overflow-hidden">
@@ -74,24 +74,28 @@ export default function Hero() {
                  {/* Text Info (White on dark overlay) */}
                  <div className="text-white text-center">
                    <h3 className="text-xl md:text-2xl font-bold mb-1 tracking-tight">{currentProgram.name}</h3>
-                    <div className="flex items-center justify-center gap-2 text-white/80 text-xs font-bold">
-                      {currentProgram.host === "Direct" ? (
-                        <>
-                          <span>BOUAKÉ</span>
-                          <span className="w-1 h-1 rounded-full bg-white/40"></span>
-                          <span>106.8 FM</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>PAR {currentProgram.host.toUpperCase()}</span>
-                          <span className="w-1 h-1 rounded-full bg-white/40"></span>
-                          <div className="flex items-center gap-1">
-                            <Clock size={12} />
-                            {currentProgram.time}
-                          </div>
-                        </>
-                      )}
-                    </div>
+                   {isStreamOffline ? (
+                     <p className="text-xs font-bold text-gray-400 mt-2 tracking-wide">Flux direct temporairement indisponible</p>
+                   ) : (
+                     <div className="flex items-center justify-center gap-2 text-white/80 text-xs font-bold">
+                       {currentProgram.host === "Direct" ? (
+                         <>
+                           <span>BOUAKÉ</span>
+                           <span className="w-1 h-1 rounded-full bg-white/40"></span>
+                           <span>106.8 FM</span>
+                         </>
+                       ) : (
+                         <>
+                           <span>PAR {currentProgram.host.toUpperCase()}</span>
+                           <span className="w-1 h-1 rounded-full bg-white/40"></span>
+                           <div className="flex items-center gap-1">
+                             <Clock size={12} />
+                             {currentProgram.time}
+                           </div>
+                         </>
+                       )}
+                     </div>
+                   )}
                  </div>
                </div>
                

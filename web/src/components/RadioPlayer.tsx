@@ -1,8 +1,10 @@
 import { Radio as RadioIcon, Clock } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import { useAudio } from "@/context/AudioContext";
 
 export default function RadioPlayer() {
+  const { isStreamOffline } = useAudio();
   const [currentProgram, setCurrentProgram] = useState({
     name: "Chargement...",
     host: "...",
@@ -72,10 +74,16 @@ export default function RadioPlayer() {
         {/* Info & Controls */}
         <div className="flex-1 text-center md:text-left">
           <div className="flex items-center justify-center md:justify-start gap-3 mb-3">
-            <div className="flex items-center gap-1.5 bg-red-50 px-2.5 py-1 rounded-full border border-red-100">
-              <span className="flex h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
-              <span className="text-[10px] font-black tracking-widest text-red-500 uppercase">En Direct</span>
-            </div>
+            {isStreamOffline ? (
+              <div className="flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-full border border-gray-200">
+                <span className="text-[10px] font-black tracking-widest text-gray-400 uppercase">Flux Indisponible</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5 bg-red-50 px-2.5 py-1 rounded-full border border-red-100">
+                <span className="flex h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
+                <span className="text-[10px] font-black tracking-widest text-red-500 uppercase">En Direct</span>
+              </div>
+            )}
             {currentProgram.isLoading && (
               <div className="h-4 w-20 bg-gray-100 animate-pulse rounded-full"></div>
             )}

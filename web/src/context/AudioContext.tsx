@@ -13,6 +13,7 @@ interface AudioContextType {
     time: string;
     isLoading: boolean;
   };
+  isStreamOffline: boolean;
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -20,6 +21,8 @@ const AudioContext = createContext<AudioContextType | undefined>(undefined);
 export function AudioProvider({ children }: { children: React.ReactNode }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isBuffering, setIsBuffering] = useState(false);
+  const [isStreamOffline, setIsStreamOffline] = useState(false);
+  const connectionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [currentProgram, setCurrentProgram] = useState({
     name: "Saphir FM - En Direct",
@@ -107,19 +110,48 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     const handlePlaying = () => {
       setIsBuffering(false);
       setIsPlaying(true);
+      setIsStreamOffline(false);
+      if (connectionTimeoutRef.current) {
+        clearTimeout(connectionTimeoutRef.current);
+        connectionTimeoutRef.current = null;
+      }
+    };
+    const handleError = (e: Event) => {
+      console.error("Audio stream error event:", e);
+      setIsStreamOffline(true);
+      setIsPlaying(false);
+      setIsBuffering(false);
+      if (connectionTimeoutRef.current) {
+        clearTimeout(connectionTimeoutRef.current);
+        connectionTimeoutRef.current = null;
+      }
+      try {
+        audio.pause();
+        audio.removeAttribute("src");
+        audio.load();
+      } catch (err) {
+        console.error("Error pausing audio on stream error:", err);
+      }
     };
 
     audio.addEventListener("ended", handleEnded);
     audio.addEventListener("pause", handlePause);
     audio.addEventListener("waiting", handleWaiting);
     audio.addEventListener("playing", handlePlaying);
+    audio.addEventListener("error", handleError);
+    audio.addEventListener("stalled", handleError);
 
     return () => {
       audio.pause();
+      if (connectionTimeoutRef.current) {
+        clearTimeout(connectionTimeoutRef.current);
+      }
       audio.removeEventListener("ended", handleEnded);
       audio.removeEventListener("pause", handlePause);
       audio.removeEventListener("waiting", handleWaiting);
       audio.removeEventListener("playing", handlePlaying);
+      audio.removeEventListener("error", handleError);
+      audio.removeEventListener("stalled", handleError);
     };
   }, []);
 
@@ -136,8 +168,28 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         setIsPlaying(false);
       } else {
         setIsBuffering(true);
+        setIsStreamOffline(false); // Reset status on manual play attempt
         audio.src = streamUrl + "?t=" + Date.now();
         audio.crossOrigin = "anonymous";
+        
+        // Start connection timeout (8 seconds)
+        if (connectionTimeoutRef.current) clearTimeout(connectionTimeoutRef.current);
+        connectionTimeoutRef.current = setTimeout(() => {
+          if (audio.paused || audio.seeking || audio.readyState < 3) {
+            console.warn("Connection timeout: stream might be offline");
+            setIsStreamOffline(true);
+            setIsBuffering(false);
+            setIsPlaying(false);
+            try {
+              audio.pause();
+              audio.removeAttribute("src");
+              audio.load();
+            } catch (err) {
+              console.error("Error resetting audio on connection timeout:", err);
+            }
+          }
+        }, 8000);
+
         await audio.play();
         setIsPlaying(true);
         logListenerSession("web");
@@ -146,11 +198,16 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       console.error("Global audio play error:", error);
       setIsPlaying(false);
       setIsBuffering(false);
+      setIsStreamOffline(true);
+      if (connectionTimeoutRef.current) {
+        clearTimeout(connectionTimeoutRef.current);
+        connectionTimeoutRef.current = null;
+      }
     }
   };
 
   return (
-    <AudioContext.Provider value={{ isPlaying, isBuffering, togglePlay, currentProgram }}>
+    <AudioContext.Provider value={{ isPlaying, isBuffering, togglePlay, currentProgram, isStreamOffline }}>
       {children}
     </AudioContext.Provider>
   );
