@@ -161,7 +161,7 @@ function Accueil({ isPlaying, isBuffering, togglePlayback, pulseAnim, spin, glow
         {showLiveBadge ? (
           <View style={styles.onAirBadge}>
             <View style={styles.onAirDot} />
-            <Text style={styles.onAirText}>ON AIR • EN DIRECT</Text>
+            <Text style={styles.onAirText}>ON AIR</Text>
           </View>
         ) : (
           <View style={styles.radioSaphirBadge}>
