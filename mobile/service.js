@@ -1,9 +1,9 @@
-import TrackPlayer from './lib/trackPlayerMock';
+import TrackPlayer, { Event } from 'react-native-track-player';
 
 export default async function playbackService() {
-    TrackPlayer.addEventListener('remote-play', () => TrackPlayer.play());
-    TrackPlayer.addEventListener('remote-pause', () => TrackPlayer.pause());
-    TrackPlayer.addEventListener('remote-stop', async () => {
+    TrackPlayer.addEventListener(Event.RemotePlay, () => TrackPlayer.play());
+    TrackPlayer.addEventListener(Event.RemotePause, () => TrackPlayer.pause());
+    TrackPlayer.addEventListener(Event.RemoteStop, async () => {
         await TrackPlayer.stop();
         await TrackPlayer.reset();
     });

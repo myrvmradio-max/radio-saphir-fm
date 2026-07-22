@@ -1,5 +1,5 @@
 import { registerRootComponent } from 'expo';
-import TrackPlayer from './lib/trackPlayerMock';
+import TrackPlayer from 'react-native-track-player';
 import App from './App';
 import playbackService from './service';
 

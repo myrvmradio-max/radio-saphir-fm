@@ -21,7 +21,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { supabase } from './lib/supabase';
 
-import TrackPlayer, { Capability } from './lib/trackPlayerMock';
+import TrackPlayer, { Capability } from 'react-native-track-player';
 
 const { width, height } = Dimensions.get('window');
 
@@ -462,10 +462,17 @@ Saphir FM, c'est l'image du son ! Nous nous engageons à vous offrir le meilleur
         await TrackPlayer.updateOptions({
           capabilities: [
             Capability.Play,
+            Capability.Pause,
             Capability.Stop,
           ],
           compactCapabilities: [
             Capability.Play,
+            Capability.Pause,
+            Capability.Stop,
+          ],
+          notificationCapabilities: [
+            Capability.Play,
+            Capability.Pause,
             Capability.Stop,
           ],
         });
