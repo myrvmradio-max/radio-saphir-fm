@@ -27,7 +27,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const connectionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [currentProgram, setCurrentProgram] = useState({
-    name: "Saphir FM - En Direct",
+    name: "Saphir FM",
     host: "Direct",
     time: "24/7",
     isLoading: true
@@ -78,7 +78,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
           });
         } else {
           setCurrentProgram({
-            name: "Saphir FM - En Direct",
+            name: "Saphir FM",
             host: "Direct",
             time: "24/7",
             isLoading: false
@@ -87,7 +87,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       } catch (err) {
         console.error("Error fetching program in Context:", err);
         setCurrentProgram({
-          name: "Saphir FM - En Direct",
+          name: "Saphir FM",
           host: "Direct",
           time: "24/7",
           isLoading: false

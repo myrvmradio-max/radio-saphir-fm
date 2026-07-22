@@ -37,7 +37,7 @@ export default function RadioPlayer() {
         } else {
           // Fallback if no specific program is found (e.g., night time)
           setCurrentProgram({
-            name: "Saphir FM - En Direct",
+            name: "Saphir FM",
             host: "Direct",
             time: "24/7",
             isLoading: false
