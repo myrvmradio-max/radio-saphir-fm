@@ -14,6 +14,7 @@ import {
   ScrollView,
   TextInput,
   Share,
+  Platform,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -816,7 +817,7 @@ const styles = StyleSheet.create({
   liveLabel: { color: '#fff', fontSize: 10, fontWeight: '800' },
 
   main: { flex: 1 },
-  tabContent: { flex: 1, justifyContent: 'space-around', alignItems: 'center', paddingHorizontal: 24, paddingTop: 24, paddingBottom: 110 },
+  tabContent: { flex: 1, justifyContent: 'space-around', alignItems: 'center', paddingHorizontal: 24, paddingTop: 24, paddingBottom: Platform.OS === 'android' ? 135 : 110 },
   playerCenter: { justifyContent: 'center', alignItems: 'center' },
   
   neonCard: {
@@ -917,7 +918,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#8A2BE2', // Violet pur
     borderRadius: 34,           // Forme de capsule/pilule parfaite
     position: 'absolute',       // Flotte par-dessus l'écran
-    bottom: 24,                 // Décollé du bas
+    bottom: Platform.OS === 'android' ? 48 : 26, // Rehaussé sur Android pour dépasser la barre des boutons système (Retour, Accueil, Multitâche)
     left: 20,                   // Marge gauche
     right: 20,                  // Marge droite
     alignItems: 'center',
