@@ -163,11 +163,7 @@ function Accueil({ isPlaying, isBuffering, togglePlayback, pulseAnim, spin, glow
             <View style={styles.onAirDot} />
             <Text style={styles.onAirText}>ON AIR</Text>
           </View>
-        ) : (
-          <View style={styles.radioSaphirBadge}>
-            <Text style={styles.radioSaphirText}>RADIO SAPHIR</Text>
-          </View>
-        )}
+        ) : null}
       </View>
 
       {/* Mic play button in center */}
