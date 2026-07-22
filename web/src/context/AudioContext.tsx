@@ -14,6 +14,7 @@ interface AudioContextType {
     isLoading: boolean;
   };
   isStreamOffline: boolean;
+  isLiveBroadcast: boolean;
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -22,6 +23,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isBuffering, setIsBuffering] = useState(false);
   const [isStreamOffline, setIsStreamOffline] = useState(false);
+  const [isLiveBroadcast, setIsLiveBroadcast] = useState(false);
   const connectionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [currentProgram, setCurrentProgram] = useState({
@@ -95,6 +97,27 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
     fetchRadioData();
     const interval = setInterval(fetchRadioData, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Poll AzuraCast API to detect live broadcast status
+  useEffect(() => {
+    async function fetchLiveStatus() {
+      try {
+        const res = await fetch("https://stream.radiosaphir.com/api/nowplaying", { cache: 'no-store' });
+        if (res.ok) {
+          const payload = await res.json();
+          const station = Array.isArray(payload) ? payload[0] : payload;
+          const liveStatus = station?.live?.is_live === true;
+          setIsLiveBroadcast(liveStatus);
+        }
+      } catch (err) {
+        console.error("Error fetching live status:", err);
+      }
+    }
+
+    fetchLiveStatus();
+    const interval = setInterval(fetchLiveStatus, 15000);
     return () => clearInterval(interval);
   }, []);
 
@@ -207,7 +230,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AudioContext.Provider value={{ isPlaying, isBuffering, togglePlay, currentProgram, isStreamOffline }}>
+    <AudioContext.Provider value={{ isPlaying, isBuffering, togglePlay, currentProgram, isStreamOffline, isLiveBroadcast }}>
       {children}
     </AudioContext.Provider>
   );

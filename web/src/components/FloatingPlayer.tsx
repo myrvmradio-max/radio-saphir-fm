@@ -4,7 +4,7 @@ import { useAudio } from "@/context/AudioContext";
 import { Play, Pause, Radio, Loader2 } from "lucide-react";
 
 export default function FloatingPlayer() {
-  const { isPlaying, isBuffering, togglePlay, currentProgram, isStreamOffline } = useAudio();
+  const { isPlaying, isBuffering, togglePlay, currentProgram, isStreamOffline, isLiveBroadcast } = useAudio();
 
   // Show only when radio is active (playing/buffering) or has failed to load
   if (!isPlaying && !isBuffering && !isStreamOffline) return null;
@@ -25,10 +25,14 @@ export default function FloatingPlayer() {
           <div className="flex items-center gap-1.5 mb-0.5">
             <p className="text-[9px] font-black uppercase text-white/40 tracking-widest">Flux indisponible</p>
           </div>
-        ) : (
+        ) : isLiveBroadcast ? (
           <div className="flex items-center gap-1.5 mb-0.5">
             <span className="flex h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse"></span>
             <p className="text-[9px] font-black uppercase text-red-500 tracking-widest">En Direct</p>
+          </div>
+        ) : (
+          <div className="flex items-center gap-1.5 mb-0.5">
+            <p className="text-[9px] font-black uppercase text-white/60 tracking-widest">Radio Saphir</p>
           </div>
         )}
         <h4 className="text-white text-xs font-bold truncate leading-tight">{currentProgram.name}</h4>

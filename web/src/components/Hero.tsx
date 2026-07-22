@@ -76,24 +76,18 @@ export default function Hero() {
                    <h3 className="text-xl md:text-2xl font-bold mb-1 tracking-tight">{currentProgram.name}</h3>
                    {isStreamOffline ? (
                      <p className="text-xs font-bold text-gray-400 mt-2 tracking-wide">Flux direct temporairement indisponible</p>
+                   ) : isLiveBroadcast ? (
+                     <div className="flex items-center justify-center gap-2 text-white/80 text-xs font-bold">
+                       <span className="flex h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                       <span className="text-red-400 font-black uppercase tracking-widest">En Direct</span>
+                     </div>
                    ) : (
                      <div className="flex items-center justify-center gap-2 text-white/80 text-xs font-bold">
-                       {currentProgram.host === "Direct" ? (
-                         <>
-                           <span>BOUAKÉ</span>
-                           <span className="w-1 h-1 rounded-full bg-white/40"></span>
-                           <span>106.8 FM</span>
-                         </>
-                       ) : (
-                         <>
-                           <span>PAR {currentProgram.host.toUpperCase()}</span>
-                           <span className="w-1 h-1 rounded-full bg-white/40"></span>
-                           <div className="flex items-center gap-1">
-                             <Clock size={12} />
-                             {currentProgram.time}
-                           </div>
-                         </>
-                       )}
+                       <span>Radio Saphir</span>
+                       <span className="w-1 h-1 rounded-full bg-white/40"></span>
+                       <span>BOUAKÉ</span>
+                       <span className="w-1 h-1 rounded-full bg-white/40"></span>
+                       <span>106.8 FM</span>
                      </div>
                    )}
                  </div>

@@ -149,9 +149,23 @@ function VisualizerBar({ delay, isPlaying }) {
 
 // MarqueeText supprimé
 
-function Accueil({ isPlaying, isBuffering, togglePlayback, pulseAnim, spin, glowOpacity, currentTitle, currentArtist }) {
+function Accueil({ isPlaying, isBuffering, togglePlayback, pulseAnim, spin, glowOpacity, currentTitle, currentArtist, isLiveBroadcast }) {
   return (
     <View style={styles.tabContent}>
+      {/* Live / Station status badge */}
+      <View style={styles.liveIndicatorContainer}>
+        {isLiveBroadcast ? (
+          <View style={styles.onAirBadge}>
+            <View style={styles.onAirDot} />
+            <Text style={styles.onAirText}>ON AIR</Text>
+          </View>
+        ) : (
+          <View style={styles.radioSaphirBadge}>
+            <Text style={styles.radioSaphirText}>Radio Saphir</Text>
+          </View>
+        )}
+      </View>
+
       {/* Mic play button in center */}
       <View style={styles.playControlContainer}>
         {/* Deuxième contour (animé sur play) */}
@@ -303,6 +317,7 @@ export default function App() {
   const [streamUrl, setStreamUrl] = useState('https://play.radioking.io/saphir-fm2');
   const [currentTitle, setCurrentTitle] = useState('Saphir FM');
   const [currentArtist, setCurrentArtist] = useState('La Radio Qui Vous Ressemble');
+  const [isLiveBroadcast, setIsLiveBroadcast] = useState(false);
   const [aboutText, setAboutText] = useState(`Saphir FM
 106.8 FM
 Votre fréquence de référence à Bouaké. Découvrez notre histoire et comment nous contacter.
@@ -408,6 +423,7 @@ Saphir FM, c'est l'image du son ! Nous nous engageons à vous offrir le meilleur
 
         setCurrentTitle(title);
         setCurrentArtist(artist);
+        setIsLiveBroadcast(station?.live?.is_live === true);
         
         try {
           TrackPlayer.updateNowPlayingMetadata({
@@ -638,7 +654,7 @@ Saphir FM, c'est l'image du son ! Nous nous engageons à vous offrir le meilleur
         </View>
 
         <Animated.View style={[styles.main, { opacity: mountAnim }]}>
-          {activeTab === 'accueil' && <Accueil {...{ isPlaying, isBuffering, togglePlayback, pulseAnim, spin, glowOpacity, currentTitle, currentArtist }} />}
+          {activeTab === 'accueil' && <Accueil {...{ isPlaying, isBuffering, togglePlayback, pulseAnim, spin, glowOpacity, currentTitle, currentArtist, isLiveBroadcast }} />}
           {activeTab === 'histoire' && (
             <ScrollView style={styles.scroll} contentContainerStyle={{ paddingBottom: 100 }}>
               <Text style={styles.title}>Notre Histoire</Text>
@@ -863,7 +879,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  trackInfo: { alignItems: 'center', marginTop: 25 },
+  liveIndicatorContainer: { alignItems: 'center', marginBottom: 12 },
+  onAirBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(239, 68, 68, 0.15)', paddingVertical: 5, paddingHorizontal: 14, borderRadius: 20, borderWidth: 1, borderColor: 'rgba(239, 68, 68, 0.4)' },
+  onAirDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: '#EF4444', marginRight: 6 },
+  onAirText: { color: '#EF4444', fontSize: 11, fontWeight: '900', letterSpacing: 1.5 },
+  radioSaphirBadge: { backgroundColor: 'rgba(255, 255, 255, 0.06)', paddingVertical: 5, paddingHorizontal: 14, borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.1)' },
+  radioSaphirText: { color: 'rgba(255, 255, 255, 0.7)', fontSize: 11, fontWeight: '800', letterSpacing: 1 },
+
+  trackInfo: { alignItems: 'center', marginTop: 15 },
   trackTitle: { color: '#fff', fontSize: 18, fontWeight: '900', textAlign: 'center', paddingHorizontal: 20 },
   trackArtist: { color: 'rgba(255,255,255,0.6)', fontSize: 14, marginTop: 6, textAlign: 'center', paddingHorizontal: 20 },
 
