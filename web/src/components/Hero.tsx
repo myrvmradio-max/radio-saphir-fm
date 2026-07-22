@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useAudio } from "@/context/AudioContext";
 
 export default function Hero() {
-  const { isPlaying, isBuffering, togglePlay, currentProgram, isStreamOffline } = useAudio();
+  const { isPlaying, isBuffering, togglePlay, currentProgram, isStreamOffline, isLiveBroadcast } = useAudio();
 
   return (
     <section className="relative min-h-[90vh] flex items-center pt-24 md:pt-32 pb-20 overflow-hidden">
