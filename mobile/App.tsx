@@ -158,11 +158,11 @@ function Accueil({ isPlaying, isBuffering, togglePlayback, pulseAnim, spin, glow
         {isLiveBroadcast ? (
           <View style={styles.onAirBadge}>
             <View style={styles.onAirDot} />
-            <Text style={styles.onAirText}>ON AIR</Text>
+            <Text style={styles.onAirText}>ON AIR • EN DIRECT</Text>
           </View>
         ) : (
           <View style={styles.radioSaphirBadge}>
-            <Text style={styles.radioSaphirText}>Radio Saphir</Text>
+            <Text style={styles.radioSaphirText}>RADIO SAPHIR</Text>
           </View>
         )}
       </View>
@@ -424,7 +424,6 @@ Saphir FM, c'est l'image du son ! Nous nous engageons à vous offrir le meilleur
 
         setCurrentTitle(title);
         setCurrentArtist(artist);
-        setIsLiveBroadcast(station?.live?.is_live === true);
         
         try {
           TrackPlayer.updateNowPlayingMetadata({
@@ -434,6 +433,12 @@ Saphir FM, c'est l'image du son ! Nous nous engageons à vous offrir le meilleur
         } catch (err) {
           // Player might not be setup yet
         }
+      }
+
+      // Always update live broadcast status even if song object is minimal
+      if (station) {
+        const isLive = station?.live?.is_live === true || Boolean(station?.live?.streamer_name);
+        setIsLiveBroadcast(isLive);
       }
     } catch (error) {
       console.log("Erreur NowPlaying:", error);
@@ -880,12 +885,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  liveIndicatorContainer: { alignItems: 'center', marginBottom: 12 },
-  onAirBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(239, 68, 68, 0.15)', paddingVertical: 5, paddingHorizontal: 14, borderRadius: 20, borderWidth: 1, borderColor: 'rgba(239, 68, 68, 0.4)' },
-  onAirDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: '#EF4444', marginRight: 6 },
-  onAirText: { color: '#EF4444', fontSize: 11, fontWeight: '900', letterSpacing: 1.5 },
-  radioSaphirBadge: { backgroundColor: 'rgba(255, 255, 255, 0.06)', paddingVertical: 5, paddingHorizontal: 14, borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.1)' },
-  radioSaphirText: { color: 'rgba(255, 255, 255, 0.7)', fontSize: 11, fontWeight: '800', letterSpacing: 1 },
+  liveIndicatorContainer: { alignItems: 'center', marginVertical: 10 },
+  onAirBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#EF4444', paddingVertical: 6, paddingHorizontal: 16, borderRadius: 20, shadowColor: '#EF4444', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.5, shadowRadius: 8, elevation: 6 },
+  onAirDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#FFFFFF', marginRight: 8 },
+  onAirText: { color: '#FFFFFF', fontSize: 12, fontWeight: '900', letterSpacing: 1.5 },
+  radioSaphirBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255, 255, 255, 0.12)', paddingVertical: 6, paddingHorizontal: 16, borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.25)' },
+  radioSaphirText: { color: '#FFFFFF', fontSize: 12, fontWeight: '800', letterSpacing: 1 },
 
   trackInfo: { alignItems: 'center', marginTop: 15 },
   trackTitle: { color: '#fff', fontSize: 18, fontWeight: '900', textAlign: 'center', paddingHorizontal: 20 },

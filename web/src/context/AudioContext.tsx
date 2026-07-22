@@ -108,7 +108,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         if (res.ok) {
           const payload = await res.json();
           const station = Array.isArray(payload) ? payload[0] : payload;
-          const liveStatus = station?.live?.is_live === true;
+          const liveStatus = station?.live?.is_live === true || Boolean(station?.live?.streamer_name);
           setIsLiveBroadcast(liveStatus);
         }
       } catch (err) {
