@@ -1,10 +1,4 @@
-let TrackPlayer;
-try {
-  const RNTP = require('react-native-track-player');
-  TrackPlayer = RNTP.default || RNTP;
-} catch (e) {
-  TrackPlayer = require('./lib/trackPlayerMock').default;
-}
+import TrackPlayer from './lib/trackPlayerMock';
 
 export default async function playbackService() {
     TrackPlayer.addEventListener('remote-play', () => TrackPlayer.play());
