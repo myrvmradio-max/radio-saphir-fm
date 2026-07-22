@@ -76,7 +76,7 @@ export default function Hero() {
                    <h3 className="text-xl md:text-2xl font-bold mb-1 tracking-tight">{currentProgram.name}</h3>
                    {isStreamOffline ? (
                      <p className="text-xs font-bold text-gray-400 mt-2 tracking-wide">Flux direct temporairement indisponible</p>
-                   ) : isLiveBroadcast ? (
+                   ) : (isLiveBroadcast || isPlaying || isBuffering) ? (
                      <div className="flex items-center justify-center gap-2 text-white/80 text-xs font-bold">
                        <span className="flex h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse"></span>
                        <span className="text-red-400 font-black uppercase tracking-widest">En Direct</span>

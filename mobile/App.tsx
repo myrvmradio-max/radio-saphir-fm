@@ -151,11 +151,13 @@ function VisualizerBar({ delay, isPlaying }) {
 // MarqueeText supprimé
 
 function Accueil({ isPlaying, isBuffering, togglePlayback, pulseAnim, spin, glowOpacity, currentTitle, currentArtist, isLiveBroadcast }) {
+  const showLiveBadge = isLiveBroadcast || isPlaying || isBuffering;
+
   return (
     <View style={styles.tabContent}>
       {/* Live / Station status badge */}
       <View style={styles.liveIndicatorContainer}>
-        {isLiveBroadcast ? (
+        {showLiveBadge ? (
           <View style={styles.onAirBadge}>
             <View style={styles.onAirDot} />
             <Text style={styles.onAirText}>ON AIR • EN DIRECT</Text>

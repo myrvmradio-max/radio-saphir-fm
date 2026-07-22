@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { useAudio } from "@/context/AudioContext";
 
 export default function RadioPlayer() {
-  const { isStreamOffline, isLiveBroadcast } = useAudio();
+  const { isPlaying, isBuffering, isStreamOffline, isLiveBroadcast } = useAudio();
   const [currentProgram, setCurrentProgram] = useState({
     name: "Chargement...",
     host: "...",
@@ -78,7 +78,7 @@ export default function RadioPlayer() {
               <div className="flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-full border border-gray-200">
                 <span className="text-[10px] font-black tracking-widest text-gray-400 uppercase">Flux Indisponible</span>
               </div>
-            ) : isLiveBroadcast ? (
+            ) : (isLiveBroadcast || isPlaying || isBuffering) ? (
               <div className="flex items-center gap-1.5 bg-red-50 px-2.5 py-1 rounded-full border border-red-100">
                 <span className="flex h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
                 <span className="text-[10px] font-black tracking-widest text-red-500 uppercase">En Direct</span>
