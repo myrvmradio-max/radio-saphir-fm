@@ -18,8 +18,24 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import TrackPlayer, { Capability } from 'react-native-track-player';
 import { supabase } from './lib/supabase';
+
+let TrackPlayer: any;
+let Capability: any;
+
+try {
+  const RNTP = require('react-native-track-player');
+  if (RNTP && RNTP.Capability && RNTP.Capability.Play) {
+    TrackPlayer = RNTP.default || RNTP;
+    Capability = RNTP.Capability;
+  } else {
+    throw new Error('TrackPlayer native module unavailable in Expo Go');
+  }
+} catch (e) {
+  const Mock = require('./lib/trackPlayerMock');
+  TrackPlayer = Mock.default;
+  Capability = Mock.Capability;
+}
 
 const { width, height } = Dimensions.get('window');
 
