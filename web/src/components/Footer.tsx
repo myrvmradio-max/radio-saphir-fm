@@ -92,10 +92,10 @@ export default function Footer() {
           <p className="text-white/20 text-[10px] font-bold uppercase tracking-widest">
             © 2026 Saphir FM 106.8. Tous droits réservés.
           </p>
-          <div className="flex gap-8 text-[10px] font-bold text-white/20 uppercase tracking-widest">
-            <a href="#" className="hover:text-white transition-colors">Confidentialité</a>
-            <a href="#" className="hover:text-white transition-colors">Cookies</a>
-            <a href="#" className="hover:text-white transition-colors">Publicité</a>
+          <div className="flex gap-8 text-[10px] font-bold text-white/40 uppercase tracking-widest">
+            <Link href="/confidentialite" className="hover:text-white transition-colors">Confidentialité</Link>
+            <Link href="/cgu" className="hover:text-white transition-colors">CGU</Link>
+            <Link href="/mentions-legales" className="hover:text-white transition-colors">Mentions Légales</Link>
           </div>
         </div>
       </div>
