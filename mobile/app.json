@@ -3,7 +3,7 @@
     "name": "Saphir FM",
     "slug": "radio-saphir",
     "owner": "saphirfm",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/Icone2.png",
     "userInterfaceStyle": "dark",
@@ -29,6 +29,7 @@
       },
       "edgeToEdgeEnabled": true,
       "package": "com.radiosaphir.app",
+      "versionCode": 2,
       "permissions": [
         "FOREGROUND_SERVICE",
         "FOREGROUND_SERVICE_MEDIA_PLAYBACK",
@@ -50,7 +51,7 @@
         {
           "android": {
             "compileSdkVersion": 35,
-            "targetSdkVersion": 35,
+            "targetSdkVersion": 36,
             "buildToolsVersion": "35.0.0",
             "minSdkVersion": 24,
             "newArchEnabled": false,
