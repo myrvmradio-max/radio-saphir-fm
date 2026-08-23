@@ -3,7 +3,7 @@
     "name": "Saphir FM",
     "slug": "radio-saphir",
     "owner": "saphirfm",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/Icone2.png",
     "userInterfaceStyle": "dark",
@@ -29,7 +29,7 @@
       },
       "edgeToEdgeEnabled": true,
       "package": "com.radiosaphir.app",
-      "versionCode": 2,
+      "versionCode": 3,
       "permissions": [
         "FOREGROUND_SERVICE",
         "FOREGROUND_SERVICE_MEDIA_PLAYBACK",
