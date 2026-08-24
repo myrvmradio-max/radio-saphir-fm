@@ -25,14 +25,14 @@ export default function FloatingPlayer() {
           <div className="flex items-center gap-1.5 mb-0.5">
             <p className="text-[9px] font-black uppercase text-white/40 tracking-widest">Flux indisponible</p>
           </div>
-        ) : (isLiveBroadcast || isPlaying || isBuffering) ? (
+        ) : isLiveBroadcast ? (
           <div className="flex items-center gap-1.5 mb-0.5">
             <span className="flex h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse"></span>
             <p className="text-[9px] font-black uppercase text-red-500 tracking-widest">En Direct</p>
           </div>
         ) : (
           <div className="flex items-center gap-1.5 mb-0.5">
-            <p className="text-[9px] font-black uppercase text-white/60 tracking-widest">Radio Saphir</p>
+            <p className="text-[9px] font-black uppercase text-saphir-electric tracking-widest">106.8 FM • Bouaké</p>
           </div>
         )}
         <h4 className="text-white text-xs font-bold truncate leading-tight">{currentProgram.name}</h4>

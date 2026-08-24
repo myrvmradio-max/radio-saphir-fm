@@ -152,16 +152,19 @@ function VisualizerBar({ delay, isPlaying }) {
 // MarqueeText supprimé
 
 function Accueil({ isPlaying, isBuffering, togglePlayback, pulseAnim, spin, glowOpacity, currentTitle, currentArtist, isLiveBroadcast }) {
-  const showLiveBadge = isLiveBroadcast || isPlaying || isBuffering;
-
   return (
     <View style={styles.tabContent}>
       {/* Live / Station status badge */}
       <View style={styles.liveIndicatorContainer}>
-        {showLiveBadge ? (
+        {isLiveBroadcast ? (
           <View style={styles.onAirBadge}>
             <View style={styles.onAirDot} />
-            <Text style={styles.onAirText}>ON AIR</Text>
+            <Text style={styles.onAirText}>EN DIRECT</Text>
+          </View>
+        ) : (isPlaying || isBuffering) ? (
+          <View style={[styles.onAirBadge, { backgroundColor: 'rgba(59, 130, 246, 0.2)', borderColor: 'rgba(59, 130, 246, 0.4)' }]}>
+            <View style={[styles.onAirDot, { backgroundColor: '#3B82F6' }]} />
+            <Text style={[styles.onAirText, { color: '#60A5FA' }]}>SAPHIR FM 106.8</Text>
           </View>
         ) : null}
       </View>
