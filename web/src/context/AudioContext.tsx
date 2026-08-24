@@ -50,7 +50,11 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
             .maybeSingle();
           
           if (streamData && streamData.value && streamData.value.includes("http")) {
-            setStreamUrl(streamData.value);
+            let url = streamData.value;
+            if (url.includes("/public/")) {
+              url = "https://stream.radiosaphir.com/listen/radiosaphir-106.8-fm/radio.mp3";
+            }
+            setStreamUrl(url);
           }
         } catch (streamErr) {
           console.error("Error fetching stream_url in Context:", streamErr);

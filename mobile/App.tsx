@@ -356,7 +356,11 @@ Saphir FM, c'est l'image du son ! Nous nous engageons à vous offrir le meilleur
     try {
       const { data } = await supabase.from('settings').select('*').eq('key', 'stream_url').single();
       if (data && data.value && data.value.includes('http')) {
-        setStreamUrl(data.value);
+        let url = data.value;
+        if (url.includes('/public/')) {
+          url = 'https://stream.radiosaphir.com/listen/radiosaphir-106.8-fm/radio.mp3';
+        }
+        setStreamUrl(url);
       }
     } catch (e) {
       console.log("Using default stream URL");
