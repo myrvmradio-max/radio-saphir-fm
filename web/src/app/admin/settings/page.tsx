@@ -35,7 +35,7 @@ export default function AdminSettings() {
     instagram: "",
     twitter: "",
     youtube: "",
-    stream_url: "https://stream.saphirfm.ci/live.mp3",
+    stream_url: "https://stream.radiosaphir.com/listen/radiosaphir-106.8-fm/radio.mp3",
     stats_api: "https://stats.saphirfm.ci/api/v1"
   });
 

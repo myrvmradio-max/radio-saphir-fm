@@ -33,7 +33,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     isLoading: true
   });
 
-  const [streamUrl, setStreamUrl] = useState("https://play.radioking.io/saphir-fm2");
+  const [streamUrl, setStreamUrl] = useState("https://stream.radiosaphir.com/listen/radiosaphir-106.8-fm/radio.mp3");
 
   // Fetch current program and settings logic
   useEffect(() => {

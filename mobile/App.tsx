@@ -314,7 +314,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('accueil');
   const [products, setProducts] = useState([]);
   const [articles, setArticles] = useState([]);
-  const [streamUrl, setStreamUrl] = useState('https://play.radioking.io/saphir-fm2');
+  const [streamUrl, setStreamUrl] = useState('https://stream.radiosaphir.com/listen/radiosaphir-106.8-fm/radio.mp3');
   const [currentTitle, setCurrentTitle] = useState('Saphir FM');
   const [currentArtist, setCurrentArtist] = useState('La Radio Qui Vous Ressemble');
   const [isLiveBroadcast, setIsLiveBroadcast] = useState(false);
