@@ -4,12 +4,46 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Youtube, Play, Calendar, ExternalLink, Loader2 } from "lucide-react";
-import Link from "next/link";
+import { Youtube, Play, Loader2 } from "lucide-react";
+
+/**
+ * Extrait l'identifiant d'une vidéo YouTube depuis une URL quelconque.
+ * Supporte les formats : youtube.com/watch?v=, youtu.be/, youtube.com/shorts/, youtube.com/embed/
+ */
+function getYoutubeEmbedUrl(url: string): string | null {
+  if (!url) return null;
+  try {
+    // Déjà un lien embed
+    if (url.includes("youtube.com/embed/")) return url;
+
+    const parsed = new URL(url);
+
+    // youtu.be/VIDEO_ID
+    if (parsed.hostname === "youtu.be") {
+      const id = parsed.pathname.slice(1).split("?")[0];
+      return id ? `https://www.youtube.com/embed/${id}` : null;
+    }
+
+    // youtube.com/shorts/VIDEO_ID
+    if (parsed.pathname.startsWith("/shorts/")) {
+      const id = parsed.pathname.replace("/shorts/", "").split("?")[0];
+      return id ? `https://www.youtube.com/embed/${id}` : null;
+    }
+
+    // youtube.com/watch?v=VIDEO_ID
+    const v = parsed.searchParams.get("v");
+    if (v) return `https://www.youtube.com/embed/${v}`;
+
+    return null;
+  } catch {
+    return null;
+  }
+}
 
 export default function VideosPage() {
   const [videos, setVideos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeVideo, setActiveVideo] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchVideos() {
@@ -38,15 +72,17 @@ export default function VideosPage() {
         <div className="container mx-auto px-6">
           <div className="flex items-center gap-2 text-saphir-electric font-bold text-sm tracking-widest uppercase mb-4">
             <Youtube size={16} />
-            <span>Vidéos & Replays</span>
+            <span>Vidéos &amp; Replays</span>
           </div>
           <h1 className="font-playfair text-5xl md:text-6xl font-bold text-saphir-navy mb-6">Saphir TV</h1>
           <p className="text-saphir-navy/40 max-w-2xl text-lg">Vivez l'expérience Saphir FM en images : interviews exclusives, coulisses et lives studio.</p>
         </div>
-      </div>      <section className="py-16 container mx-auto px-6 pb-32">
+      </div>
+
+      <section className="py-16 container mx-auto px-6 pb-32">
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
           {loading ? (
-             [1, 2, 3, 4, 5, 6].map((i) => (
+            [1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="animate-pulse">
                 <div className="aspect-video bg-gray-100 rounded-[2rem] mb-6"></div>
                 <div className="h-6 bg-gray-100 w-full mb-2 rounded"></div>
@@ -58,29 +94,68 @@ export default function VideosPage() {
               Aucune vidéo disponible
             </div>
           ) : (
-            videos.map((video) => (
-              <Link href={video.video_url} target="_blank" key={video.id} className="group cursor-pointer">
-                <div className="aspect-video bg-white rounded-[2rem] mb-6 border border-gray-100 relative overflow-hidden flex items-center justify-center shadow-lg group-hover:shadow-2xl transition-all duration-300">
-                   {video.thumbnail ? (
-                     <img src={video.thumbnail} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                   ) : (
-                     <div className="w-full h-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-                       <Play size={24} className="text-saphir-navy/20 group-hover:text-saphir-electric transition-colors" />
-                     </div>
-                   )}
-                   {/* Play Button Icon on Hover */}
-                   <div className="absolute inset-0 bg-saphir-navy/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                     <div className="w-14 h-14 bg-white text-saphir-navy rounded-full flex items-center justify-center shadow-2xl transform scale-75 group-hover:scale-100 transition-all duration-300">
-                       <Play fill="currentColor" size={20} className="ml-1" />
-                     </div>
-                   </div>
+            videos.map((video) => {
+              const embedUrl = getYoutubeEmbedUrl(video.video_url);
+              const isActive = activeVideo === video.id;
+
+              return (
+                <div key={video.id} className="group cursor-pointer">
+                  {/* Zone vidéo */}
+                  <div className="aspect-video bg-white rounded-[2rem] mb-6 border border-gray-100 relative overflow-hidden flex items-center justify-center shadow-lg group-hover:shadow-2xl transition-all duration-300">
+                    {isActive && embedUrl ? (
+                      /* Lecture directe de la vidéo dans la page */
+                      <iframe
+                        src={`${embedUrl}?autoplay=1&rel=0`}
+                        title={video.title}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="w-full h-full rounded-[2rem]"
+                      />
+                    ) : (
+                      /* Miniature cliquable avec bouton play */
+                      <button
+                        onClick={() => setActiveVideo(video.id)}
+                        className="w-full h-full relative"
+                        aria-label={`Lire ${video.title}`}
+                      >
+                        {video.thumbnail ? (
+                          <img
+                            src={video.thumbnail}
+                            alt={video.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        ) : embedUrl ? (
+                          /* Miniature automatique YouTube si pas de thumbnail */
+                          <img
+                            src={`https://img.youtube.com/vi/${embedUrl.split("/embed/")[1]}/hqdefault.jpg`}
+                            alt={video.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+                            <Play size={24} className="text-saphir-navy/20 group-hover:text-saphir-electric transition-colors" />
+                          </div>
+                        )}
+                        {/* Bouton Play centré */}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-14 h-14 bg-white text-saphir-navy rounded-full flex items-center justify-center shadow-2xl transform scale-90 group-hover:scale-110 transition-all duration-300 opacity-90 group-hover:opacity-100">
+                            <Play fill="currentColor" size={20} className="ml-1" />
+                          </div>
+                        </div>
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Titre et meta */}
+                  <h4 className="font-bold text-lg leading-snug group-hover:text-saphir-electric transition-colors line-clamp-2 px-1">
+                    {video.title}
+                  </h4>
+                  <p className="mt-3 text-[10px] text-saphir-navy/30 uppercase font-bold tracking-widest italic px-1">
+                    {video.category || 'Replay'} • {new Date(video.created_at).toLocaleDateString()}
+                  </p>
                 </div>
-                <h4 className="font-bold text-lg leading-snug group-hover:text-saphir-electric transition-colors line-clamp-2 px-1">
-                  {video.title}
-                </h4>
-                <p className="mt-3 text-[10px] text-saphir-navy/30 uppercase font-bold tracking-widest italic px-1">{video.category || 'Replay'} • {new Date(video.created_at).toLocaleDateString()}</p>
-              </Link>
-            ))
+              );
+            })
           )}
         </div>
       </section>
@@ -88,3 +163,4 @@ export default function VideosPage() {
     </main>
   );
 }
+
