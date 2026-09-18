@@ -72,7 +72,7 @@ export default function AdminPodcasts() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-saphir-navy mb-2">Gestion des Podcasts</h1>
+          <h1 className="text-3xl font-bold text-saphir-navy mb-2">Gestion des Podcasts Audio</h1>
           <p className="text-saphir-navy/40">Ajoutez et gérez les fichiers audio de vos podcasts en direct.</p>
         </div>
         <Link 
@@ -80,7 +80,7 @@ export default function AdminPodcasts() {
           className="flex items-center gap-2 bg-saphir-navy text-white px-6 py-3 rounded-2xl font-bold text-xs hover:bg-saphir-electric transition-all shadow-lg shadow-saphir-navy/10"
         >
           <Plus size={16} />
-          Nouveau Podcast
+          Nouveau Podcast Audio
         </Link>
       </div>
 

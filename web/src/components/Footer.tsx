@@ -49,8 +49,8 @@ export default function Footer() {
             <ul className="space-y-4 text-sm font-medium text-white/60">
               <li><Link href="/" className="hover:text-white transition-colors">Direct Radio</Link></li>
               <li><Link href="/articles" className="hover:text-white transition-colors">Actualités</Link></li>
-              <li><Link href="/podcasts" className="hover:text-white transition-colors">Podcasts</Link></li>
-              <li><Link href="/videos" className="hover:text-white transition-colors">Vidéos & Replays</Link></li>
+              <li><Link href="/podcasts" className="hover:text-white transition-colors">Podcasts Audio</Link></li>
+              <li><Link href="/videos" className="hover:text-white transition-colors">Podcasts Vidéo</Link></li>
               <li><Link href="/boutique" className="hover:text-white transition-colors">Boutique Officielle</Link></li>
             </ul>
           </div>

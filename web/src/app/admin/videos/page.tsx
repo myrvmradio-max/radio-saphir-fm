@@ -69,7 +69,7 @@ export default function AdminVideos() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-saphir-navy mb-2">Vidéos & Replays</h1>
+          <h1 className="text-3xl font-bold text-saphir-navy mb-2">Podcasts Vidéo & Replays</h1>
           <p className="text-saphir-navy/40">Gérez vos contenus vidéo et lives studio.</p>
         </div>
         <Link 
@@ -77,7 +77,7 @@ export default function AdminVideos() {
           className="flex items-center gap-2 bg-saphir-navy text-white px-6 py-3 rounded-2xl font-bold hover:bg-saphir-electric transition-all shadow-lg shadow-saphir-navy/10"
         >
           <Plus size={20} />
-          Ajouter une Vidéo
+          Ajouter un Podcast Vidéo
         </Link>
       </div>
 

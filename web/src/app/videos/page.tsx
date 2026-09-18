@@ -78,9 +78,9 @@ export default function VideosPage() {
         <div className="container mx-auto px-6">
           <div className="flex items-center gap-2 text-saphir-electric font-bold text-sm tracking-widest uppercase mb-4">
             <Youtube size={16} />
-            <span>Vidéos &amp; Replays</span>
+            <span>Podcast Vidéo</span>
           </div>
-          <h1 className="font-playfair text-5xl md:text-6xl font-bold text-saphir-navy mb-6">Saphir TV</h1>
+          <h1 className="font-playfair text-5xl md:text-6xl font-bold text-saphir-navy mb-6">Podcast Vidéo</h1>
           <p className="text-saphir-navy/40 max-w-2xl text-lg">Vivez l'expérience Saphir FM en images : interviews exclusives, coulisses et lives studio.</p>
         </div>
       </div>
