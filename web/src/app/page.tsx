@@ -6,8 +6,47 @@ import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import RadioPlayer from "@/components/RadioPlayer";
 import Footer from "@/components/Footer";
-import { Newspaper, Headphones, ShoppingBag, Youtube, ArrowRight, Play, Loader2, Users } from "lucide-react";
+import { Newspaper, Headphones, ShoppingBag, Youtube, ArrowRight, Play, Loader2, Users, X } from "lucide-react";
 import Link from "next/link";
+
+/**
+ * Extrait l'URL d'intégration (embed) YouTube depuis n'importe quel format d'URL
+ */
+function getYoutubeEmbedUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  const cleanUrl = url.trim();
+
+  if (cleanUrl.includes("youtube.com/embed/")) {
+    const match = cleanUrl.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/);
+    return match ? `https://www.youtube.com/embed/${match[1]}` : cleanUrl;
+  }
+
+  const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=|shorts\/|live\/)|youtu\.be\/)([^"&?\/\s]{11})/i;
+  const match = cleanUrl.match(regExp);
+  if (match && match[1]) {
+    return `https://www.youtube.com/embed/${match[1]}`;
+  }
+
+  try {
+    const withProtocol = cleanUrl.startsWith("http://") || cleanUrl.startsWith("https://") ? cleanUrl : `https://${cleanUrl}`;
+    const parsed = new URL(withProtocol);
+    if (parsed.hostname === "youtu.be") {
+      const id = parsed.pathname.slice(1).split("?")[0].split("/")[0];
+      if (id && id.length === 11) return `https://www.youtube.com/embed/${id}`;
+    }
+    const v = parsed.searchParams.get("v");
+    if (v && v.length === 11) return `https://www.youtube.com/embed/${v}`;
+    const pathParts = parsed.pathname.split("/").filter(Boolean);
+    if (pathParts.length >= 2 && (pathParts[0] === "live" || pathParts[0] === "shorts")) {
+      const id = pathParts[1];
+      if (id && id.length === 11) return `https://www.youtube.com/embed/${id}`;
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
 
 export default function Home() {
   const [articles, setArticles] = useState<any[]>([]);
@@ -16,6 +55,7 @@ export default function Home() {
   const [videos, setVideos] = useState<any[]>([]);
   const [team, setTeam] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeVideo, setActiveVideo] = useState<any | null>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -239,44 +279,124 @@ export default function Home() {
               </div>
             ) : (
               <>
-                {/* Featured Video */}
-                {videos[0] && (
-                  <Link href={videos[0].video_url} target="_blank" className="aspect-video bg-white border border-gray-100 rounded-[2.5rem] flex items-center justify-center relative group cursor-pointer overflow-hidden shadow-xl">
-                     <div className="absolute inset-0 bg-gradient-to-t from-saphir-navy/40 to-transparent"></div>
-                     {videos[0].thumbnail && (
-                       <img src={videos[0].thumbnail} alt="" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                     )}
-                     <div className="w-20 h-20 bg-saphir-navy rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:bg-saphir-electric transition-all z-10">
-                       <Play fill="white" className="text-white ml-1" />
-                     </div>
-                     <div className="absolute bottom-10 left-10 z-10">
-                       <h4 className="text-2xl font-bold text-white mb-1 leading-tight">{videos[0].title}</h4>
-                       <p className="text-white/60 text-xs font-bold uppercase tracking-widest">
-                        {new Date(videos[0].created_at).toLocaleDateString()}
-                       </p>
-                     </div>
-                  </Link>
-                )}
-                
+                {/* Featured Video Player */}
+                {(() => {
+                  const currentFeatured = activeVideo || videos[0];
+                  const embedUrl = getYoutubeEmbedUrl(currentFeatured?.video_url);
+                  const isPlaying = Boolean(activeVideo && embedUrl);
+
+                  return (
+                    <div id="saphir-tv-player" className="aspect-video bg-white border border-gray-100 rounded-[2.5rem] relative overflow-hidden shadow-xl">
+                      {isPlaying ? (
+                        <div className="w-full h-full relative">
+                          <iframe
+                            src={`${embedUrl}?autoplay=1&rel=0`}
+                            title={currentFeatured?.title}
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            className="w-full h-full rounded-[2.5rem]"
+                          />
+                          <button
+                            onClick={() => setActiveVideo(null)}
+                            className="absolute top-4 right-4 z-20 bg-black/70 hover:bg-black text-white p-2 rounded-full backdrop-blur-md transition-all flex items-center gap-1 text-xs px-3 shadow-lg"
+                            title="Fermer la vidéo"
+                          >
+                            <X size={14} />
+                            <span>Fermer</span>
+                          </button>
+                        </div>
+                      ) : (
+                        <div
+                          onClick={() => setActiveVideo(currentFeatured)}
+                          className="w-full h-full flex items-center justify-center relative group cursor-pointer"
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-t from-saphir-navy/60 via-saphir-navy/20 to-transparent z-10"></div>
+                          {currentFeatured?.thumbnail ? (
+                            <img
+                              src={currentFeatured.thumbnail}
+                              alt={currentFeatured.title}
+                              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                            />
+                          ) : embedUrl ? (
+                            <img
+                              src={`https://img.youtube.com/vi/${embedUrl.split("/embed/")[1]}/hqdefault.jpg`}
+                              alt={currentFeatured?.title}
+                              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                            />
+                          ) : (
+                            <div className="absolute inset-0 bg-saphir-navy/80 flex items-center justify-center">
+                              <Play size={48} className="text-white/20" />
+                            </div>
+                          )}
+                          <div className="w-20 h-20 bg-saphir-navy/90 border border-white/20 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:bg-saphir-electric transition-all z-20">
+                            <Play fill="white" className="text-white ml-1" size={28} />
+                          </div>
+                          <div className="absolute bottom-8 left-8 right-8 z-20">
+                            <span className="inline-block bg-saphir-electric text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-2">
+                              {currentFeatured?.category || "À la une"}
+                            </span>
+                            <h4 className="text-2xl font-bold text-white mb-1 leading-tight line-clamp-2">
+                              {currentFeatured?.title}
+                            </h4>
+                            <p className="text-white/60 text-xs font-bold uppercase tracking-widest">
+                              {currentFeatured?.created_at ? new Date(currentFeatured.created_at).toLocaleDateString() : ""}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+
                 {/* Secondary Videos */}
-                <div className="grid grid-rows-2 gap-8">
-                   {videos.slice(1, 3).map((video) => (
-                     <Link href={video.video_url} target="_blank" key={video.id} className="flex gap-6 group cursor-pointer bg-white p-4 rounded-3xl border border-gray-100 hover:shadow-lg transition-all">
-                        <div className="w-40 aspect-video bg-gray-50 rounded-2xl flex-shrink-0 flex items-center justify-center overflow-hidden relative">
-                           {video.thumbnail ? (
-                             <img src={video.thumbnail} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                           ) : (
-                             <Play size={20} className="text-saphir-navy/20 group-hover:text-saphir-electric transition-colors" />
-                           )}
+                <div className="grid grid-rows-2 gap-6">
+                  {videos.slice(1, 3).map((video) => {
+                    const embedUrl = getYoutubeEmbedUrl(video.video_url);
+                    const isSelected = activeVideo?.id === video.id;
+
+                    return (
+                      <div
+                        key={video.id}
+                        onClick={() => {
+                          setActiveVideo(video);
+                          document.getElementById("saphir-tv-player")?.scrollIntoView({ behavior: "smooth", block: "center" });
+                        }}
+                        className={`flex gap-6 group cursor-pointer bg-white p-4 rounded-3xl border transition-all ${
+                          isSelected ? "border-saphir-electric shadow-md ring-2 ring-saphir-electric/20" : "border-gray-100 hover:shadow-lg"
+                        }`}
+                      >
+                        <div className="w-44 aspect-video bg-gray-50 rounded-2xl flex-shrink-0 flex items-center justify-center overflow-hidden relative">
+                          {video.thumbnail ? (
+                            <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                          ) : embedUrl ? (
+                            <img
+                              src={`https://img.youtube.com/vi/${embedUrl.split("/embed/")[1]}/hqdefault.jpg`}
+                              alt={video.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                            />
+                          ) : (
+                            <Play size={20} className="text-saphir-navy/20 group-hover:text-saphir-electric transition-colors" />
+                          )}
+                          <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+                            <div className="w-10 h-10 bg-white/90 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                              <Play fill="#0f172a" size={14} className="text-saphir-navy ml-0.5" />
+                            </div>
+                          </div>
                         </div>
                         <div className="flex flex-col justify-center">
-                           <h5 className="font-bold text-saphir-navy mb-2 group-hover:text-saphir-electric transition-colors leading-snug line-clamp-2">
-                             {video.title}
-                           </h5>
-                           <p className="text-[10px] text-saphir-navy/40 uppercase font-bold tracking-widest">{video.category || 'Replay'}</p>
+                          <span className="text-[10px] text-saphir-electric uppercase font-bold tracking-widest mb-1">
+                            {video.category || "Replay"}
+                          </span>
+                          <h5 className="font-bold text-saphir-navy mb-2 group-hover:text-saphir-electric transition-colors leading-snug line-clamp-2">
+                            {video.title}
+                          </h5>
+                          <p className="text-[10px] text-saphir-navy/40 uppercase font-bold tracking-widest">
+                            {new Date(video.created_at).toLocaleDateString()}
+                          </p>
                         </div>
-                     </Link>
-                   ))}
+                      </div>
+                    );
+                  })}
                 </div>
               </>
             )}

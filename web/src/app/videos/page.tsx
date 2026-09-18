@@ -4,40 +4,46 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Youtube, Play, Loader2 } from "lucide-react";
+import { Youtube, Play, Loader2, X } from "lucide-react";
 
 /**
  * Extrait l'identifiant d'une vidéo YouTube depuis une URL quelconque.
- * Supporte les formats : youtube.com/watch?v=, youtu.be/, youtube.com/shorts/, youtube.com/embed/
+ * Supporte les formats : watch?v=, youtu.be/, shorts/, live/, embed/
  */
-function getYoutubeEmbedUrl(url: string): string | null {
+function getYoutubeEmbedUrl(url: string | null | undefined): string | null {
   if (!url) return null;
+  const cleanUrl = url.trim();
+
+  if (cleanUrl.includes("youtube.com/embed/")) {
+    const match = cleanUrl.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/);
+    return match ? `https://www.youtube.com/embed/${match[1]}` : cleanUrl;
+  }
+
+  const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=|shorts\/|live\/)|youtu\.be\/)([^"&?\/\s]{11})/i;
+  const match = cleanUrl.match(regExp);
+  if (match && match[1]) {
+    return `https://www.youtube.com/embed/${match[1]}`;
+  }
+
   try {
-    // Déjà un lien embed
-    if (url.includes("youtube.com/embed/")) return url;
-
-    const parsed = new URL(url);
-
-    // youtu.be/VIDEO_ID
+    const withProtocol = cleanUrl.startsWith("http://") || cleanUrl.startsWith("https://") ? cleanUrl : `https://${cleanUrl}`;
+    const parsed = new URL(withProtocol);
     if (parsed.hostname === "youtu.be") {
-      const id = parsed.pathname.slice(1).split("?")[0];
-      return id ? `https://www.youtube.com/embed/${id}` : null;
+      const id = parsed.pathname.slice(1).split("?")[0].split("/")[0];
+      if (id && id.length === 11) return `https://www.youtube.com/embed/${id}`;
     }
-
-    // youtube.com/shorts/VIDEO_ID
-    if (parsed.pathname.startsWith("/shorts/")) {
-      const id = parsed.pathname.replace("/shorts/", "").split("?")[0];
-      return id ? `https://www.youtube.com/embed/${id}` : null;
-    }
-
-    // youtube.com/watch?v=VIDEO_ID
     const v = parsed.searchParams.get("v");
-    if (v) return `https://www.youtube.com/embed/${v}`;
-
-    return null;
+    if (v && v.length === 11) return `https://www.youtube.com/embed/${v}`;
+    const pathParts = parsed.pathname.split("/").filter(Boolean);
+    if (pathParts.length >= 2 && (pathParts[0] === "live" || pathParts[0] === "shorts")) {
+      const id = pathParts[1];
+      if (id && id.length === 11) return `https://www.youtube.com/embed/${id}`;
+    }
   } catch {
     return null;
   }
+
+  return null;
 }
 
 export default function VideosPage() {
@@ -104,13 +110,23 @@ export default function VideosPage() {
                   <div className="aspect-video bg-white rounded-[2rem] mb-6 border border-gray-100 relative overflow-hidden flex items-center justify-center shadow-lg group-hover:shadow-2xl transition-all duration-300">
                     {isActive && embedUrl ? (
                       /* Lecture directe de la vidéo dans la page */
-                      <iframe
-                        src={`${embedUrl}?autoplay=1&rel=0`}
-                        title={video.title}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        className="w-full h-full rounded-[2rem]"
-                      />
+                      <div className="w-full h-full relative">
+                        <iframe
+                          src={`${embedUrl}?autoplay=1&rel=0`}
+                          title={video.title}
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          className="w-full h-full rounded-[2rem]"
+                        />
+                        <button
+                          onClick={() => setActiveVideo(null)}
+                          className="absolute top-3 right-3 z-20 bg-black/70 hover:bg-black text-white p-1.5 rounded-full backdrop-blur-md transition-all flex items-center gap-1 text-[11px] px-2.5 shadow-lg"
+                          title="Fermer la vidéo"
+                        >
+                          <X size={12} />
+                          <span>Fermer</span>
+                        </button>
+                      </div>
                     ) : (
                       /* Miniature cliquable avec bouton play */
                       <button
